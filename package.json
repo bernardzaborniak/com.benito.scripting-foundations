@@ -1,0 +1,16 @@
+{
+  "name": "com.benitos.scripting-foundations",
+  "version": "1.0.0",
+  "displayName": "Benitos Scripting Foundations",
+  "unity": "2019.1",
+  "unityRelease": "0b5",
+  "keywords": [
+    "assets",
+    "fundamental",
+    "3d",
+    "editor"
+  ],
+  "author": {
+    "name": "Benito"
+  }
+}
