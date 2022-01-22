@@ -21,5 +21,52 @@ namespace Benitos.ScriptingFoundations.Utilities
 
             return Quaternion.LookRotation(relativeTransform.TransformDirection(new Vector3(insideUnitCircle.x, insideUnitCircle.y, 1f)));
         }
+
+        public static Quaternion RotateAlongAxis(this Quaternion quaternion, Vector3 axis, float degrees)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <summary>
+        /// Rotation Speed is in degrees per second.
+        /// </summary>
+        public static Quaternion RotateAlongAxis(this Quaternion quaternion, Vector3 axis, float rotationSpeed, float deltaTime)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <summary>
+        /// Rotate towards target point, but only on specified axis, usefull for a tank turret for example, which rotates the turret along the tank y axis and the brrel along the turrets x axis.
+        /// </summary>
+        public static Quaternion RotateTowardsAlongAxis(this Quaternion quaternion, Quaternion targetRotation, float degrees)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <summary>
+        /// Rotate towards target point, but only on specified axis, usefull for a tank turret for example, which rotates the turret along the tank y axis and the brrel along the turrets x axis.
+        /// Rotation Speed is in degrees per second. Acceleration is in m/s2.
+        /// </summary>
+        public static Quaternion RotateTowardsAlongAxis(this Quaternion quaternion, Quaternion targetRotation, float rotationSpeed, float deltaTime)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <summary>
+        /// RotationSpeed & CurrentAngularVelocity are in degrees per second. Acceleration is in m/s2.
+        /// </summary>
+        public static Quaternion RotateTowardsWithAcceleration(this Quaternion quaternion, Quaternion targetRotation, float maxRotationSpeed, float maxAcceleration, ref Vector3 currentAngularVelocity, float deltaTime)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <summary>
+        /// Rotate towards target point, but only on specified axis, usefull for a tank turret for example, which rotates the turret along the tank y axis and the brrel along the turrets x axis.
+        /// RotationSpeed & CurrentAngularVelocity are in degrees per second. Acceleration is in m/s2.
+        /// </summary>
+        public static Quaternion RotateTowardsAlongAxisWithAcceleration(this Quaternion quaternion, Quaternion targetRotation, float maxRotationSpeed, float maxAcceleration, ref Vector3 currentAngularVelocity, float deltaTime)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
