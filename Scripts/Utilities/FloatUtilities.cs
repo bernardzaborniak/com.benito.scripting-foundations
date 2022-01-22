@@ -55,12 +55,16 @@ namespace Benitos.ScriptingFoundations.Utilities
 
         public static float BlendWithAccelerationAndDeceleration(this float currentValue, float targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref float currentVelocity, float deltaTime)
         {
-            float errorMargin = 0.01f;
-            Debug.Log("-------------------------");
-            float differenceToTarget = targetValue - currentValue;
-            Debug.Log("differenceToTarget: " + differenceToTarget);
+            float positionErrorMargin = 0.01f;
+            float velocityErrorMargin = 0.1f;
+            //Debug.Log("-------------------------");
+            //Debug.Log("targetValue: " + targetValue);
+            //Debug.Log("currentValue: " + currentValue);
 
-            if (Mathf.Abs(differenceToTarget) < errorMargin)
+            float differenceToTarget = targetValue - currentValue;
+            //Debug.Log("differenceToTarget: " + differenceToTarget);
+
+            if (Mathf.Abs(differenceToTarget) < positionErrorMargin && currentVelocity< velocityErrorMargin)
             {
                 currentVelocity = 0f;
                 differenceToTarget = 0f;
@@ -69,20 +73,36 @@ namespace Benitos.ScriptingFoundations.Utilities
             }
 
             bool brake = false;
-            float timeToReachV0 = (0 -currentVelocity) / maxBlendSpeedAcceleration;
-            Debug.Log("timeToReachV0: " + timeToReachV0);
 
-            float valueAfterBrakingNow = currentValue + currentVelocity * timeToReachV0 + 0.5f * maxBlendSpeedAcceleration * timeToReachV0 * timeToReachV0;
-            Debug.Log("valueAfterBrakingNow: " + valueAfterBrakingNow);
-            Debug.Log("currentValue: " + currentValue);
-            Debug.Log("valueAfterBrakingNow - currentValue: " + (valueAfterBrakingNow - currentValue));
+            // Only check for brake if our velocity goes in the direction of the target
 
-            if (Mathf.Abs(valueAfterBrakingNow - currentValue) >= Mathf.Abs(differenceToTarget))
-                brake = true;
+
+            //if(true)
+            if (differenceToTarget > 0 && currentVelocity > 0 || differenceToTarget < 0 && currentVelocity < 0)
+            {
+                float timeToReachV0 = Mathf.Abs(currentVelocity) / maxBlendSpeedAcceleration; //t=(V final - V initial) / acceleration
+                //Debug.Log("timeToReachV0: " + timeToReachV0);
+
+                float a = maxBlendSpeedAcceleration;
+                if (currentVelocity > 0)
+                    a = -maxBlendSpeedAcceleration;
+
+                //float valueAfterBrakingNow = currentValue + currentVelocity * timeToReachV0 + 0.5f * maxBlendSpeedAcceleration * timeToReachV0 * timeToReachV0;
+                float valueAfterBrakingNow = currentValue + currentVelocity * timeToReachV0 + 0.5f * a * timeToReachV0 * timeToReachV0;
+                //Debug.Log("valueAfterBrakingNow: " + valueAfterBrakingNow);
+                //Debug.Log("currentValue: " + currentValue);
+                //Debug.Log("valueAfterBrakingNow - currentValue: " + (valueAfterBrakingNow - currentValue));
+
+                if (Mathf.Abs(valueAfterBrakingNow - currentValue) >= Mathf.Abs(differenceToTarget))
+                    brake = true;
+
+            }
+
+
 
             if (brake)
             {
-                Debug.Log("Brake: " + brake);
+                //Debug.Log("Brake: " + brake);
 
                 //float velocityDelta = 0 - currentVelocity;
                 //float distanceDelta = differenceToTarget;
@@ -95,7 +115,7 @@ namespace Benitos.ScriptingFoundations.Utilities
             else
             {
                 currentVelocity += Mathf.Clamp(differenceToTarget, -maxBlendSpeedAcceleration, maxBlendSpeedAcceleration) * deltaTime;
-                //currentVelocity = Mathf.Clamp(currentVelocity, -differenceToTarget, differenceToTarget);
+                currentVelocity = Mathf.Clamp(currentVelocity, -maxBlendSpeed, maxBlendSpeed);
 
             }
 
