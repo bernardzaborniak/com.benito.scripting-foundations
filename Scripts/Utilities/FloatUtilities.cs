@@ -65,8 +65,7 @@ namespace Benitos.ScriptingFoundations.Utilities
             Debug.Log("differenceToTarget: " + differenceToTarget);
 
 
-            // Should snap to Target
-            if (Mathf.Abs(differenceToTarget) < positionErrorMargin && (!overshoot || overshoot && Mathf.Abs(currentVelocity) < overshootVelocityErrorMargin))
+            if (ShouldSnapToTarget(currentVelocity))
             {
                 currentVelocity = 0f;
                 differenceToTarget = 0f;
@@ -76,14 +75,9 @@ namespace Benitos.ScriptingFoundations.Utilities
 
             //bool brake = false;
 
-            // Only check for brake if our velocity goes in the direction of the target.
-            if (differenceToTarget > 0 && currentVelocity > 0 || differenceToTarget < 0 && currentVelocity < 0)
+            if (GoingIntoDirectionOfTarget(currentVelocity))
             {
-                float timeToReachV0 = Mathf.Abs(currentVelocity) / maxBlendSpeedAcceleration;
-                float brakeDeceleration = currentVelocity > 0 ? -maxBlendSpeedAcceleration : maxBlendSpeedAcceleration;
-                float valueAfterBrakingNow = currentValue + currentVelocity * timeToReachV0 + 0.5f * brakeDeceleration * timeToReachV0 * timeToReachV0;
-                if (Mathf.Abs(valueAfterBrakingNow - currentValue) >= Mathf.Abs(differenceToTarget))
-                    brake = true;
+                brake = ShouldBrake(currentVelocity);
             }
 
             if (brake)
@@ -102,13 +96,41 @@ namespace Benitos.ScriptingFoundations.Utilities
 
             currentVelocity = Mathf.Clamp(currentVelocity, -maxBlendSpeed, maxBlendSpeed);
 
-            //clamp to never overshoot
-            if (!overshoot || overshoot && Mathf.Abs(currentVelocity) < overshootVelocityErrorMargin)
+            if (ShouldClampResultingVelocityToPreventOvershoot(currentVelocity));
                 currentVelocity = Mathf.Clamp(currentVelocity * deltaTime, -Mathf.Abs(differenceToTarget), Mathf.Abs(differenceToTarget)) / deltaTime;
+
             Debug.Log("vel " + currentVelocity);
             currentValue += currentVelocity * deltaTime;
 
             return currentValue;
+
+
+            bool ShouldSnapToTarget(float currentVelocity)
+            {
+                return Mathf.Abs(differenceToTarget) < positionErrorMargin && (!overshoot || overshoot && Mathf.Abs(currentVelocity) < overshootVelocityErrorMargin);
+            }
+
+            bool GoingIntoDirectionOfTarget(float currentVelocity)
+            {
+                return differenceToTarget > 0 && currentVelocity > 0 || differenceToTarget < 0 && currentVelocity < 0;
+            }
+
+            bool ShouldBrake(float currentVelocity)
+            {
+                float timeToReachV0 = Mathf.Abs(currentVelocity) / maxBlendSpeedAcceleration;
+                float brakeDeceleration = currentVelocity > 0 ? -maxBlendSpeedAcceleration : maxBlendSpeedAcceleration;
+                float valueAfterBrakingNow = currentValue + currentVelocity * timeToReachV0 + 0.5f * brakeDeceleration * timeToReachV0 * timeToReachV0;
+                
+                if (Mathf.Abs(valueAfterBrakingNow - currentValue) >= Mathf.Abs(differenceToTarget))
+                    return true;
+                
+                return false;
+            }
+
+            bool ShouldClampResultingVelocityToPreventOvershoot(float currentVelocity)
+            {
+                return !overshoot || overshoot && Mathf.Abs(currentVelocity) < overshootVelocityErrorMargin;
+            }
         }
 
         /*public static void BlendWithAcceleration(ref float currentValue, float targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref float currentVelocity, float deltaTime)
