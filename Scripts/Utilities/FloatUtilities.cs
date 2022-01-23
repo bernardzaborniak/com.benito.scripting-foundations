@@ -48,7 +48,9 @@ namespace Benitos.ScriptingFoundations.Utilities
         {
             float differenceToTarget = targetValue - currentValue;
             currentVelocity += Mathf.Clamp(differenceToTarget, -maxBlendSpeedAcceleration, maxBlendSpeedAcceleration) * deltaTime;
-            currentValue += currentVelocity * Time.deltaTime;
+            // Clamp to prevent overshoot.
+            currentVelocity = Mathf.Clamp(currentVelocity * deltaTime, -Mathf.Abs(differenceToTarget), Mathf.Abs(differenceToTarget)) / deltaTime;
+            currentValue += currentVelocity * deltaTime;
 
             return currentValue;
         }
