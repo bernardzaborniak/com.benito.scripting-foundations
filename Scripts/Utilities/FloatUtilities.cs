@@ -55,16 +55,18 @@ namespace Benitos.ScriptingFoundations.Utilities
 
         public static float BlendWithAccelerationAndDeceleration(this float currentValue, float targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref float currentVelocity, float deltaTime, ref bool brake, bool overshoot)
         {
+         
+
+            float limitToFakeDeceleration = maxBlendSpeedAcceleration * 1.1f; // Only used if overshoot is true should be a bit higher than the normal acceleration to allow full deceleration at high timesteps
+            float overshootVelocityErrorMargin = 0.1f;
             float positionErrorMargin = 0.01f;
-            float velocityErrorMargin = 0.1f;
-            Debug.Log("-------------------------");
-            Debug.Log("targetValue: " + targetValue);
-            Debug.Log("currentValue: " + currentValue);
 
             float differenceToTarget = targetValue - currentValue;
             Debug.Log("differenceToTarget: " + differenceToTarget);
 
-            if (Mathf.Abs(differenceToTarget) < positionErrorMargin && currentVelocity < velocityErrorMargin)
+
+            // Should snap to Target
+            if (Mathf.Abs(differenceToTarget) < positionErrorMargin && (!overshoot || overshoot && Mathf.Abs(currentVelocity) < overshootVelocityErrorMargin))
             {
                 currentVelocity = 0f;
                 differenceToTarget = 0f;
@@ -74,69 +76,36 @@ namespace Benitos.ScriptingFoundations.Utilities
 
             //bool brake = false;
 
-            // Only check for brake if our velocity goes in the direction of the target
-
+            // Only check for brake if our velocity goes in the direction of the target.
             if (differenceToTarget > 0 && currentVelocity > 0 || differenceToTarget < 0 && currentVelocity < 0)
             {
-                float timeToReachV0 = Mathf.Abs(currentVelocity) / maxBlendSpeedAcceleration; //t=(V final - V initial) / acceleration
-                Debug.Log("timeToReachV0: " + timeToReachV0);
-
-                float a = maxBlendSpeedAcceleration;
-                if (currentVelocity > 0)
-                    a = -maxBlendSpeedAcceleration;
-
-                float valueAfterBrakingNow = currentValue + currentVelocity * timeToReachV0 + 0.5f * a * timeToReachV0 * timeToReachV0;
-                // alternative: valueAfterBrakingNow = currentValue + 0.5f * initial_speed*timeToStop
-                Debug.Log("valueAfterBrakingNow: " + valueAfterBrakingNow);
-                Debug.Log("currentValue: " + currentValue);
-                Debug.Log("valueAfterBrakingNow - currentValue: " + (valueAfterBrakingNow - currentValue));
-
+                float timeToReachV0 = Mathf.Abs(currentVelocity) / maxBlendSpeedAcceleration;
+                float brakeDeceleration = currentVelocity > 0 ? -maxBlendSpeedAcceleration : maxBlendSpeedAcceleration;
+                float valueAfterBrakingNow = currentValue + currentVelocity * timeToReachV0 + 0.5f * brakeDeceleration * timeToReachV0 * timeToReachV0;
                 if (Mathf.Abs(valueAfterBrakingNow - currentValue) >= Mathf.Abs(differenceToTarget))
                     brake = true;
             }
 
-
             if (brake)
             {
-                if (!overshoot)
-                {
-                    //unrealistic high deceleration to simplify things
-                    Debug.Log("Brake: " + brake);
-                    float accelerationToBrakeCorrectly = -(currentVelocity * currentVelocity) / (2 * differenceToTarget);
-                    currentVelocity += accelerationToBrakeCorrectly * deltaTime;
-                }
-                else
-                {
-                    //realistic decceleration
-                    if(differenceToTarget<0)
-                        currentVelocity += maxBlendSpeedAcceleration * deltaTime;
-                    else if (differenceToTarget > 0)
-                        currentVelocity -= maxBlendSpeedAcceleration * deltaTime;
+                Debug.Log("Brake: " + brake + "---------------------------------");
 
-
-                    //currentVelocity = Mathf.Clamp(currentVelocity, -maxBlendSpeed, maxBlendSpeed);
-                }
+                float accelerationToBrakeCorrectly = -(currentVelocity * currentVelocity) / (2 * differenceToTarget);
+                if (overshoot) accelerationToBrakeCorrectly = Mathf.Clamp(accelerationToBrakeCorrectly, -limitToFakeDeceleration, limitToFakeDeceleration);
+                currentVelocity += accelerationToBrakeCorrectly * deltaTime;
             }
             else
             {
-                float acceleration = 0;
-
-                if (differenceToTarget < 0)
-                {
-                    acceleration = -maxBlendSpeedAcceleration;
-                }
-                else
-                {
-                    acceleration = maxBlendSpeedAcceleration;
-                }
-
-                   // Debug.Log("maxBlendSpeedAcceleration: " + maxBlendSpeedAcceleration);
-               // Debug.Log("difference to speed: " + Mathf.Clamp(differenceToTarget, -maxBlendSpeedAcceleration, maxBlendSpeedAcceleration));
+                float acceleration = differenceToTarget < 0? acceleration = -maxBlendSpeedAcceleration : acceleration = maxBlendSpeedAcceleration;
                 currentVelocity += acceleration * deltaTime;
-                //currentVelocity = Mathf.Clamp(currentVelocity, -maxBlendSpeed, maxBlendSpeed);
             }
 
             currentVelocity = Mathf.Clamp(currentVelocity, -maxBlendSpeed, maxBlendSpeed);
+
+            //clamp to never overshoot
+            if (!overshoot || overshoot && Mathf.Abs(currentVelocity) < overshootVelocityErrorMargin)
+                currentVelocity = Mathf.Clamp(currentVelocity * deltaTime, -Mathf.Abs(differenceToTarget), Mathf.Abs(differenceToTarget)) / deltaTime;
+            Debug.Log("vel " + currentVelocity);
             currentValue += currentVelocity * deltaTime;
 
             return currentValue;
