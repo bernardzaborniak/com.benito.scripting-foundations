@@ -53,17 +53,17 @@ namespace Benitos.ScriptingFoundations.Utilities
             return currentValue;
         }
 
-        public static float BlendWithAccelerationAndDeceleration(this float currentValue, float targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref float currentVelocity, float deltaTime, ref bool brake, bool overshoot)
+        public static float BlendWithAccelerationAndDeceleration(this float currentValue, float targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref float currentVelocity, float deltaTime, bool overshoot)
         {
-         
-
-            float limitToFakeDeceleration = maxBlendSpeedAcceleration * 1.1f; // Only used if overshoot is true should be a bit higher than the normal acceleration to allow full deceleration at high timesteps
-            float overshootVelocityErrorMargin = 0.1f;
-            float positionErrorMargin = 0.01f;
+            // Only used if overshoot is true should be a bit higher than the normal acceleration to allow full deceleration at high timesteps.
+            float limitToFakeDeceleration = maxBlendSpeedAcceleration * 1.1f; 
+            // Adjust how this margins are calculated if needed, this setup seems to be good for now.
+            float overshootVelocityErrorMargin = 0.05f * maxBlendSpeedAcceleration; 
+            float positionErrorMargin = 0.0005f * maxBlendSpeedAcceleration;
+            bool brake = false;
 
             float differenceToTarget = targetValue - currentValue;
             Debug.Log("differenceToTarget: " + differenceToTarget);
-
 
             if (ShouldSnapToTarget(currentVelocity))
             {
@@ -72,8 +72,6 @@ namespace Benitos.ScriptingFoundations.Utilities
                 currentValue = targetValue;
                 return currentValue;
             }
-
-            //bool brake = false;
 
             if (GoingIntoDirectionOfTarget(currentVelocity))
             {
@@ -96,7 +94,7 @@ namespace Benitos.ScriptingFoundations.Utilities
 
             currentVelocity = Mathf.Clamp(currentVelocity, -maxBlendSpeed, maxBlendSpeed);
 
-            if (ShouldClampResultingVelocityToPreventOvershoot(currentVelocity));
+            if (ShouldClampResultingVelocityToPreventOvershoot(currentVelocity))
                 currentVelocity = Mathf.Clamp(currentVelocity * deltaTime, -Mathf.Abs(differenceToTarget), Mathf.Abs(differenceToTarget)) / deltaTime;
 
             Debug.Log("vel " + currentVelocity);
@@ -104,6 +102,7 @@ namespace Benitos.ScriptingFoundations.Utilities
 
             return currentValue;
 
+            #region Local Functions
 
             bool ShouldSnapToTarget(float currentVelocity)
             {
@@ -131,7 +130,10 @@ namespace Benitos.ScriptingFoundations.Utilities
             {
                 return !overshoot || overshoot && Mathf.Abs(currentVelocity) < overshootVelocityErrorMargin;
             }
+
+            #endregion
         }
+
 
         /*public static void BlendWithAcceleration(ref float currentValue, float targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref float currentVelocity, float deltaTime)
         {
