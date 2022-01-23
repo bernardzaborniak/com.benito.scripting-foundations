@@ -53,18 +53,18 @@ namespace Benitos.ScriptingFoundations.Utilities
             return currentValue;
         }
 
-        public static float BlendWithAccelerationAndDeceleration(this float currentValue, float targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref float currentVelocity, float deltaTime)
+        public static float BlendWithAccelerationAndDeceleration(this float currentValue, float targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref float currentVelocity, float deltaTime, ref bool brake, bool overshoot)
         {
             float positionErrorMargin = 0.01f;
             float velocityErrorMargin = 0.1f;
-            //Debug.Log("-------------------------");
-            //Debug.Log("targetValue: " + targetValue);
-            //Debug.Log("currentValue: " + currentValue);
+            Debug.Log("-------------------------");
+            Debug.Log("targetValue: " + targetValue);
+            Debug.Log("currentValue: " + currentValue);
 
             float differenceToTarget = targetValue - currentValue;
-            //Debug.Log("differenceToTarget: " + differenceToTarget);
+            Debug.Log("differenceToTarget: " + differenceToTarget);
 
-            if (Mathf.Abs(differenceToTarget) < positionErrorMargin && currentVelocity< velocityErrorMargin)
+            if (Mathf.Abs(differenceToTarget) < positionErrorMargin && currentVelocity < velocityErrorMargin)
             {
                 currentVelocity = 0f;
                 differenceToTarget = 0f;
@@ -72,57 +72,72 @@ namespace Benitos.ScriptingFoundations.Utilities
                 return currentValue;
             }
 
-            bool brake = false;
+            //bool brake = false;
 
             // Only check for brake if our velocity goes in the direction of the target
 
-
-            //if(true)
             if (differenceToTarget > 0 && currentVelocity > 0 || differenceToTarget < 0 && currentVelocity < 0)
             {
                 float timeToReachV0 = Mathf.Abs(currentVelocity) / maxBlendSpeedAcceleration; //t=(V final - V initial) / acceleration
-                //Debug.Log("timeToReachV0: " + timeToReachV0);
+                Debug.Log("timeToReachV0: " + timeToReachV0);
 
                 float a = maxBlendSpeedAcceleration;
                 if (currentVelocity > 0)
                     a = -maxBlendSpeedAcceleration;
 
-                //float valueAfterBrakingNow = currentValue + currentVelocity * timeToReachV0 + 0.5f * maxBlendSpeedAcceleration * timeToReachV0 * timeToReachV0;
                 float valueAfterBrakingNow = currentValue + currentVelocity * timeToReachV0 + 0.5f * a * timeToReachV0 * timeToReachV0;
-                //Debug.Log("valueAfterBrakingNow: " + valueAfterBrakingNow);
-                //Debug.Log("currentValue: " + currentValue);
-                //Debug.Log("valueAfterBrakingNow - currentValue: " + (valueAfterBrakingNow - currentValue));
+                // alternative: valueAfterBrakingNow = currentValue + 0.5f * initial_speed*timeToStop
+                Debug.Log("valueAfterBrakingNow: " + valueAfterBrakingNow);
+                Debug.Log("currentValue: " + currentValue);
+                Debug.Log("valueAfterBrakingNow - currentValue: " + (valueAfterBrakingNow - currentValue));
 
                 if (Mathf.Abs(valueAfterBrakingNow - currentValue) >= Mathf.Abs(differenceToTarget))
                     brake = true;
-
             }
-
 
 
             if (brake)
             {
-                //Debug.Log("Brake: " + brake);
+                if (!overshoot)
+                {
+                    //unrealistic high deceleration to simplify things
+                    Debug.Log("Brake: " + brake);
+                    float accelerationToBrakeCorrectly = -(currentVelocity * currentVelocity) / (2 * differenceToTarget);
+                    currentVelocity += accelerationToBrakeCorrectly * deltaTime;
+                }
+                else
+                {
+                    //realistic decceleration
+                    if(differenceToTarget<0)
+                        currentVelocity += maxBlendSpeedAcceleration * deltaTime;
+                    else if (differenceToTarget > 0)
+                        currentVelocity -= maxBlendSpeedAcceleration * deltaTime;
 
-                //float velocityDelta = 0 - currentVelocity;
-                //float distanceDelta = differenceToTarget;
-                //float accelerationToBrakeCorrectly = -(currentVelocity * currentVelocity) / (2 *Mathf.Abs(differenceToTarget));
-                float accelerationToBrakeCorrectly = -(currentVelocity * currentVelocity) / (2 *differenceToTarget);
-                currentVelocity += accelerationToBrakeCorrectly * deltaTime;
-                //deltaV / deltaDistance
-                //currentValue = +velocityDelta / distanceDelta * velocityDelta * deltaTime;
+
+                    //currentVelocity = Mathf.Clamp(currentVelocity, -maxBlendSpeed, maxBlendSpeed);
+                }
             }
             else
             {
-                currentVelocity += Mathf.Clamp(differenceToTarget, -maxBlendSpeedAcceleration, maxBlendSpeedAcceleration) * deltaTime;
-                currentVelocity = Mathf.Clamp(currentVelocity, -maxBlendSpeed, maxBlendSpeed);
+                float acceleration = 0;
 
+                if (differenceToTarget < 0)
+                {
+                    acceleration = -maxBlendSpeedAcceleration;
+                }
+                else
+                {
+                    acceleration = maxBlendSpeedAcceleration;
+                }
+
+                   // Debug.Log("maxBlendSpeedAcceleration: " + maxBlendSpeedAcceleration);
+               // Debug.Log("difference to speed: " + Mathf.Clamp(differenceToTarget, -maxBlendSpeedAcceleration, maxBlendSpeedAcceleration));
+                currentVelocity += acceleration * deltaTime;
+                //currentVelocity = Mathf.Clamp(currentVelocity, -maxBlendSpeed, maxBlendSpeed);
             }
 
+            currentVelocity = Mathf.Clamp(currentVelocity, -maxBlendSpeed, maxBlendSpeed);
             currentValue += currentVelocity * deltaTime;
-
-
-
 
             return currentValue;
         }
