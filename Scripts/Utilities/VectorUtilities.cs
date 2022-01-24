@@ -25,12 +25,111 @@ namespace Benitos.ScriptingFoundations.Utilities
 
         public static Vector3 BlendLinearly(this Vector3 currentValue, Vector3 targetValue, float blendSpeed, float deltaTime)
         {
-            throw new System.NotImplementedException();
+            Vector3 vectorTowardsTarget = targetValue - currentValue;
+            return currentValue += Vector3.ClampMagnitude(
+                vectorTowardsTarget.normalized * blendSpeed * deltaTime,
+                vectorTowardsTarget.magnitude
+                );
         }
 
-        public static Vector3 BlendLinearlyWithAcceleration(this Vector3 currentValue, Vector3 targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref float currentVelocity, float deltaTime)
+        public static Vector3 BlendLinearlyWithAccel(this Vector3 currentValue, Vector3 targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref Vector3 currentVelocity, float deltaTime)
         {
-            throw new System.NotImplementedException();
+            Vector3 vectorTowardsTarget = targetValue - currentValue;
+
+            Vector3 acceleration = vectorTowardsTarget.normalized * maxBlendSpeedAcceleration;
+            currentVelocity += acceleration * deltaTime;
+            currentVelocity = Vector3.ClampMagnitude(currentVelocity, maxBlendSpeed);
+
+            // Clamp to prevent overshoot.
+            currentVelocity = Vector3.ClampMagnitude(currentVelocity * deltaTime, vectorTowardsTarget.magnitude) / deltaTime;
+            currentValue += currentVelocity * deltaTime;
+
+            return currentValue;
+        }
+
+        public static Vector3 BlendLinearlyWithAccelAndDecel(this Vector3 currentValue, Vector3 targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref Vector3 currentVelocity, bool overshoot, float deltaTime)
+        {
+            // Only used if overshoot is true. Should be a bit higher than the normal acceleration to allow full deceleration at high timesteps.
+            float limitToFakeDeceleration = maxBlendSpeedAcceleration * 1.1f;
+            // Adjust how this margins are calculated if needed, this setup seems to be good for now.
+            float overshootVelocityErrorMargin = 0.05f * maxBlendSpeedAcceleration;
+            float positionErrorMargin = 0.0005f * maxBlendSpeedAcceleration;
+            bool brake = false;
+
+            Vector3 vectorTowardsTarget = targetValue - currentValue;
+            float distanceTowardsTarget = vectorTowardsTarget.magnitude;
+            Debug.Log("vectorTowardsTarget: " + vectorTowardsTarget);
+
+            float currentVelocityMangitude = currentVelocity.magnitude;
+
+            if (ShouldSnapToTarget())
+            {
+                currentVelocity = Vector3.zero;
+                vectorTowardsTarget = Vector3.zero;
+                currentValue = targetValue;
+                return currentValue;
+            }
+
+            if (GoingIntoDirectionOfTarget(currentVelocity))
+            {
+                brake = ShouldBrake(currentVelocity);
+            }
+
+            if (brake)
+            {
+                Debug.Log("Brake: " + brake + "---------------------------------");
+
+                float accelerationToBrakeCorrectly = -(currentVelocity * currentVelocity) / (2 * differenceTowardsTarget);
+                if (overshoot) accelerationToBrakeCorrectly = Mathf.Clamp(accelerationToBrakeCorrectly, -limitToFakeDeceleration, limitToFakeDeceleration);
+                currentVelocity += accelerationToBrakeCorrectly * deltaTime;
+            }
+            else
+            {
+                float acceleration = differenceTowardsTarget < 0 ? acceleration = -maxBlendSpeedAcceleration : acceleration = maxBlendSpeedAcceleration;
+                currentVelocity += acceleration * deltaTime;
+            }
+
+            currentVelocity = Mathf.Clamp(currentVelocity, -maxBlendSpeed, maxBlendSpeed);
+
+            if (ShouldClampResultingVelocityToPreventOvershoot(currentVelocity))
+                currentVelocity = Mathf.Clamp(currentVelocity * deltaTime, -Mathf.Abs(differenceTowardsTarget), Mathf.Abs(differenceTowardsTarget)) / deltaTime;
+
+            Debug.Log("vel " + currentVelocity);
+            currentValue += currentVelocity * deltaTime;
+
+            return currentValue;
+
+            #region Local Functions
+
+            bool ShouldSnapToTarget()
+            {
+                return distanceTowardsTarget < positionErrorMargin && (!overshoot || overshoot && currentVelocityMangitude < overshootVelocityErrorMargin);
+            }
+
+            bool GoingIntoDirectionOfTarget(Vector3 currentVelocity)
+            {
+                // that is difficult - just check the angle?
+                return Vector3.Angle(currentVelocity,vectorTowardsTarget)<90;
+            }
+
+            bool ShouldBrake(Vector3 currentVelocity)
+            {
+                float timeToReachV0 = Mathf.Abs(currentVelocity) / maxBlendSpeedAcceleration;
+                float brakeDeceleration = currentVelocity > 0 ? -maxBlendSpeedAcceleration : maxBlendSpeedAcceleration;
+                float valueAfterBrakingNow = currentValue + currentVelocity * timeToReachV0 + 0.5f * brakeDeceleration * timeToReachV0 * timeToReachV0;
+
+                if (Mathf.Abs(valueAfterBrakingNow - currentValue) >= Mathf.Abs(differenceTowardsTarget))
+                    return true;
+
+                return false;
+            }
+
+            bool ShouldClampResultingVelocityToPreventOvershoot(float currentVelocity)
+            {
+                return !overshoot || overshoot && Mathf.Abs(currentVelocity) < overshootVelocityErrorMargin;
+            }
+
+            #endregion
         }
 
         public static Vector3 RotateAlongAxis(this Vector3 vectorToRotate, Vector3 axis, float degrees)
