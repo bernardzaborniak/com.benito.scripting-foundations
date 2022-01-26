@@ -12,6 +12,7 @@ namespace Benito.ScriptingFoundations.Utilities
             vector.y = 0;
             return vector;
         }
+
         public static Vector3 ToVector3_0y0(this Vector3 vector)
         {
             vector.x = vector.z = 0;
@@ -23,40 +24,40 @@ namespace Benito.ScriptingFoundations.Utilities
             return new Vector2(vector.x, vector.z);
         }
 
-        public static Vector3 BlendLinearly(this Vector3 currentValue, Vector3 targetValue, float blendSpeed, float deltaTime)
+        public static Vector3 BlendLinearly(this Vector3 currentVector, Vector3 targetVector, float speed, float deltaTime)
         {
-            Vector3 vectorTowardsTarget = targetValue - currentValue;
-            return currentValue += Vector3.ClampMagnitude(
-                vectorTowardsTarget.normalized * blendSpeed * deltaTime,
+            Vector3 vectorTowardsTarget = targetVector - currentVector;
+            return currentVector += Vector3.ClampMagnitude(
+                vectorTowardsTarget.normalized * speed * deltaTime,
                 vectorTowardsTarget.magnitude
                 );
         }
 
-        public static Vector3 BlendLinearlyWithAccel(this Vector3 currentValue, Vector3 targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref Vector3 currentVelocity, float deltaTime)
+        public static Vector3 BlendLinearlyWithAccel(this Vector3 currentVector, Vector3 targetVector, float maxSpeed, float maxAcceleration, ref Vector3 currentVelocity, float deltaTime)
         {
-            Vector3 vectorTowardsTarget = targetValue - currentValue;
+            Vector3 vectorTowardsTarget = targetVector - currentVector;
 
-            Vector3 acceleration = vectorTowardsTarget.normalized * maxBlendSpeedAcceleration;
+            Vector3 acceleration = vectorTowardsTarget.normalized * maxAcceleration;
             currentVelocity += acceleration * deltaTime;
-            currentVelocity = Vector3.ClampMagnitude(currentVelocity, maxBlendSpeed);
+            currentVelocity = Vector3.ClampMagnitude(currentVelocity, maxSpeed);
 
             // Clamp to prevent overshoot.
             currentVelocity = Vector3.ClampMagnitude(currentVelocity * deltaTime, vectorTowardsTarget.magnitude) / deltaTime;
-            currentValue += currentVelocity * deltaTime;
+            currentVector += currentVelocity * deltaTime;
 
-            return currentValue;
+            return currentVector;
         }
 
-        public static Vector3 BlendLinearlyWithAccelAndDecel(this Vector3 currentValue, Vector3 targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref Vector3 currentVelocity, bool overshoot, float deltaTime)
+        public static Vector3 BlendLinearlyWithAccelAndDecel(this Vector3 currentVector, Vector3 targetVector, float maxSpeed, float maxAcceleration, ref Vector3 currentVelocity, bool overshoot, float deltaTime)
         {
             // Only used if overshoot is true. Should be a bit higher than the normal acceleration to allow full deceleration at high timesteps.
-            float limitToFakeDeceleration = maxBlendSpeedAcceleration * 1.1f;
+            float limitToFakeDeceleration = maxAcceleration * 1.1f;
             // Adjust how this margins are calculated if needed, this setup seems to be good for now.
-            float overshootVelocityErrorMargin = 0.05f * maxBlendSpeedAcceleration;
-            float positionErrorMargin = 0.0005f * maxBlendSpeedAcceleration;
+            float overshootVelocityErrorMargin = 0.05f * maxAcceleration;
+            float positionErrorMargin = 0.0005f * maxAcceleration;
             bool brake = false;
 
-            Vector3 vectorTowardsTarget = targetValue - currentValue;
+            Vector3 vectorTowardsTarget = targetVector - currentVector;
             float distanceTowardsTarget = vectorTowardsTarget.magnitude;
             Debug.Log("vectorTowardsTarget: " + vectorTowardsTarget);
 
@@ -66,8 +67,8 @@ namespace Benito.ScriptingFoundations.Utilities
             {
                 currentVelocity = Vector3.zero;
                 vectorTowardsTarget = Vector3.zero;
-                currentValue = targetValue;
-                return currentValue;
+                currentVector = targetVector;
+                return currentVector;
             }
 
             if (GoingIntoDirectionOfTarget(currentVelocity))
@@ -86,19 +87,19 @@ namespace Benito.ScriptingFoundations.Utilities
             }
             else
             {
-                Vector3 acceleration = vectorTowardsTarget.normalized * maxBlendSpeedAcceleration;
+                Vector3 acceleration = vectorTowardsTarget.normalized * maxAcceleration;
                 currentVelocity += acceleration * deltaTime;
             }
 
-            currentVelocity = Vector3.ClampMagnitude(currentVelocity, maxBlendSpeed);
+            currentVelocity = Vector3.ClampMagnitude(currentVelocity, maxSpeed);
 
             if (ShouldClampResultingVelocityToPreventOvershoot())
                 currentVelocity = Vector3.ClampMagnitude(currentVelocity * deltaTime, distanceTowardsTarget) / deltaTime;
 
             Debug.Log("vel " + currentVelocity);
-            currentValue += currentVelocity * deltaTime;
+            currentVector += currentVelocity * deltaTime;
 
-            return currentValue;
+            return currentVector;
 
             #region Local Functions
 
@@ -115,11 +116,11 @@ namespace Benito.ScriptingFoundations.Utilities
 
             bool ShouldBrake(Vector3 currentVelocity)
             {
-                float timeToReachV0 = currentVelocityMagnitude / maxBlendSpeedAcceleration; // Time to reach vel https://docs.google.com/document/d/1_q4Nphvuas84DPDBshBWDuZy5VwznjSqWg7Let9vTIE/edit#heading=h.aykw6apzg0to
-                Vector3 brakeDeceleration = -vectorTowardsTarget.normalized * maxBlendSpeedAcceleration;
-                Vector3 valueAfterBrakingNow = currentValue + currentVelocity * timeToReachV0 + 0.5f * brakeDeceleration * timeToReachV0 * timeToReachV0;
+                float timeToReachV0 = currentVelocityMagnitude / maxAcceleration; // Time to reach vel https://docs.google.com/document/d/1_q4Nphvuas84DPDBshBWDuZy5VwznjSqWg7Let9vTIE/edit#heading=h.aykw6apzg0to
+                Vector3 brakeDeceleration = -vectorTowardsTarget.normalized * maxAcceleration;
+                Vector3 valueAfterBrakingNow = currentVector + currentVelocity * timeToReachV0 + 0.5f * brakeDeceleration * timeToReachV0 * timeToReachV0;
 
-                if (Vector3.Distance(valueAfterBrakingNow, currentValue) >= distanceTowardsTarget)
+                if (Vector3.Distance(valueAfterBrakingNow, currentVector) >= distanceTowardsTarget)
                     return true;
 
                 return false;
@@ -133,48 +134,72 @@ namespace Benito.ScriptingFoundations.Utilities
             #endregion
         }
 
-        public static Vector3 RotateTowards(this Vector3 currentValue, Vector3 targetValue, float degrees)
+        /// <summary>
+        /// Calculates angle between 2 vectors ONLY on the specified axis. Contrary to Unitys angle axis ignoring the axis in angle calculation and only using it to determine if signed or not.
+        /// Source: https://forum.unity.com/threads/is-vector3-signedangle-working-as-intended.694105/
+        /// </summary>
+
+        public static float AngleOffAroundAxis(Vector3 from, Vector3 to, Vector3 axis, bool clockwise = false)
+        {
+            Vector3 right;
+            if (clockwise)
+            {
+                right = Vector3.Cross(from, axis);
+                from = Vector3.Cross(axis, right);
+            }
+            else
+            {
+                right = Vector3.Cross(axis, from);
+                from = Vector3.Cross(right, axis);
+            }
+            return Mathf.Atan2(Vector3.Dot(to, right), Vector3.Dot(to, from)) * Mathf.Rad2Deg;
+        }
+
+        public static Vector3 RotateTowards(this Vector3 currentVector, Vector3 targetVector, float degrees)
         {
             //return Quaternion.LookRotation(currentValue).Rota
-            return Vector3.RotateTowards(currentValue, targetValue, degrees, Mathf.Infinity);
+            return Vector3.RotateTowards(currentVector, targetVector, degrees, Mathf.Infinity);
             //Todo maybe use quaternions under the hood here?
         }
 
-        public static Vector3 RotateTowards(this Vector3 currentValue, Vector3 targetValue, float rotationSpeed, float deltaTime)
+        public static Vector3 RotateTowardsAlongAxis(this Vector3 currentVector, Vector3 targetVector, Vector3 axis, float degrees)
         {
-            return Vector3.RotateTowards(currentValue, targetValue, rotationSpeed * deltaTime, Mathf.Infinity);
-            //todo maybe use quaternions under the hood here?
+            float differenceAngle = VectorUtilities.AngleOffAroundAxis(currentVector, targetVector, axis);
+            differenceAngle = Mathf.Clamp(differenceAngle, -degrees, degrees);
+
+            return Quaternion.LookRotation(currentVector, axis).RotateAlongAxis(axis, differenceAngle) * Vector3.forward;
         }
 
-        public static Vector3 RotateAlongAxis(this Vector3 vectorToRotate, Vector3 axis, float degrees)
+        public static Vector3 RotateTowardsAlongAxisWithAccel(this Vector3 currentVector, Vector3 targetVector, Vector3 axis, float maxSpeed,float maxAcceleration, ref float currentVelocity, float deltaTime)
         {
-            throw new System.NotImplementedException();
+            float angleErrorTolerance = 0.001f; // AngleOffAroundAxis will never return exactly 0;
+
+            float differenceAngle = VectorUtilities.AngleOffAroundAxis(currentVector, targetVector, axis);
+
+            if (Mathf.Abs(differenceAngle) < angleErrorTolerance)
+            {
+                currentVelocity = 0;
+                return currentVector = targetVector;
+            }
+
+            float blendedAngle = FloatUtilities.BlendWithAccel(0, differenceAngle, maxSpeed, maxAcceleration, ref currentVelocity, deltaTime);
+            return Quaternion.LookRotation(currentVector, axis).RotateAlongAxis(axis, blendedAngle) * Vector3.forward;
         }
 
-        /// <summary>
-        /// Rotation Speed is in degrees per second.
-        /// </summary>
-        public static Vector3 RotateAlongAxis(this Vector3 vectorToRotate, Vector3 axis, float rotationSpeed, float deltaTime)
+        public static Vector3 RotateTowardsAlongAxisWithAccelAndDecel(this Vector3 currentVector, Vector3 targetVector, Vector3 axis, float maxSpeed, float maxAcceleration, ref float currentVelocity, bool overshoot, float deltaTime)
         {
-            throw new System.NotImplementedException();
-        }
+            float angleErrorTolerance = 0.001f; // AngleOffAroundAxis will never return exactly 0;
 
-        public static Vector3 CalculateRandomSpreadInConeShapeAroundTransformForward(Transform relativeTransform, float bloomAngle)
-        {
-            // todo make this use this transform matrix  - so it works without a transform aswell
+            float differenceAngle = VectorUtilities.AngleOffAroundAxis(currentVector, targetVector, axis);
 
-            // Relative transform would be the shoot point transform if we are calculating this for a gun.
-            // Imagine a circle one unit in front of the 0/0/0 point - the radius of the circle is depending on the desired bloom/spread angle. Now in this circle we do the randomInsideCircle.
+            if (Mathf.Abs(differenceAngle) < angleErrorTolerance)
+            {
+                currentVelocity = 0;
+                return currentVector = targetVector;
+            }
 
-            //tan(alpha) = b/a  -> tan(alpha) * a = b
-            //a = 1, b varies
-
-            float unitSphereRadius = Mathf.Tan(bloomAngle * Mathf.Deg2Rad);
-
-            // To make the points appear more often in the middle of the circle, we add a random scaler, which maz reduce the radius
-            Vector2 insideUnitCircle = Random.insideUnitCircle * unitSphereRadius * Random.Range(0f, 1f);
-
-            return relativeTransform.TransformDirection(new Vector3(insideUnitCircle.x, insideUnitCircle.y, 1f));
+            float blendedAngle = FloatUtilities.BlendWithAccelAndDecel(0, differenceAngle, maxSpeed, maxAcceleration, ref currentVelocity, overshoot, deltaTime);
+            return Quaternion.LookRotation(currentVector, axis).RotateAlongAxis(axis, blendedAngle) * Vector3.forward;
         }
 
         #endregion

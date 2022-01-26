@@ -18,39 +18,19 @@ namespace Benito.ScriptingFoundations.Utilities
             }
         }
 
-       /* public static void Remap(ref float value, float from1, float to1, float from2, float to2, bool clamp = false)
+        public static float BlendLinearly(this float currentValue, float targetValue, float speed, float deltaTime)
         {
-            if (clamp)
-            {
-                value = Mathf.Clamp((value - from1) / (to1 - from1) * (to2 - from2) + from2, from2, to2);
-            }
-            else
-            {
-                value = (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-            }
-        }*/
-
-
-        public static float BlendLinearly(this float currentValue, float targetValue, float blendSpeed, float deltaTime)
-        {
-            blendSpeed *= deltaTime;
-            return currentValue + Mathf.Clamp(targetValue - currentValue, -blendSpeed, blendSpeed);
+            speed *= deltaTime;
+            return currentValue + Mathf.Clamp(targetValue - currentValue, -speed, speed);
         }
 
-        /*public static void BlendLinearly(ref float currentValue, float targetValue, float blendSpeed, float deltaTime)
-        {
-            blendSpeed *= deltaTime;
-            currentValue += Mathf.Clamp(targetValue - currentValue, -blendSpeed, blendSpeed);
-        }*/
-
-
-        public static float BlendWithAccel(this float currentValue, float targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref float currentVelocity, float deltaTime)
+        public static float BlendWithAccel(this float currentValue, float targetValue, float maxSpeed, float maxAcceleration, ref float currentVelocity, float deltaTime)
         {
             float differenceTowardsTarget = targetValue - currentValue;
 
-            float acceleration = differenceTowardsTarget < 0 ? acceleration = -maxBlendSpeedAcceleration : acceleration = maxBlendSpeedAcceleration;
+            float acceleration = differenceTowardsTarget < 0 ? acceleration = -maxAcceleration : acceleration = maxAcceleration;
             currentVelocity += acceleration * deltaTime;
-            currentVelocity = Mathf.Clamp(currentVelocity, -maxBlendSpeed, maxBlendSpeed);
+            currentVelocity = Mathf.Clamp(currentVelocity, -maxSpeed, maxSpeed);
 
             // Clamp to prevent overshoot.
             currentVelocity = Mathf.Clamp(currentVelocity * deltaTime, -Mathf.Abs(differenceTowardsTarget), Mathf.Abs(differenceTowardsTarget)) / deltaTime;
@@ -59,13 +39,13 @@ namespace Benito.ScriptingFoundations.Utilities
             return currentValue;
         }
 
-        public static float BlendWithAccelAndDecel(this float currentValue, float targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref float currentVelocity, bool overshoot, float deltaTime)
+        public static float BlendWithAccelAndDecel(this float currentValue, float targetValue, float maxSpeed, float maxAcceleration, ref float currentVelocity, bool overshoot, float deltaTime)
         {
             // Only used if overshoot is true. Should be a bit higher than the normal acceleration to allow full deceleration at high timesteps.
-            float limitToFakeDeceleration = maxBlendSpeedAcceleration * 1.1f; 
+            float limitToFakeDeceleration = maxAcceleration * 1.1f; 
             // Adjust how this margins are calculated if needed, this setup seems to be good for now.
-            float overshootVelocityErrorMargin = 0.05f * maxBlendSpeedAcceleration; 
-            float positionErrorMargin = 0.0005f * maxBlendSpeedAcceleration;
+            float overshootVelocityErrorMargin = 0.05f * maxAcceleration; 
+            float positionErrorMargin = 0.0005f * maxAcceleration;
             bool brake = false;
 
             float differenceTowardsTarget = targetValue - currentValue;
@@ -94,11 +74,11 @@ namespace Benito.ScriptingFoundations.Utilities
             }
             else
             {
-                float acceleration = differenceTowardsTarget < 0? acceleration = -maxBlendSpeedAcceleration : acceleration = maxBlendSpeedAcceleration;
+                float acceleration = differenceTowardsTarget < 0? acceleration = -maxAcceleration : acceleration = maxAcceleration;
                 currentVelocity += acceleration * deltaTime;
             }
 
-            currentVelocity = Mathf.Clamp(currentVelocity, -maxBlendSpeed, maxBlendSpeed);
+            currentVelocity = Mathf.Clamp(currentVelocity, -maxSpeed, maxSpeed);
 
             if (ShouldClampResultingVelocityToPreventOvershoot(currentVelocity))
                 currentVelocity = Mathf.Clamp(currentVelocity * deltaTime, -Mathf.Abs(differenceTowardsTarget), Mathf.Abs(differenceTowardsTarget)) / deltaTime;
@@ -122,8 +102,8 @@ namespace Benito.ScriptingFoundations.Utilities
 
             bool ShouldBrake(float currentVelocity)
             {
-                float timeToReachV0 = Mathf.Abs(currentVelocity) / maxBlendSpeedAcceleration;
-                float brakeDeceleration = currentVelocity > 0 ? -maxBlendSpeedAcceleration : maxBlendSpeedAcceleration;
+                float timeToReachV0 = Mathf.Abs(currentVelocity) / maxAcceleration;
+                float brakeDeceleration = currentVelocity > 0 ? -maxAcceleration : maxAcceleration;
                 float valueAfterBrakingNow = currentValue + currentVelocity * timeToReachV0 + 0.5f * brakeDeceleration * timeToReachV0 * timeToReachV0;
                 
                 if (Mathf.Abs(valueAfterBrakingNow - currentValue) >= Mathf.Abs(differenceTowardsTarget))
@@ -139,12 +119,7 @@ namespace Benito.ScriptingFoundations.Utilities
 
             #endregion
         }
-
-
-        /*public static void BlendWithAcceleration(ref float currentValue, float targetValue, float maxBlendSpeed, float maxBlendSpeedAcceleration, ref float currentVelocity, float deltaTime)
-        {
-            throw new System.NotImplementedException();
-        }*/
+  
     }
 
 }
