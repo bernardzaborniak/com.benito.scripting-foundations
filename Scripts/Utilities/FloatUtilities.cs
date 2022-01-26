@@ -18,6 +18,8 @@ namespace Benito.ScriptingFoundations.Utilities
             }
         }
 
+
+
         public static float BlendLinearly(this float currentValue, float targetValue, float speed, float deltaTime)
         {
             speed *= deltaTime;
@@ -49,7 +51,6 @@ namespace Benito.ScriptingFoundations.Utilities
             bool brake = false;
 
             float differenceTowardsTarget = targetValue - currentValue;
-            Debug.Log("differenceToTarget: " + differenceTowardsTarget);
 
             if (ShouldSnapToTarget(currentVelocity))
             {
@@ -66,8 +67,6 @@ namespace Benito.ScriptingFoundations.Utilities
 
             if (brake)
             {
-                Debug.Log("Brake: " + brake + "---------------------------------");
-
                 float decelerationToBrakeCorrectly = -(currentVelocity * currentVelocity) / (2 * differenceTowardsTarget);
                 if (overshoot) decelerationToBrakeCorrectly = Mathf.Clamp(decelerationToBrakeCorrectly, -limitToFakeDeceleration, limitToFakeDeceleration);
                 currentVelocity += decelerationToBrakeCorrectly * deltaTime;
@@ -83,7 +82,6 @@ namespace Benito.ScriptingFoundations.Utilities
             if (ShouldClampResultingVelocityToPreventOvershoot(currentVelocity))
                 currentVelocity = Mathf.Clamp(currentVelocity * deltaTime, -Mathf.Abs(differenceTowardsTarget), Mathf.Abs(differenceTowardsTarget)) / deltaTime;
 
-            Debug.Log("vel " + currentVelocity);
             currentValue += currentVelocity * deltaTime;
 
             return currentValue;
@@ -119,7 +117,6 @@ namespace Benito.ScriptingFoundations.Utilities
 
             #endregion
         }
-  
     }
 
 }

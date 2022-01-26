@@ -24,6 +24,8 @@ namespace Benito.ScriptingFoundations.Utilities
             return new Vector2(vector.x, vector.z);
         }
 
+
+
         public static Vector3 BlendLinearly(this Vector3 currentVector, Vector3 targetVector, float speed, float deltaTime)
         {
             Vector3 vectorTowardsTarget = targetVector - currentVector;
@@ -59,7 +61,6 @@ namespace Benito.ScriptingFoundations.Utilities
 
             Vector3 vectorTowardsTarget = targetVector - currentVector;
             float distanceTowardsTarget = vectorTowardsTarget.magnitude;
-            Debug.Log("vectorTowardsTarget: " + vectorTowardsTarget);
 
             float currentVelocityMagnitude = currentVelocity.magnitude;
 
@@ -78,8 +79,6 @@ namespace Benito.ScriptingFoundations.Utilities
 
             if (brake)
             {
-                Debug.Log("Brake: " + brake + "---------------------------------");
-
                 float decelerationToBrakeCorrectly = (currentVelocityMagnitude * currentVelocityMagnitude) / (2 * distanceTowardsTarget); // Calculate Acceleration needed to change from initial to final velocity over distance https://docs.google.com/document/d/1_q4Nphvuas84DPDBshBWDuZy5VwznjSqWg7Let9vTIE/edit#
                 if (overshoot) decelerationToBrakeCorrectly = Mathf.Clamp(decelerationToBrakeCorrectly, -limitToFakeDeceleration, limitToFakeDeceleration);
                 Vector3 deceleration = -vectorTowardsTarget.normalized * decelerationToBrakeCorrectly;
@@ -96,7 +95,6 @@ namespace Benito.ScriptingFoundations.Utilities
             if (ShouldClampResultingVelocityToPreventOvershoot())
                 currentVelocity = Vector3.ClampMagnitude(currentVelocity * deltaTime, distanceTowardsTarget) / deltaTime;
 
-            Debug.Log("vel " + currentVelocity);
             currentVector += currentVelocity * deltaTime;
 
             return currentVector;
@@ -134,11 +132,12 @@ namespace Benito.ScriptingFoundations.Utilities
             #endregion
         }
 
+
+
         /// <summary>
         /// Calculates angle between 2 vectors ONLY on the specified axis. Contrary to Unitys angle axis ignoring the axis in angle calculation and only using it to determine if signed or not.
         /// Source: https://forum.unity.com/threads/is-vector3-signedangle-working-as-intended.694105/
         /// </summary>
-
         public static float AngleOffAroundAxis(Vector3 from, Vector3 to, Vector3 axis, bool clockwise = false)
         {
             Vector3 right;
@@ -155,12 +154,7 @@ namespace Benito.ScriptingFoundations.Utilities
             return Mathf.Atan2(Vector3.Dot(to, right), Vector3.Dot(to, from)) * Mathf.Rad2Deg;
         }
 
-        public static Vector3 RotateTowards(this Vector3 currentVector, Vector3 targetVector, float degrees)
-        {
-            //return Quaternion.LookRotation(currentValue).Rota
-            return Vector3.RotateTowards(currentVector, targetVector, degrees, Mathf.Infinity);
-            //Todo maybe use quaternions under the hood here?
-        }
+
 
         public static Vector3 RotateTowardsAlongAxis(this Vector3 currentVector, Vector3 targetVector, Vector3 axis, float degrees)
         {

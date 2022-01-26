@@ -12,28 +12,12 @@ namespace Benito.ScriptingFoundations.Utilities
         public static Quaternion GetDifferenceQuaternion(Quaternion a, Quaternion b)
         {
             return b * Quaternion.Inverse(a);
+            // Is it the same as Quaternion.DifferenceQuaternion?
         }
 
         public static Quaternion RotateAlongAxis(this Quaternion currentRotation, Vector3 axis, float degrees)
         {
             return Quaternion.AngleAxis(degrees, axis) * currentRotation;
-        }
-
-        public static Quaternion RotateTowardsAlongAxisWithAccel(this Quaternion currentRotation, Quaternion targetRotation, Vector3 axis, float maxSpeed, float maxAcceleration)
-        {
-            /*
-            // find out the rotation on the axis of targetRotation
-            Vector3 currentRotationForward = currentRotation * Vector3.forward;
-            Quaternion.AngleAxis
-
-            return Quaternion.AngleAxis(degrees, axis) * currentRotation;*/
-
-            throw new System.NotImplementedException();
-        }
-
-        public static Quaternion RotateTowardsAlongAxisWithAccelAndDeccel(this Quaternion currentRotation, Vector3 axis, float degrees)
-        {
-            throw new System.NotImplementedException();
         }
 
         public static Quaternion RotateTowards(this Quaternion currentRotation, Quaternion targetRotation, float rotationSpeed, float deltaTime)
@@ -60,9 +44,9 @@ namespace Benito.ScriptingFoundations.Utilities
 
             quaternionTowardsTarget.ToAngleAxis(out angleInDegrees, out rotationAxis);
 
-            if(angleInDegrees< snapTolerance)
+            if(angleInDegrees < snapTolerance)
             {
-                currentRotation = currentRotation;
+                currentRotation = targetRotation;
                 currentAngularVelocity = Vector3.zero;
                 return currentRotation;
             }
@@ -81,12 +65,7 @@ namespace Benito.ScriptingFoundations.Utilities
             return currentRotation;   
         }
 
-        public static Quaternion RotateTowardsWithAccelAndDecel(this Quaternion currentRotation, Quaternion targetRotation, float maxRotationSpeed, float maxAcceleration, ref Vector3 currentAngularVelocity, bool overshoot, float deltaTime)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        /// <summary> isolate the y-Component of a rotation </summary>
+        /// <summary> Isolate the y-Component of a rotation </summary>
         private static Quaternion YRotation(Quaternion q)
         {
             float theta = Mathf.Atan2(q.y, q.w);
