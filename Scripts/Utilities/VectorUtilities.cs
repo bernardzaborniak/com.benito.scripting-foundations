@@ -155,6 +155,10 @@ namespace Benito.ScriptingFoundations.Utilities
         }
 
 
+        public static Vector3 RotateAlongAxis(this Vector3 currentVector, Vector3 axis, float degrees)
+        {
+            return Quaternion.LookRotation(currentVector, axis).RotateAlongAxis(axis, degrees) * Vector3.forward;
+        }
 
         public static Vector3 RotateTowardsAlongAxis(this Vector3 currentVector, Vector3 targetVector, Vector3 axis, float degrees)
         {
@@ -205,18 +209,84 @@ namespace Benito.ScriptingFoundations.Utilities
             return new Vector3(vector.x, 0, vector.y);
         }
 
+        /// <summary>
+        /// Rotates the vector clockwise.
+        /// </summary>
         public static Vector2 Rotate(this Vector2 vector, float degrees)
         {
-            throw new System.NotImplementedException();
+            degrees *= -Mathf.Deg2Rad;
+
+            return new Vector2(
+                vector.x * Mathf.Cos(degrees) - vector.y * Mathf.Sin(degrees),
+                vector.x * Mathf.Sin(degrees) + vector.y * Mathf.Cos(degrees)
+                );
+        }
+
+
+        public static Vector2 RotateTowards(this Vector2 from, Vector2 to, float degrees)
+        {
+            //https://github.com/lordofduct/spacepuppy-unity-framework-3.0/blob/master/SpacepuppyUnityFramework/Utils/VectorUtil.cs#L171
+
+            degrees *= Mathf.Deg2Rad;
+
+            float a1 = Mathf.Atan2(from.y, from.x);
+            float a2 = Mathf.Atan2(to.y, to.x);
+            a2 = ShortenAngleToAnother(a2, a1, true);
+
+            var da = a2 - a1;
+            var ra = a1 + Mathf.Clamp(Mathf.Abs(degrees), 0f, Mathf.Abs(da)) * Mathf.Sign(da);
+
+            var l = from.magnitude;
+            return new Vector2(Mathf.Cos(ra) * l, Mathf.Sin(ra) * l);
+        }
+
+        #region V2 Rotate Towards Helper Mehtods
+
+        // from https://github.com/lordofduct/spacepuppy-unity-framework-3.0/blob/master/SpacepuppyUnityFramework/Utils/VectorUtil.cs#L171
+
+        /// <summary>
+        /// closest angle from a1 to a2
+        /// absolute value the return for exact angle
+        static float NearestAngleBetween(float a1, float a2, bool useRadians)
+        {
+            float rd = useRadians ? Mathf.PI : 180f;
+            float ra = Wrap(a2 - a1, rd * 2f,0);
+            if (ra > rd) ra -= (rd * 2f);
+            return ra;
         }
 
         /// <summary>
-        /// Rotation Speed is in degrees per second.
-        /// </summary>
-        public static Vector2 Rotate(this Vector2 vector, float rotationSpeed, float deltaTime)
+        /// Returns a value for dependant that is a value that is the shortest angle between dep and ind from ind.
+        /// 
+        /// 
+        /// for instance if dep=-170 degrees and ind=170 degrees then 190 degrees will be returned as an alternative to -170 degrees
+        /// note: angle is passed in radians, this written example is in degrees for ease of reading
+        static float ShortenAngleToAnother(float dep, float ind, bool useRadians)
         {
-            throw new System.NotImplementedException();
+            return ind + NearestAngleBetween(ind, dep, useRadians);
         }
+
+        /// <summary>
+        /// Wraps a value around some significant range.
+        /// 
+        /// Similar to modulo, but works in a unary direction over any range (including negative values).
+        /// 
+        /// ex:
+        /// Wrap(8,6,2) == 4
+        /// Wrap(4,2,0) == 0
+        /// Wrap(4,2,-2) == 0
+        static float Wrap(float value, float max, float min)
+        {
+            max -= min;
+            if (max == 0)
+                return min;
+
+            return value - max * (int)Mathf.Floor((value - min) / max);
+        }
+
+
+
+        #endregion
 
         #endregion
     }
