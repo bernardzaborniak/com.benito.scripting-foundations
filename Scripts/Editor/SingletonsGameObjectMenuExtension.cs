@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace Benitos.ScriptingFoundations.Managers.Editor
+namespace Benito.ScriptingFoundations.Managers.Editor
 {
     public class SingletonsGameObjectMenuExtension
     {

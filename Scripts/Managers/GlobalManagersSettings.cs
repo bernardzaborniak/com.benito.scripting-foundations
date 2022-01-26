@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace Benitos.ScriptingFoundations.Managers
+namespace Benito.ScriptingFoundations.Managers
 {
     // https://docs.unity3d.com/2019.1/Documentation/ScriptReference/SettingsProvider.html
 

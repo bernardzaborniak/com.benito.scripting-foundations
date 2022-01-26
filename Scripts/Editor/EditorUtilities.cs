@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Reflection;
 using UnityEditor;
 
-namespace Benitos.ScriptingFoundations.Utilities.Editor
+namespace Benito.ScriptingFoundations.Utilities.Editor
 {
     public class EditorUtilities
     {

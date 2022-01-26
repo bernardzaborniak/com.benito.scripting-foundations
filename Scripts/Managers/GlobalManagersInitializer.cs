@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace Benitos.ScriptingFoundations.Managers
+namespace Benito.ScriptingFoundations.Managers
 {
     /// <summary>
     /// Makes sure a DontDestroyOnLoad Collection with Global Managers is present in every Scene

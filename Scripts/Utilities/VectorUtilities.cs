@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Benitos.ScriptingFoundations.Utilities
+namespace Benito.ScriptingFoundations.Utilities
 {
     public static class VectorUtilities
     {
@@ -60,7 +60,7 @@ namespace Benitos.ScriptingFoundations.Utilities
             float distanceTowardsTarget = vectorTowardsTarget.magnitude;
             Debug.Log("vectorTowardsTarget: " + vectorTowardsTarget);
 
-            float currentVelocityMangitude = currentVelocity.magnitude;
+            float currentVelocityMagnitude = currentVelocity.magnitude;
 
             if (ShouldSnapToTarget())
             {
@@ -79,20 +79,21 @@ namespace Benitos.ScriptingFoundations.Utilities
             {
                 Debug.Log("Brake: " + brake + "---------------------------------");
 
-                float accelerationToBrakeCorrectly = -(currentVelocity * currentVelocity) / (2 * differenceTowardsTarget);
-                if (overshoot) accelerationToBrakeCorrectly = Mathf.Clamp(accelerationToBrakeCorrectly, -limitToFakeDeceleration, limitToFakeDeceleration);
-                currentVelocity += accelerationToBrakeCorrectly * deltaTime;
+                float decelerationToBrakeCorrectly = (currentVelocityMagnitude * currentVelocityMagnitude) / (2 * distanceTowardsTarget); // Calculate Acceleration needed to change from initial to final velocity over distance https://docs.google.com/document/d/1_q4Nphvuas84DPDBshBWDuZy5VwznjSqWg7Let9vTIE/edit#
+                if (overshoot) decelerationToBrakeCorrectly = Mathf.Clamp(decelerationToBrakeCorrectly, -limitToFakeDeceleration, limitToFakeDeceleration);
+                Vector3 deceleration = -vectorTowardsTarget.normalized * decelerationToBrakeCorrectly;
+                currentVelocity += deceleration * deltaTime;
             }
             else
             {
-                float acceleration = differenceTowardsTarget < 0 ? acceleration = -maxBlendSpeedAcceleration : acceleration = maxBlendSpeedAcceleration;
+                Vector3 acceleration = vectorTowardsTarget.normalized * maxBlendSpeedAcceleration;
                 currentVelocity += acceleration * deltaTime;
             }
 
-            currentVelocity = Mathf.Clamp(currentVelocity, -maxBlendSpeed, maxBlendSpeed);
+            currentVelocity = Vector3.ClampMagnitude(currentVelocity, maxBlendSpeed);
 
-            if (ShouldClampResultingVelocityToPreventOvershoot(currentVelocity))
-                currentVelocity = Mathf.Clamp(currentVelocity * deltaTime, -Mathf.Abs(differenceTowardsTarget), Mathf.Abs(differenceTowardsTarget)) / deltaTime;
+            if (ShouldClampResultingVelocityToPreventOvershoot())
+                currentVelocity = Vector3.ClampMagnitude(currentVelocity * deltaTime, distanceTowardsTarget) / deltaTime;
 
             Debug.Log("vel " + currentVelocity);
             currentValue += currentVelocity * deltaTime;
@@ -103,7 +104,7 @@ namespace Benitos.ScriptingFoundations.Utilities
 
             bool ShouldSnapToTarget()
             {
-                return distanceTowardsTarget < positionErrorMargin && (!overshoot || overshoot && currentVelocityMangitude < overshootVelocityErrorMargin);
+                return distanceTowardsTarget < positionErrorMargin && (!overshoot || overshoot && currentVelocityMagnitude < overshootVelocityErrorMargin);
             }
 
             bool GoingIntoDirectionOfTarget(Vector3 currentVelocity)
@@ -114,22 +115,35 @@ namespace Benitos.ScriptingFoundations.Utilities
 
             bool ShouldBrake(Vector3 currentVelocity)
             {
-                float timeToReachV0 = Mathf.Abs(currentVelocity) / maxBlendSpeedAcceleration;
-                float brakeDeceleration = currentVelocity > 0 ? -maxBlendSpeedAcceleration : maxBlendSpeedAcceleration;
-                float valueAfterBrakingNow = currentValue + currentVelocity * timeToReachV0 + 0.5f * brakeDeceleration * timeToReachV0 * timeToReachV0;
+                float timeToReachV0 = currentVelocityMagnitude / maxBlendSpeedAcceleration; // Time to reach vel https://docs.google.com/document/d/1_q4Nphvuas84DPDBshBWDuZy5VwznjSqWg7Let9vTIE/edit#heading=h.aykw6apzg0to
+                Vector3 brakeDeceleration = -vectorTowardsTarget.normalized * maxBlendSpeedAcceleration;
+                Vector3 valueAfterBrakingNow = currentValue + currentVelocity * timeToReachV0 + 0.5f * brakeDeceleration * timeToReachV0 * timeToReachV0;
 
-                if (Mathf.Abs(valueAfterBrakingNow - currentValue) >= Mathf.Abs(differenceTowardsTarget))
+                if (Vector3.Distance(valueAfterBrakingNow, currentValue) >= distanceTowardsTarget)
                     return true;
 
                 return false;
             }
 
-            bool ShouldClampResultingVelocityToPreventOvershoot(float currentVelocity)
+            bool ShouldClampResultingVelocityToPreventOvershoot()
             {
-                return !overshoot || overshoot && Mathf.Abs(currentVelocity) < overshootVelocityErrorMargin;
+                return !overshoot || overshoot && currentVelocityMagnitude < overshootVelocityErrorMargin;
             }
 
             #endregion
+        }
+
+        public static Vector3 RotateTowards(this Vector3 currentValue, Vector3 targetValue, float degrees)
+        {
+            //return Quaternion.LookRotation(currentValue).Rota
+            return Vector3.RotateTowards(currentValue, targetValue, degrees, Mathf.Infinity);
+            //Todo maybe use quaternions under the hood here?
+        }
+
+        public static Vector3 RotateTowards(this Vector3 currentValue, Vector3 targetValue, float rotationSpeed, float deltaTime)
+        {
+            return Vector3.RotateTowards(currentValue, targetValue, rotationSpeed * deltaTime, Mathf.Infinity);
+            //todo maybe use quaternions under the hood here?
         }
 
         public static Vector3 RotateAlongAxis(this Vector3 vectorToRotate, Vector3 axis, float degrees)
@@ -147,6 +161,8 @@ namespace Benitos.ScriptingFoundations.Utilities
 
         public static Vector3 CalculateRandomSpreadInConeShapeAroundTransformForward(Transform relativeTransform, float bloomAngle)
         {
+            // todo make this use this transform matrix  - so it works without a transform aswell
+
             // Relative transform would be the shoot point transform if we are calculating this for a gun.
             // Imagine a circle one unit in front of the 0/0/0 point - the radius of the circle is depending on the desired bloom/spread angle. Now in this circle we do the randomInsideCircle.
 

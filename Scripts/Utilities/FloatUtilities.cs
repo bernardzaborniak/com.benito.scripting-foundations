@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Benitos.ScriptingFoundations.Utilities
+namespace Benito.ScriptingFoundations.Utilities
 {
     public static class FloatUtilities
     {
@@ -88,9 +88,9 @@ namespace Benitos.ScriptingFoundations.Utilities
             {
                 Debug.Log("Brake: " + brake + "---------------------------------");
 
-                float accelerationToBrakeCorrectly = -(currentVelocity * currentVelocity) / (2 * differenceTowardsTarget);
-                if (overshoot) accelerationToBrakeCorrectly = Mathf.Clamp(accelerationToBrakeCorrectly, -limitToFakeDeceleration, limitToFakeDeceleration);
-                currentVelocity += accelerationToBrakeCorrectly * deltaTime;
+                float decelerationToBrakeCorrectly = -(currentVelocity * currentVelocity) / (2 * differenceTowardsTarget);
+                if (overshoot) decelerationToBrakeCorrectly = Mathf.Clamp(decelerationToBrakeCorrectly, -limitToFakeDeceleration, limitToFakeDeceleration);
+                currentVelocity += decelerationToBrakeCorrectly * deltaTime;
             }
             else
             {

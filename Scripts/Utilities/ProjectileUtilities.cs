@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Benitos.ScriptingFoundations.Utilities
+namespace Benito.ScriptingFoundations.Utilities
 {
     /// <summary>
     /// Holds formulas containing launch angle and time of flight calculations .

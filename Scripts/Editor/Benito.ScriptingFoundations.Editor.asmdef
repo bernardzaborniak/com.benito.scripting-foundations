@@ -1,5 +1,5 @@
 {
-    "name": "BenitosScriptingFoundationsEditor",
+    "name": "Benito.ScriptingFoundations.Editor",
     "rootNamespace": "",
     "references": [
         "GUID:df7901a61eebb8846aee55e4a8a8358c"
