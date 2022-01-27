@@ -19,6 +19,27 @@ namespace Benito.ScriptingFoundations.Utilities
         }
 
 
+        /// <summary>
+        /// Wasnt thoroughy tested yet.
+        /// </summary>
+        public static float CalculateBrakeDistance(float currentVelocity, float maxDeceleration)
+        {
+            return currentVelocity * currentVelocity / (2 * maxDeceleration);
+        }
+
+
+
+        public static float ClampVelocityToPreventOvershoot(this float currentVelocity, float remainingDistanceToTarget, float deltaTime)
+        {
+            return Mathf.Clamp(currentVelocity * deltaTime, -Mathf.Abs(remainingDistanceToTarget), Mathf.Abs(remainingDistanceToTarget)) / deltaTime;
+        }
+
+        public static float Clamp(this float value, float min, float max)
+        {
+            return Mathf.Clamp(value, min, max);
+        }
+
+
 
         public static float BlendLinearly(this float currentValue, float targetValue, float speed, float deltaTime)
         {
