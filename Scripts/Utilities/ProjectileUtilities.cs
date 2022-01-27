@@ -63,38 +63,38 @@ namespace Benito.ScriptingFoundations.Utilities
             return timeInAir;
         }
 
-        public static Vector3 CalculateRandomSpreadInConeShapeAroundTransformForwardV(Transform relativeTransform, float bloomAngle)
+
+
+        public static Vector3 CalculateRandomSpreadInConeShapeAroundVector(Vector3 vector, float bloomAngle)
         {
-            // todo make this use this transform matrix  - so it works without a transform aswell
-
-            // Relative transform would be the shoot point transform if we are calculating this for a gun.
             // Imagine a circle one unit in front of the 0/0/0 point - the radius of the circle is depending on the desired bloom/spread angle. Now in this circle we do the randomInsideCircle.
-
-            //tan(alpha) = b/a  -> tan(alpha) * a = b
-            //a = 1, b varies
+            // tan(alpha) = b/a  -> tan(alpha) * a = b
+            // a = 1, b varies
 
             float unitSphereRadius = Mathf.Tan(bloomAngle * Mathf.Deg2Rad);
-
-            // To make the points appear more often in the middle of the circle, we add a random scaler, which maz reduce the radius
+            // To make the points appear more often in the middle of the circle, we add a random scaler.
             Vector2 insideUnitCircle = Random.insideUnitCircle * unitSphereRadius * Random.Range(0f, 1f);
+            Matrix4x4 matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.LookRotation(vector), Vector3.one);
 
-            return relativeTransform.TransformDirection(new Vector3(insideUnitCircle.x, insideUnitCircle.y, 1f));
+            return matrix.MultiplyVector(new Vector3(insideUnitCircle.x, insideUnitCircle.y, 1f)).normalized;
         }
 
-        public static Quaternion CalculateRandomSpreadInConeShapeAroundTransformForwardQ(Transform relativeTransform, float bloomAngle)
+        /// <summary>
+        /// The curve defines the probability of the rays to be at different distances towards the center. 
+        /// Random Range(0,1) is the X axis, the result will be multiplied by the Y axis all multiplied by the resulting vector.
+        /// </summary>
+        public static Vector3 CalculateRandomSpreadInConeShapeAroundVector(Vector3 vector, float bloomAngle, AnimationCurve spreadCurve)
         {
-            // Relative transform would be the shoot point transform if we are calculating this for a gun.
             // Imagine a circle one unit in front of the 0/0/0 point - the radius of the circle is depending on the desired bloom/spread angle. Now in this circle we do the randomInsideCircle.
-
-            //tan(alpha) = b/a  -> tan(alpha) * a = b
-            //a = 1, b varies
+            // tan(alpha) = b/a  -> tan(alpha) * a = b
+            // a = 1, b varies
 
             float unitSphereRadius = Mathf.Tan(bloomAngle * Mathf.Deg2Rad);
+            // To make the points appear more often in the middle of the circle, we add a random scaler multiplied by a spread curve.
+            Vector2 insideUnitCircle = Random.insideUnitCircle * unitSphereRadius * spreadCurve.Evaluate(Random.Range(0f, 1f));
+            Matrix4x4 matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.LookRotation(vector), Vector3.one);
 
-            // To make the points appear more often in the middle of the circle, we add a random scaler, which maz reduce the radius
-            Vector2 insideUnitCircle = Random.insideUnitCircle * unitSphereRadius * Random.Range(0f, 1f);
-
-            return Quaternion.LookRotation(relativeTransform.TransformDirection(new Vector3(insideUnitCircle.x, insideUnitCircle.y, 1f)));
+            return matrix.MultiplyVector(new Vector3(insideUnitCircle.x, insideUnitCircle.y, 1f)).normalized;
         }
     }
 }
