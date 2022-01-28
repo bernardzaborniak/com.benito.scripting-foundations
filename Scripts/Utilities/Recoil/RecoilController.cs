@@ -9,14 +9,15 @@ namespace Benito.ScriptingFoundations.Utilities.Recoil
         public class CurrentRecoilControllerSettings
         {
             [Header("Up Recoil")]
-            public RecoilReductionSettings recoilUp = new RecoilReductionSettings();
+            public RecoilDirectionSettings recoilUp = new RecoilDirectionSettings();
 
             [Header("Side Recoil")]
-            public RecoilReductionSettings recoilSide = new RecoilReductionSettings();
+            public RecoilDirectionSettings recoilSide = new RecoilDirectionSettings();
             public float recoilSideDirectionThreshold;
+            public AnimationCurve recoilSideMultiplyerSurve;
 
             [Header("Back Recoil")]
-            public RecoilReductionSettings recoilBack = new RecoilReductionSettings();
+            public RecoilDirectionSettings recoilBack = new RecoilDirectionSettings();
 
             public void UpdateRecoilSettings(RecoilGunStats gunStats, bool useTwoHanded)
             {
@@ -26,6 +27,8 @@ namespace Benito.ScriptingFoundations.Utilities.Recoil
                     recoilSide = gunStats.recoilSide2Handed;
                     recoilBack = gunStats.recoilBack2Handed;
                     recoilSideDirectionThreshold = gunStats.recoilSideDirectionThreshold2Handed;
+                    recoilSideMultiplyerSurve = gunStats.upToSideRecoilMultiplyer2Handed;
+
                 }
                 else
                 {
@@ -33,6 +36,7 @@ namespace Benito.ScriptingFoundations.Utilities.Recoil
                     recoilSide = gunStats.recoilSide1Handed;
                     recoilBack = gunStats.recoilBack1Handed;
                     recoilSideDirectionThreshold = gunStats.recoilSideDirectionThreshold1Handed;
+                    recoilSideMultiplyerSurve = gunStats.upToSideRecoilMultiplyer1Handed;
                 }
             }
         }
@@ -42,20 +46,14 @@ namespace Benito.ScriptingFoundations.Utilities.Recoil
             public float value;
             public float velocity;
 
-            public bool applyCounterForce;
-            public bool brake;
-            public float currentBrakeDistance;
-
             public void AddForce(float force)
             {
                 velocity += force;
-                Debug.Log("new vel: " + velocity);
             }
 
             public void Update(float maxRecoilSpeed, float maxReduceRecoilSpeed, float maxReduceRecoilAcceleration, float maxValue, float deltaTime)
             {
                 value = FloatUtilities.CalculatePhysicalRecoil(value, maxValue, maxRecoilSpeed, maxReduceRecoilSpeed, maxReduceRecoilAcceleration, ref velocity, deltaTime);
-                //Debug.Log("velocity: " + velocity);
             }
         }
 
@@ -84,13 +82,16 @@ namespace Benito.ScriptingFoundations.Utilities.Recoil
 
         float AddRandomScaledSideVelocity(float maxSideForce)
         {
-            if (currentRotUp.value <= 0)
-                return 0;
+            float sideForceToApply = maxSideForce * currentRecoilSettings.recoilSideMultiplyerSurve.Evaluate(currentRotUp.value / currentRecoilSettings.recoilUp.maxValue);
+            // add a bool and a curve to scale this?
+            //if (currentRotUp.value <= 0)
+            //   return 0;
 
-            float sideForceToApply = maxSideForce * (currentRotUp.value / currentRecoilSettings.recoilUp.maxValue);
+            //float sideForceToApply = maxSideForce * (currentRotUp.value / currentRecoilSettings.recoilUp.maxValue);
+            //float sideForceToApply = maxSideForce;
 
             // Rotate left or right partly random.
-            if (Random.value < currentRecoilSettings.recoilSideDirectionThreshold)
+            if (Random.value > currentRecoilSettings.recoilSideDirectionThreshold)
                 sideForceToApply = -sideForceToApply;
 
             return sideForceToApply;

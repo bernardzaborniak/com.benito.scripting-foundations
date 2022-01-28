@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Benito.ScriptingFoundations.Utilities.Recoil
 {
     [System.Serializable]
-    public class RecoilReductionSettings 
+    public struct RecoilDirectionSettings 
     {
         public float maxSpeed;
         public float maxReduceRecoilSpeed;

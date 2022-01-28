@@ -43,12 +43,6 @@ namespace Benito.ScriptingFoundations.Utilities
 
         public static bool WouldVelocityOvershoot(float currentVelocity, float remainingDistanceToTarget, float deltaTime)
         {
-
-            Debug.Log("would overshoot: " + (remainingDistanceToTarget < currentVelocity * deltaTime));
-            Debug.Log("(remainingDistanceToTarget < currentVelocity * deltaTime): ");
-            Debug.Log("(remainingDistanceToTarget: " + remainingDistanceToTarget);
-            Debug.Log("(currentVelocity: " + currentVelocity);
-            Debug.Log("(currentVelocity * deltaTime: " + (currentVelocity * deltaTime));
             return (remainingDistanceToTarget < currentVelocity * deltaTime);
         }
 
@@ -82,6 +76,9 @@ namespace Benito.ScriptingFoundations.Utilities
 
         public static float BlendWithAccelAndDecel(this float currentValue, float targetValue, float maxSpeed, float maxAcceleration, ref float currentVelocity, bool overshoot, float deltaTime)
         {
+            if (currentValue == targetValue && currentVelocity == 0) // performance optimisation
+                return 0;
+
             // Only used if overshoot is true. Should be a bit higher than the normal acceleration to allow full deceleration at high timesteps.
             float limitToFakeDeceleration = maxAcceleration * 1.1f; 
             // Adjust how this margins are calculated if needed, this setup seems to be good for now.
@@ -164,6 +161,9 @@ namespace Benito.ScriptingFoundations.Utilities
 
         public static float CalculatePhysicalRecoil(this float currentValue, float maxValue, float maxRecoilSpeed, float maxReduceRecoilSpeed, float reduceRecoilAcceleration, ref float currentVelocity, float deltaTime)
         {
+            if (currentValue == 0 && currentVelocity == 0) // performance optimisation
+                return 0;
+
             float valueDifference = 0-currentValue;
             float valueDifferenceAbsolute = Mathf.Abs(valueDifference);
             bool isMovingAgainstRecoil = valueDifference > 0 && currentVelocity > 0 || valueDifference < 0 && currentVelocity < 0;
@@ -177,27 +177,15 @@ namespace Benito.ScriptingFoundations.Utilities
                 return currentValue;
             }
 
-            Debug.Log("----------------------- ");
-            Debug.Log("valueDifference: "+ valueDifference);
-            Debug.Log("currentVelocity: " + currentVelocity);
-
-            Debug.Log("isMovingAgainstRecoil: " + isMovingAgainstRecoil);
-
             // Check for Brake
             if (isMovingAgainstRecoil)
             {
-                Debug.Log("brake distance: " + CalculateBrakeDistance(currentVelocity, reduceRecoilAcceleration));           
                 brake = valueDifferenceAbsolute <= CalculateBrakeDistance(currentVelocity, reduceRecoilAcceleration);
             }
-
-            Debug.Log("brake: " + brake);
-
 
             // Add Acceleration
             if (brake)
             {
-                float decelerationToBrakeCorrectly = -(currentVelocity * currentVelocity) / (2 * valueDifference);
-                //currentVelocity += Mathf.Clamp(-currentVelocity,);
                 if (valueDifference > 0)
                 {
                     currentVelocity -= reduceRecoilAcceleration * deltaTime;
@@ -207,7 +195,6 @@ namespace Benito.ScriptingFoundations.Utilities
                 {
                     currentVelocity += reduceRecoilAcceleration * deltaTime;
                     if (currentVelocity > 0) currentVelocity = 0;
-
                 }
             }
             else
@@ -216,7 +203,6 @@ namespace Benito.ScriptingFoundations.Utilities
                 currentVelocity += acceleration * deltaTime;
             }
 
-            //Debug.Log("acceleration: " + acceleration);
 
             //Define again, after adjusting the velocity
             isMovingAgainstRecoil = valueDifference > 0 && currentVelocity > 0 || valueDifference < 0 && currentVelocity < 0;
@@ -236,8 +222,6 @@ namespace Benito.ScriptingFoundations.Utilities
             {
                 currentVelocity = Mathf.Clamp(currentVelocity, -maxRecoilSpeed, maxRecoilSpeed);
             }
-
-            Debug.Log("new vel: " + currentVelocity);
 
 
             // Apply Velocity
