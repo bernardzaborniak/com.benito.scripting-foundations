@@ -52,12 +52,10 @@ namespace Benito.ScriptingFoundations.Utilities.Recoil
                 Debug.Log("new vel: " + velocity);
             }
 
-            public void Update(float maxSpeed, float maxCounterAcceleration, float deltaTime)
+            public void Update(float maxRecoilSpeed, float maxReduceRecoilSpeed, float maxReduceRecoilAcceleration, float maxValue, float deltaTime)
             {
-                value = FloatUtilities.BlendWithAccelAndDecel(value, 0, maxSpeed, maxCounterAcceleration, ref velocity, false, deltaTime);
-               // Debug.Log("update value: " + value);
-                //Debug.Log(" vel after update: " + velocity);
-
+                value = FloatUtilities.CalculatePhysicalRecoil(value, maxValue, maxRecoilSpeed, maxReduceRecoilSpeed, maxReduceRecoilAcceleration, ref velocity, deltaTime);
+                //Debug.Log("velocity: " + velocity);
             }
         }
 
@@ -100,9 +98,24 @@ namespace Benito.ScriptingFoundations.Utilities.Recoil
 
         private void Update()
         {
-            currentRotUp.Update(currentRecoilSettings.recoilUp.maxSpeed, currentRecoilSettings.recoilUp.maxReduceRecoilAcceleration, Time.deltaTime);
-            currentRotSide.Update(currentRecoilSettings.recoilSide.maxSpeed, currentRecoilSettings.recoilSide.maxReduceRecoilAcceleration, Time.deltaTime);
-            currentPosBack.Update(currentRecoilSettings.recoilBack.maxSpeed, currentRecoilSettings.recoilBack.maxReduceRecoilAcceleration, Time.deltaTime);
+            currentRotUp.Update(
+                currentRecoilSettings.recoilUp.maxSpeed, 
+                currentRecoilSettings.recoilUp.maxReduceRecoilSpeed,
+                currentRecoilSettings.recoilUp.maxReduceRecoilAcceleration, 
+                currentRecoilSettings.recoilUp.maxValue,
+                Time.deltaTime);
+            
+            currentRotSide.Update(currentRecoilSettings.recoilSide.maxSpeed, 
+                currentRecoilSettings.recoilSide.maxReduceRecoilSpeed,
+                currentRecoilSettings.recoilSide.maxReduceRecoilAcceleration, 
+                currentRecoilSettings.recoilSide.maxValue,
+                Time.deltaTime);
+
+            currentPosBack.Update(currentRecoilSettings.recoilBack.maxSpeed, 
+                currentRecoilSettings.recoilBack.maxReduceRecoilSpeed,
+                currentRecoilSettings.recoilBack.maxReduceRecoilAcceleration,
+                currentRecoilSettings.recoilBack.maxValue,
+                Time.deltaTime);
 
             transformToApplyRecoilTo.localPosition = new Vector3(0, 0, -currentPosBack.value*0.01f); // We are using centimeters instead of meters as speed.
             transformToApplyRecoilTo.localRotation = Quaternion.Euler(-currentRotUp.value, currentRotSide.value, 0);

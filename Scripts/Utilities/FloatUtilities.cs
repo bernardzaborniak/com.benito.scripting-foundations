@@ -25,13 +25,31 @@ namespace Benito.ScriptingFoundations.Utilities
         public static float CalculateBrakeDistance(float currentVelocity, float maxDeceleration)
         {
             return currentVelocity * currentVelocity / (2 * maxDeceleration);
+        } 
+        public static float CalculateBrakeDistance2(float currentVelocity, float maxDeceleration)
+        {
+            float timeToReachV0 = Mathf.Abs(currentVelocity) / maxDeceleration;
+            return currentVelocity * timeToReachV0 + 0.5f * maxDeceleration * timeToReachV0 * timeToReachV0;
+
         }
+        
 
 
 
         public static float ClampVelocityToPreventOvershoot(this float currentVelocity, float remainingDistanceToTarget, float deltaTime)
         {
             return Mathf.Clamp(currentVelocity * deltaTime, -Mathf.Abs(remainingDistanceToTarget), Mathf.Abs(remainingDistanceToTarget)) / deltaTime;
+        }
+
+        public static bool WouldVelocityOvershoot(float currentVelocity, float remainingDistanceToTarget, float deltaTime)
+        {
+
+            Debug.Log("would overshoot: " + (remainingDistanceToTarget < currentVelocity * deltaTime));
+            Debug.Log("(remainingDistanceToTarget < currentVelocity * deltaTime): ");
+            Debug.Log("(remainingDistanceToTarget: " + remainingDistanceToTarget);
+            Debug.Log("(currentVelocity: " + currentVelocity);
+            Debug.Log("(currentVelocity * deltaTime: " + (currentVelocity * deltaTime));
+            return (remainingDistanceToTarget < currentVelocity * deltaTime);
         }
 
         public static float Clamp(this float value, float min, float max)
@@ -70,9 +88,9 @@ namespace Benito.ScriptingFoundations.Utilities
             float overshootVelocityErrorMargin = 0.05f * maxAcceleration; 
             float positionErrorMargin = 0.0005f * maxAcceleration;
             bool brake = false;
-
             float differenceTowardsTarget = targetValue - currentValue;
 
+            // Snap
             if (ShouldSnapToTarget(currentVelocity))
             {
                 currentVelocity = 0f;
@@ -81,11 +99,13 @@ namespace Benito.ScriptingFoundations.Utilities
                 return currentValue;
             }
 
+            // Check for Brake
             if (GoingIntoDirectionOfTarget(currentVelocity))
             {
                 brake = ShouldBrake(currentVelocity);
             }
 
+            // Calculate Acceleration
             if (brake)
             {
                 float decelerationToBrakeCorrectly = -(currentVelocity * currentVelocity) / (2 * differenceTowardsTarget);
@@ -98,13 +118,15 @@ namespace Benito.ScriptingFoundations.Utilities
                 currentVelocity += acceleration * deltaTime;
             }
 
+            // Clamp
             currentVelocity = Mathf.Clamp(currentVelocity, -maxSpeed, maxSpeed);
-
             if (ShouldClampResultingVelocityToPreventOvershoot(currentVelocity))
+            {
                 currentVelocity = Mathf.Clamp(currentVelocity * deltaTime, -Mathf.Abs(differenceTowardsTarget), Mathf.Abs(differenceTowardsTarget)) / deltaTime;
+            }
 
+            // Apply Velocity
             currentValue += currentVelocity * deltaTime;
-
             return currentValue;
 
             #region Local Functions
@@ -137,6 +159,91 @@ namespace Benito.ScriptingFoundations.Utilities
             }
 
             #endregion
+        }
+
+
+        public static float CalculatePhysicalRecoil(this float currentValue, float maxValue, float maxRecoilSpeed, float maxReduceRecoilSpeed, float reduceRecoilAcceleration, ref float currentVelocity, float deltaTime)
+        {
+            float valueDifference = 0-currentValue;
+            float valueDifferenceAbsolute = Mathf.Abs(valueDifference);
+            bool isMovingAgainstRecoil = valueDifference > 0 && currentVelocity > 0 || valueDifference < 0 && currentVelocity < 0;
+            bool brake = false;
+
+            // Snap
+            if(Mathf.Abs(valueDifference) < 0.1f && Mathf.Abs(currentVelocity) < 0.1f)
+            {
+                currentVelocity = 0;
+                currentValue = 0;
+                return currentValue;
+            }
+
+            Debug.Log("----------------------- ");
+            Debug.Log("valueDifference: "+ valueDifference);
+            Debug.Log("currentVelocity: " + currentVelocity);
+
+            Debug.Log("isMovingAgainstRecoil: " + isMovingAgainstRecoil);
+
+            // Check for Brake
+            if (isMovingAgainstRecoil)
+            {
+                Debug.Log("brake distance: " + CalculateBrakeDistance(currentVelocity, reduceRecoilAcceleration));           
+                brake = valueDifferenceAbsolute <= CalculateBrakeDistance(currentVelocity, reduceRecoilAcceleration);
+            }
+
+            Debug.Log("brake: " + brake);
+
+
+            // Add Acceleration
+            if (brake)
+            {
+                float decelerationToBrakeCorrectly = -(currentVelocity * currentVelocity) / (2 * valueDifference);
+                //currentVelocity += Mathf.Clamp(-currentVelocity,);
+                if (valueDifference > 0)
+                {
+                    currentVelocity -= reduceRecoilAcceleration * deltaTime;
+                    if (currentVelocity < 0) currentVelocity = 0; // prevent from "overbraking"
+                }
+                else
+                {
+                    currentVelocity += reduceRecoilAcceleration * deltaTime;
+                    if (currentVelocity > 0) currentVelocity = 0;
+
+                }
+            }
+            else
+            {
+                float acceleration = valueDifference > 0 ? reduceRecoilAcceleration : -reduceRecoilAcceleration;
+                currentVelocity += acceleration * deltaTime;
+            }
+
+            //Debug.Log("acceleration: " + acceleration);
+
+            //Define again, after adjusting the velocity
+            isMovingAgainstRecoil = valueDifference > 0 && currentVelocity > 0 || valueDifference < 0 && currentVelocity < 0;
+
+            // Clamp Velocity
+            if (isMovingAgainstRecoil)
+            {
+                currentVelocity = Mathf.Clamp(currentVelocity, -maxReduceRecoilSpeed, maxReduceRecoilSpeed);
+                if(WouldVelocityOvershoot(Mathf.Abs(currentVelocity), valueDifferenceAbsolute, deltaTime))
+                {
+                    currentVelocity = 0;
+                    currentValue = 0;
+                    return currentValue;
+                }
+            }
+            else
+            {
+                currentVelocity = Mathf.Clamp(currentVelocity, -maxRecoilSpeed, maxRecoilSpeed);
+            }
+
+            Debug.Log("new vel: " + currentVelocity);
+
+
+            // Apply Velocity
+            currentValue += currentVelocity * deltaTime;
+            currentValue = Mathf.Clamp(currentValue ,- maxValue, maxValue);
+            return currentValue;
         }
     }
 

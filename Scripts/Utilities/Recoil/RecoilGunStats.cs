@@ -27,7 +27,7 @@ namespace Benito.ScriptingFoundations.Utilities.Recoil
         public float recoilSideDirectionThreshold2Handed = 0.5f;
 
 
-        [Header("Side Recoil - Measured in Centimeters")]
+        [Header("Back Recoil - Measured in Centimeters")]
 
         public float recoilBackShootForce;
 
