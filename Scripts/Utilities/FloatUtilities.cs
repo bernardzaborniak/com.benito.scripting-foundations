@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace Benito.ScriptingFoundations.Utilities
 {
@@ -67,8 +68,7 @@ namespace Benito.ScriptingFoundations.Utilities
             currentVelocity += acceleration * deltaTime;
             currentVelocity = Mathf.Clamp(currentVelocity, -maxSpeed, maxSpeed);
 
-            // Clamp to prevent overshoot.
-            currentVelocity = Mathf.Clamp(currentVelocity * deltaTime, -Mathf.Abs(differenceTowardsTarget), Mathf.Abs(differenceTowardsTarget)) / deltaTime;
+            currentVelocity = currentVelocity.ClampVelocityToPreventOvershoot(differenceTowardsTarget, deltaTime);
             currentValue += currentVelocity * deltaTime;
 
             return currentValue;
@@ -76,13 +76,14 @@ namespace Benito.ScriptingFoundations.Utilities
 
         public static float BlendWithAccelAndDecel(this float currentValue, float targetValue, float maxSpeed, float maxAcceleration, ref float currentVelocity, bool overshoot, float deltaTime)
         {
+            Profiler.BeginSample("Float Blend");
             if (currentValue == targetValue && currentVelocity == 0) // performance optimisation
-                return 0;
+                return currentValue;
 
             // Only used if overshoot is true. Should be a bit higher than the normal acceleration to allow full deceleration at high timesteps.
             float limitToFakeDeceleration = maxAcceleration * 1.1f; 
             // Adjust how this margins are calculated if needed, this setup seems to be good for now.
-            float overshootVelocityErrorMargin = 0.05f * maxAcceleration; 
+            float overshootVelocityErrorMargin = 0.1f * maxAcceleration; 
             float positionErrorMargin = 0.0005f * maxAcceleration;
             bool brake = false;
             float differenceTowardsTarget = targetValue - currentValue;
@@ -119,11 +120,12 @@ namespace Benito.ScriptingFoundations.Utilities
             currentVelocity = Mathf.Clamp(currentVelocity, -maxSpeed, maxSpeed);
             if (ShouldClampResultingVelocityToPreventOvershoot(currentVelocity))
             {
-                currentVelocity = Mathf.Clamp(currentVelocity * deltaTime, -Mathf.Abs(differenceTowardsTarget), Mathf.Abs(differenceTowardsTarget)) / deltaTime;
+                currentVelocity = currentVelocity.ClampVelocityToPreventOvershoot(differenceTowardsTarget, deltaTime);
             }
 
             // Apply Velocity
             currentValue += currentVelocity * deltaTime;
+
             return currentValue;
 
             #region Local Functions
@@ -156,6 +158,7 @@ namespace Benito.ScriptingFoundations.Utilities
             }
 
             #endregion
+            Profiler.EndSample();
         }
 
 

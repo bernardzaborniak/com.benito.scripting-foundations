@@ -25,6 +25,12 @@ namespace Benito.ScriptingFoundations.Utilities
         }
 
 
+        public static Vector3 ClampVelocityToPreventOvershoot(this Vector3 currentVelocity, float remainingDistanceToTarget, float deltaTime)
+        {
+            return Vector3.ClampMagnitude(currentVelocity * deltaTime, remainingDistanceToTarget) / deltaTime;
+        }
+
+
 
         public static Vector3 BlendLinearly(this Vector3 currentVector, Vector3 targetVector, float speed, float deltaTime)
         {
@@ -43,8 +49,7 @@ namespace Benito.ScriptingFoundations.Utilities
             currentVelocity += acceleration * deltaTime;
             currentVelocity = Vector3.ClampMagnitude(currentVelocity, maxSpeed);
 
-            // Clamp to prevent overshoot.
-            currentVelocity = Vector3.ClampMagnitude(currentVelocity * deltaTime, vectorTowardsTarget.magnitude) / deltaTime;
+            currentVelocity = currentVelocity.ClampVelocityToPreventOvershoot(vectorTowardsTarget.magnitude, deltaTime);
             currentVector += currentVelocity * deltaTime;
 
             return currentVector;
@@ -55,7 +60,7 @@ namespace Benito.ScriptingFoundations.Utilities
             // Only used if overshoot is true. Should be a bit higher than the normal acceleration to allow full deceleration at high timesteps.
             float limitToFakeDeceleration = maxAcceleration * 1.1f;
             // Adjust how this margins are calculated if needed, this setup seems to be good for now.
-            float overshootVelocityErrorMargin = 0.05f * maxAcceleration;
+            float overshootVelocityErrorMargin = 0.1f * maxAcceleration;
             float positionErrorMargin = 0.0005f * maxAcceleration;
             bool brake = false;
 
@@ -93,7 +98,7 @@ namespace Benito.ScriptingFoundations.Utilities
             currentVelocity = Vector3.ClampMagnitude(currentVelocity, maxSpeed);
 
             if (ShouldClampResultingVelocityToPreventOvershoot())
-                currentVelocity = Vector3.ClampMagnitude(currentVelocity * deltaTime, distanceTowardsTarget) / deltaTime;
+                currentVelocity = currentVelocity.ClampVelocityToPreventOvershoot(distanceTowardsTarget, deltaTime);
 
             currentVector += currentVelocity * deltaTime;
 
@@ -177,7 +182,7 @@ namespace Benito.ScriptingFoundations.Utilities
             if (Mathf.Abs(differenceAngle) < angleErrorTolerance)
             {
                 currentVelocity = 0;
-                return currentVector = targetVector;
+                return Quaternion.LookRotation(currentVector, axis).RotateAlongAxis(axis, 0) * Vector3.forward;
             }
 
             float blendedAngle = FloatUtilities.BlendWithAccel(0, differenceAngle, maxSpeed, maxAcceleration, ref currentVelocity, deltaTime);
@@ -193,7 +198,7 @@ namespace Benito.ScriptingFoundations.Utilities
             if (Mathf.Abs(differenceAngle) < angleErrorTolerance)
             {
                 currentVelocity = 0;
-                return currentVector = targetVector;
+                return Quaternion.LookRotation(currentVector, axis).RotateAlongAxis(axis, 0) * Vector3.forward;
             }
 
             float blendedAngle = FloatUtilities.BlendWithAccelAndDecel(0, differenceAngle, maxSpeed, maxAcceleration, ref currentVelocity, overshoot, deltaTime);

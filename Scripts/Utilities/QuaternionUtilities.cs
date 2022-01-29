@@ -54,7 +54,6 @@ namespace Benito.ScriptingFoundations.Utilities
             Vector3 angularDisplacement = rotationAxis * angleInDegrees;
             Vector3 desiredAngularVelocity = angularDisplacement;
             desiredAngularVelocity = desiredAngularVelocity.normalized * maxRotationSpeed;
-            //desiredAngularVelocity = Vector3.ClampMagnitude(desiredAngularVelocity * deltaTime, angleInDegrees) / deltaTime;
 
             Vector3 desiredCurrentDelta = desiredAngularVelocity - currentAngularVelocity;
 
