@@ -76,7 +76,6 @@ namespace Benito.ScriptingFoundations.Utilities
 
         public static float BlendWithAccelAndDecel(this float currentValue, float targetValue, float maxSpeed, float maxAcceleration, ref float currentVelocity, bool overshoot, float deltaTime)
         {
-            Profiler.BeginSample("Float Blend");
             if (currentValue == targetValue && currentVelocity == 0) // performance optimisation
                 return currentValue;
 
@@ -158,7 +157,6 @@ namespace Benito.ScriptingFoundations.Utilities
             }
 
             #endregion
-            Profiler.EndSample();
         }
 
 
