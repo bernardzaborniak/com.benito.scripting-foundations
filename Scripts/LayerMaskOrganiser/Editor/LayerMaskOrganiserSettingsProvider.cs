@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine;
 using Benito.ScriptingFoundations.Utilities.Editor;
 
 namespace Benito.ScriptingFoundations.LayerMaskOrganiser.Editor
 {
     static class LayerMaskOrganiserSettingsProvider
     {
+        static Vector2 scroll = Vector2.zero;
+
         [SettingsProvider]
         public static SettingsProvider CreateSettingsProvider()
         {
@@ -23,8 +26,42 @@ namespace Benito.ScriptingFoundations.LayerMaskOrganiser.Editor
 
             if (settings != null)
             {
+                
+
                 SerializedObject serializedSettings = new SerializedObject(settings);
-                EditorUtilities.DrawDefaultInspectorForSerializedObject(serializedSettings);
+
+                serializedSettings.Update();
+
+                List<(int,string)> allNonNullLayers = new List<(int,string)>();
+                for (int i = 0; i < 31; i++)
+                {
+                    string layerName = UnityEngine.LayerMask.LayerToName(i);
+                    if (layerName.Length > 0)
+                        allNonNullLayers.Add((i,layerName));
+                }
+
+                scroll = GUILayout.BeginScrollView(scroll);
+                {
+                    foreach ((int id, string name) currentLayer in allNonNullLayers)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        {
+                            EditorGUILayout.BeginVertical();
+                            {
+                                EditorGUILayout.LabelField($"{currentLayer.id} - {currentLayer.name}", GUILayout.Width(EditorGUIUtility.currentViewWidth * 0.25f));
+                                settings.layerInfosList[currentLayer.id].type = (LayerMaskOrganiser.LayerType)EditorGUILayout.EnumPopup(settings.layerInfosList[currentLayer.id].type, GUILayout.Width(EditorGUIUtility.currentViewWidth * 0.25f));
+                            }
+                            EditorGUILayout.EndVertical();
+
+                            settings.layerInfosList[currentLayer.id].description = EditorGUILayout.TextField(settings.layerInfosList[currentLayer.id].description, GUILayout.Width(EditorGUIUtility.currentViewWidth * 0.4f), GUILayout.Height(60));
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+                GUILayout.EndScrollView();
+
+                EditorUtility.SetDirty(settings);
+                serializedSettings.ApplyModifiedProperties();
             }
             else
             {

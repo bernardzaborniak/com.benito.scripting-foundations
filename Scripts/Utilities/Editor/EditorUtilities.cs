@@ -30,7 +30,7 @@ namespace Benito.ScriptingFoundations.Utilities.Editor
 
             SerializedProperty prop = so.GetIterator();
             prop.NextVisible(true);
-            while (prop.NextVisible(true))
+            while (prop.NextVisible(false))
             {
                 EditorGUILayout.PropertyField(prop);
             }
