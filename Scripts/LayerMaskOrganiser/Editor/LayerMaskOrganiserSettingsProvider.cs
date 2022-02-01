@@ -1,10 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEditor;
 using Benito.ScriptingFoundations.Utilities.Editor;
-
-using Benito.ScriptingFoundations.LayerMaskOrganiser;
 
 namespace Benito.ScriptingFoundations.LayerMaskOrganiser.Editor
 {

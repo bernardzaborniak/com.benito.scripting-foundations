@@ -4,9 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using Benito.ScriptingFoundations.Utilities.Editor;
 
-/// <summary>
-/// Responsible for displaying the Global Managers Settings in the project Settings Window.
-/// </summary>
+
 namespace Benito.ScriptingFoundations.Managers.Editor
 {
     // Register a SettingsProvider using IMGUI for the drawing framework: https://docs.unity3d.com/2019.1/Documentation/ScriptReference/SettingsProvider.html

@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace Benito.ScriptingFoundations.Managers.Editor
 {
-    public class SingletonsGameObjectMenuExtension
+    public class ManagersGameObjectMenuExtension
     {
         [MenuItem("GameObject/ScriptingFoundations/Scene Singleton Manager")]
         public static void CreateSceneSingletonManager()
