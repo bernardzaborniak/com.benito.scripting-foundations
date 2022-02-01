@@ -6,7 +6,7 @@ using UnityEditor;
 
 namespace Benito.ScriptingFoundations.Utilities.Editor
 {
-    public class EditorUtilities
+    public static class EditorUtilities
     {
         /// <summary>
         /// Returns the path the User is currently in in the project window.
@@ -22,6 +22,20 @@ namespace Benito.ScriptingFoundations.Utilities.Editor
             if (found) path = (string)args[0];
 
             return path;
+        }
+
+        public static void DrawDefaultInspectorForSerializedObject(SerializedObject so)
+        {
+            so.Update();
+
+            SerializedProperty prop = so.GetIterator();
+            prop.NextVisible(true);
+            while (prop.NextVisible(true))
+            {
+                EditorGUILayout.PropertyField(prop);
+            }
+
+            so.ApplyModifiedProperties();
         }
     }
 }
