@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Benito.ScriptingFoundations.Pools
 {
     [System.Serializable]
-    public class ComponentPool<T> : AbstractPool<T> where T:MonoBehaviour
+    public class ComponentPool<T> : AbstractPool<T> where T:Component
     {
         [Space]
         [Tooltip("Make sure the prefab contains the desired Component on its root object")]
