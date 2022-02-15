@@ -8,11 +8,12 @@ namespace Benito.ScriptingFoundations.LayerMaskOrganiser.Editor
     static class LayerMaskOrganiserSettingsProvider
     {
         static Vector2 scroll = Vector2.zero;
+        static int descriptionHeight = 60;
 
         [SettingsProvider]
         public static SettingsProvider CreateSettingsProvider()
         {
-            return new SettingsProvider("Benitos Foundations/LayerMask Organiser", SettingsScope.Project)
+            return new SettingsProvider("Benitos Foundations/Layer Mask Organiser", SettingsScope.Project)
             {
                 label = "LayerMask Organiser",
                 guiHandler = DrawGUI,
@@ -26,8 +27,6 @@ namespace Benito.ScriptingFoundations.LayerMaskOrganiser.Editor
 
             if (settings != null)
             {
-                
-
                 SerializedObject serializedSettings = new SerializedObject(settings);
 
                 serializedSettings.Update();
@@ -39,6 +38,8 @@ namespace Benito.ScriptingFoundations.LayerMaskOrganiser.Editor
                     if (layerName.Length > 0)
                         allNonNullLayers.Add((i,layerName));
                 }
+
+                descriptionHeight = EditorGUILayout.IntSlider("descriptionHeight", descriptionHeight, 35, 120);
 
                 scroll = GUILayout.BeginScrollView(scroll);
                 {
@@ -53,7 +54,7 @@ namespace Benito.ScriptingFoundations.LayerMaskOrganiser.Editor
                             }
                             EditorGUILayout.EndVertical();
 
-                            settings.layerInfosList[currentLayer.id].description = EditorGUILayout.TextField(settings.layerInfosList[currentLayer.id].description, GUILayout.Width(EditorGUIUtility.currentViewWidth * 0.4f), GUILayout.Height(60));
+                            settings.layerInfosList[currentLayer.id].description = EditorGUILayout.TextField(settings.layerInfosList[currentLayer.id].description, GUILayout.Width(EditorGUIUtility.currentViewWidth * 0.4f), GUILayout.Height(descriptionHeight));
                         }
                         EditorGUILayout.EndHorizontal();
                     }
