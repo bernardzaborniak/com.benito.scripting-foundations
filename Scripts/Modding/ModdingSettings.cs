@@ -23,8 +23,8 @@ namespace Benito.ScriptingFoundations.Modding
         [Tooltip("Leave out the / or \\ at the start of this string")]
         [SerializeField] string modFolderPath;
 
-        [Tooltip("Every Asset Bundle for Mods will have this name")]
-        [SerializeField] string modBundleName = "ModBundle";
+       // [Tooltip("Every Asset Bundle for Mods will have this name")]
+       // [SerializeField] string modBundleName = "ModBundle";
 
 
         List<ModInfo> loadedMods = new List<ModInfo>();

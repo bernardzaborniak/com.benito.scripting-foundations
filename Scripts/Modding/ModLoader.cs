@@ -1,19 +1,53 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 namespace Benito.ScriptingFoundations.Modding 
 {
     public static class ModLoader
     {
-        public static List<ModInfo> GetModInfos()
+        public static List<ModInfo> GetAllMods()
         {
-            return null;
+            //List<(ModInfo info, string path)> modInfos = new List<(ModInfo info, string path)>();
+            List<ModInfo> modInfos = new List<ModInfo>();
+
+            string modsDirectory = ModdingSettings.GetOrCreateSettings().GetModFolderPath();
+            if (!Directory.Exists(modsDirectory))
+            {
+                Debug.LogError($"Mod Directory: {modsDirectory} does not exist :(");
+                return modInfos;
+            }
+
+            string[] directories = Directory.GetDirectories(modsDirectory);
+            
+            foreach (string directory in directories)
+            {
+                string modInfoPath = Path.Combine(directory, "ModInfo.json");
+
+                if (File.Exists(modInfoPath))
+                {
+                    ModInfo modInfo = JsonUtility.FromJson<ModInfo>(File.ReadAllText(modInfoPath));
+
+                    FileInfo modInfoFileInfo = new FileInfo(modInfoPath);
+                    modInfo.modInfoFileInfo = modInfoFileInfo;
+                    //FileInfo modBundleFileInfo = new FileInfo(modInfoPath);
+
+
+                    modInfos.Add(modInfo);
+                }
+                else
+                {
+                    Debug.LogError($"Mod at path {directory} does not have a ModInfo.json file -> cant be loaded");
+                }
+            }
+            
+            return modInfos;
         }
 
         public static void LoadMod(ModInfo modInfo)
         {
-
+            
         }
 
         public static void UnloadMod(ModInfo modInfo)
