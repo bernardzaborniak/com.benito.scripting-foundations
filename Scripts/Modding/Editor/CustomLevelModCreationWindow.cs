@@ -1,9 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using UnityEngine.UI;
-using Benito.ScriptingFoundations.Utilities.Editor;
 
 namespace Benito.ScriptingFoundations.Modding.Editor
 {
@@ -27,7 +23,6 @@ namespace Benito.ScriptingFoundations.Modding.Editor
             createdModInfo.description = EditorGUILayout.TextField("Mod Description", createdModInfo.description, GUILayout.Height(64));
             createdModInfo.modType = ModType.CustomScenario;
 
-            //createdModInfo.previewImage = (Texture2D)EditorGUILayout.ObjectField("Mod Preview Image", createdModInfo.previewImage, typeof(Texture2D),false, GUILayout.Height(position.width*0.7f));
             createdModInfo.previewImage = (Texture2D)EditorGUILayout.ObjectField("Mod Preview Image", createdModInfo.previewImage, typeof(Texture2D),false, GUILayout.Height(position.width * 0.7f));
 
             EditorGUILayout.Space();
@@ -40,12 +35,10 @@ namespace Benito.ScriptingFoundations.Modding.Editor
                     if (!string.IsNullOrEmpty(path))
                     {
                         ModCreator.CreateCustomLevelMod(createdModInfo, path);
-                        //ModdingSettings.GetOrCreateSettings().lastExportModPath = path;
 
                         SerializedObject serializedModdingSettings = new SerializedObject(ModdingSettings.GetOrCreateSettings());
                         serializedModdingSettings.FindProperty("lastExportModPath").stringValue = path;
                         serializedModdingSettings.ApplyModifiedProperties();
-                        //EditorUtility.SetDirty(ModdingSettings.GetOrCreateSettings());
                     }
                 }  
             }

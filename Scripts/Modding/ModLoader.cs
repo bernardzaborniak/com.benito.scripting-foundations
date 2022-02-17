@@ -9,7 +9,6 @@ namespace Benito.ScriptingFoundations.Modding
     {
         public static List<ModInfo> GetAllMods()
         {
-            //List<(ModInfo info, string path)> modInfos = new List<(ModInfo info, string path)>();
             List<ModInfo> modInfos = new List<ModInfo>();
 
             string modsDirectory = ModdingSettings.GetOrCreateSettings().GetModFolderPath();

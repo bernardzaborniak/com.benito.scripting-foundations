@@ -6,9 +6,14 @@ using System.IO;
 
 namespace Benito.ScriptingFoundations.Modding
 {
+    /// <summary>
+    /// Holds References to where to export and import Mods.
+    /// Used in Editor for exporting and inGame for importing.
+    /// </summary>
     public class ModdingSettings : ScriptableObject
     {
         const string DefaultSettingsPathInResourcesFolder = "Settings/Modding Settings";
+        public string lastExportModPath;
 
         public enum PathPrefix
         {
@@ -23,10 +28,7 @@ namespace Benito.ScriptingFoundations.Modding
         [Tooltip("Leave out the / or \\ at the start of this string")]
         [SerializeField] string modFolderPath;
 
-
-        public string lastExportModPath;
-
-
+    
         public static ModdingSettings GetOrCreateSettings()
         {
             return SettingsUtilities.GetOrCreateSettingAsset<ModdingSettings>(DefaultSettingsPathInResourcesFolder);

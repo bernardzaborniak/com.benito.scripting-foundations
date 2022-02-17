@@ -8,7 +8,7 @@ namespace Benito.ScriptingFoundations.Modding.Editor
 {
     /// <summary>
     /// Makes sure a Settings asset exists before Build.
-    /// This code is executed before the build beginns contrary to the "PostProcessBuild" Attribute
+    /// This code is executed before the build begins contrary to the "PostProcessBuild" Attribute
     /// </summary>
     public class ModdingSettingsBuildCheck : IPreprocessBuildWithReport
     {
