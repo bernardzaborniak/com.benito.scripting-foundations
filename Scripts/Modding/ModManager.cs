@@ -11,12 +11,12 @@ namespace Benito.ScriptingFoundations.Modding
     /// </summary>
     public class ModManager : Singleton
     {
-        List<ModInfo> avaibleMods = new List<ModInfo>();
+        List<ModInfo> availabeMods = new List<ModInfo>();
         List<ModInfo> loadedMods = new List<ModInfo>();
 
         public List<ModInfo> GetAvailableMods()
         {
-            return avaibleMods;
+            return availabeMods;
         }
 
         public List<ModInfo> GetLoadedMods()
@@ -26,7 +26,7 @@ namespace Benito.ScriptingFoundations.Modding
 
         public override void InitialiseSingleton()
         {
-            avaibleMods = ModLoader.GetAllMods();
+            availabeMods = ModLoader.GetAllMods();
         }
 
         public override void UpdateSingleton()
