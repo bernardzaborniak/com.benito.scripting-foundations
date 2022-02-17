@@ -11,10 +11,15 @@ namespace Benito.ScriptingFoundations.Modding
         public string name;
         public string description;
         public ModType modType;
+        public Texture2D previewImage;
 
         // Non Serializable, only used at runtime
         public FileInfo modInfoFileInfo;
         public FileInfo modBundleFileInfo;
+
+        public bool loaded;
+        public AssetBundle loadedModBundle;
+        public string customSceneName;
     }
 }
 

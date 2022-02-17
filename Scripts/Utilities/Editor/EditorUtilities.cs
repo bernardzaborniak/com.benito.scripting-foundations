@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Reflection;
+using System.IO;
 using UnityEditor;
+using UnityEditorInternal;
+using System.Reflection;
 
 namespace Benito.ScriptingFoundations.Utilities.Editor
 {
@@ -36,6 +38,31 @@ namespace Benito.ScriptingFoundations.Utilities.Editor
             }
 
             so.ApplyModifiedProperties();
+        }
+
+        public static Texture2D TakeEditModeScreenshot()
+        {
+            // source https://stackoverflow.com/questions/48663073/editor-window-screenshot#:~:text=After%20importing%20it%20to%20your,of%20the%20currently%20active%20EditorWindow.
+
+            // Get actvive EditorWindow
+            SceneView sceneWindow = EditorWindow.GetWindow<SceneView>();
+
+            // Get screen position and sizes
+            var vec2Position = sceneWindow.position.position;
+            var sizeX = sceneWindow.position.width;
+            var sizeY = sceneWindow.position.height;
+
+            Debug.Log("width: " + sizeX);
+            Debug.Log("height: " + sizeY);
+
+            // Take Screenshot at given position sizes
+            Color[] colors = InternalEditorUtility.ReadScreenPixel(vec2Position, (int)sizeX, (int)sizeY);
+
+            // write result Color[] data into a temporal Texture2D
+            Texture2D result = new Texture2D((int)sizeX, (int)sizeY);
+            result.SetPixels(colors);
+
+            return result;
         }
     }
 }

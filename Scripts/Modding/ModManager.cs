@@ -1,0 +1,59 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Benito.ScriptingFoundations.Managers;
+
+namespace Benito.ScriptingFoundations.Modding
+{
+    /// <summary>
+    /// Takes Care of managing, loading and unloading Mods.
+    /// Should be together with the Global Managers.
+    /// </summary>
+    public class ModManager : Singleton
+    {
+        List<ModInfo> avaibleMods = new List<ModInfo>();
+        List<ModInfo> loadedMods = new List<ModInfo>();
+
+        public List<ModInfo> GetAvailableMods()
+        {
+            return avaibleMods;
+        }
+
+        public List<ModInfo> GetLoadedMods()
+        {
+            return loadedMods;
+        }
+
+        public override void InitialiseSingleton()
+        {
+            avaibleMods = ModLoader.GetAllMods();
+        }
+
+        public override void UpdateSingleton()
+        {
+
+        }
+
+        public void LoadMod(ModInfo modInfo)
+        {
+            ModLoader.LoadMod(modInfo);
+            loadedMods.Add(modInfo);
+        }
+
+        public void UnloadMod(ModInfo modInfo)
+        {
+            if (loadedMods.Contains(modInfo))
+            {
+                ModLoader.UnloadMod(modInfo);
+                loadedMods.Remove(modInfo);
+            }
+            else
+            {
+                Debug.LogError($"can't unload mod {modInfo.name} -> this mod was not loaded");
+            }
+        }
+
+       
+    }
+}
+
