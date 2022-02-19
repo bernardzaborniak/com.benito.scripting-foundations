@@ -8,10 +8,10 @@ namespace Benito.ScriptingFoundations.InspectorAttributes
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class ButtonAttribute : Attribute
     {
-        readonly string buttonName;
-        public ButtonAttribute(string buttonName) 
+        public readonly string displayName;
+        public ButtonAttribute(string displayName) 
         {
-            this.buttonName = buttonName;
+            this.displayName = displayName;
         }
     }
 }
