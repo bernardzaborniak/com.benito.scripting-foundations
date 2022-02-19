@@ -31,10 +31,10 @@ namespace Benito.ScriptingFoundations.InspectorAttributes.Editor
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
-            DrawButtons(targets);
+            DrawButtons();
         }
 
-        void DrawButtons(IEnumerable<object> targets)
+        void DrawButtons()
         {
             foreach (Button button in buttons)
             {

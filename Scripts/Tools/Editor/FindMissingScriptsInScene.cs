@@ -8,6 +8,8 @@ namespace Benito.ScriptingFoundations.Tools.Editor
     public class FindMissingScriptsInScene : EditorWindow
     {
         float buttonHeight = 28f;
+        Vector2 scroll;
+        private HashSet<GameObject> goWithMissingScripts = new HashSet<GameObject>();
 
         [MenuItem("Tools/Benito/Find Missing Scripts in Scene")]
         public static void ShowWindow()
@@ -15,9 +17,6 @@ namespace Benito.ScriptingFoundations.Tools.Editor
             var window = GetWindow<FindMissingScriptsInScene>("Find Missing Scripts in Scene");
             window.Show();
         }
-
-        Vector2 scroll;
-        private HashSet<GameObject> goWithMissingScripts = new HashSet<GameObject>();
 
         private void OnGUI()
         {
