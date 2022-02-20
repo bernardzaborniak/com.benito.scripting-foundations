@@ -9,15 +9,16 @@ namespace Benito.ScriptingFoundations.Validator.Editor
     public class ValidatorWindow : EditorWindow
     {
         float buttonHeight = 28f;
-        List<ValidationInfo> objectsToValidate = new List<ValidationInfo>();
-        List<ValidationInfo> objectsWithInvalidValues = new List<ValidationInfo>();
-        //List<GameObject> gosToValidateInScene = new List<GameObject>();
-        //List<GameObject> gosWithInvalidValuesInScene = new List<GameObject>();
 
-        //List<string> prefabsToValidate = new List<string>();
-        //List<string> prefabsWithInvalidValues = new List<string>();
+        List<ValidationInfoGameObjectCollection> allObjects = new List<ValidationInfoGameObjectCollection>();
+        bool[] allGoObjectFoldout;
+        bool[][] allComponentsFoldout;
+
+        List<ValidationInfoGameObjectCollection> objectsWithInvalidValues = new List<ValidationInfoGameObjectCollection>();
+        bool[] invalidGoObjectFoldout;
+        bool[][] invalidComponentsFoldout;
+
         Vector2 scroll;
-
 
         public class ValidationInfo
         {
@@ -28,24 +29,53 @@ namespace Benito.ScriptingFoundations.Validator.Editor
             }
             public readonly Type type;
 
+            public readonly string fieldName;
             public readonly ValidateAttribute attribute;
             public readonly string prefabPath;
             public readonly GameObject gameObjectInScene;
 
-            public bool isValid;
+            public readonly bool isValid;
 
-            public ValidationInfo(ValidateAttribute attribute, GameObject gameObjectInScene)
+            public ValidationInfo(string fieldName, ValidateAttribute attribute, bool isValid, GameObject gameObjectInScene)
             {
                 type = Type.GameObject;
+                this.fieldName = fieldName;
                 this.attribute = attribute;
+                this.isValid = isValid;
                 this.gameObjectInScene = gameObjectInScene;
             }
 
-            public ValidationInfo(ValidateAttribute attribute, string prefabPath)
+            public ValidationInfo(string fieldName, ValidateAttribute attribute, bool isValid, string prefabPath)
             {
                 type = Type.Prefab;
+                this.fieldName = fieldName;
                 this.attribute = attribute;
+                this.isValid = isValid;
                 this.prefabPath = prefabPath;
+            }
+        }
+
+        public class ValidationInfoComponentCollection
+        {
+            public string name;
+            public List<ValidationInfo> validationInfos;
+
+            public ValidationInfoComponentCollection(string name, List<ValidationInfo> validationInfos)
+            {
+                this.name = name;
+                this.validationInfos = validationInfos;
+            }
+        }
+
+        public class ValidationInfoGameObjectCollection
+        {
+            public string name;
+            public List<ValidationInfoComponentCollection> componentCollections;
+
+            public ValidationInfoGameObjectCollection(string name, List<ValidationInfoComponentCollection> componentCollections)
+            {
+                this.name = name;
+                this.componentCollections = componentCollections;
             }
         }
 
@@ -67,7 +97,7 @@ namespace Benito.ScriptingFoundations.Validator.Editor
             {
                 SearchForObjectsInScene();
             }
-            if (GUILayout.Button("Search in Prefabs in Assets and Packages", GUILayout.Width(position.width *0.49f), GUILayout.Height(buttonHeight)))
+            if (GUILayout.Button("Search in Prefabs in Assets and Packages", GUILayout.Width(position.width * 0.49f), GUILayout.Height(buttonHeight)))
             {
                 SearchForPrefabsInFolder();
             }
@@ -82,26 +112,62 @@ namespace Benito.ScriptingFoundations.Validator.Editor
         {
             scroll = GUILayout.BeginScrollView(scroll);
             {
-                foreach (ValidationInfo info in objectsToValidate)
-                {
-                    DrawValidationFailedObjectInScene(info);
-                }
+                EditorGUILayout.LabelField("Invalid Values");
+                DrawValidationInfoCollection(objectsWithInvalidValues, invalidGoObjectFoldout, invalidComponentsFoldout);
+
+                EditorGUILayout.Space();
+
+                EditorGUILayout.LabelField("All Objects");
+                DrawValidationInfoCollection(allObjects, allGoObjectFoldout, allComponentsFoldout);
             }
             GUILayout.EndScrollView();
         }
 
-        void DrawValidationFailedObjectInScene(ValidationInfo info)
+        void DrawValidationInfoCollection(List<ValidationInfoGameObjectCollection> infoCollection, bool[] foldoutBoolsObject, bool[][] foldoutBoolsCombonents)
+        {
+            for (int i = 0; i < infoCollection.Count; i++)
+            {
+                foldoutBoolsObject[i] = EditorGUILayout.Foldout(foldoutBoolsObject[i], infoCollection[i].name);
+
+                if (foldoutBoolsObject[i])
+                {
+                    EditorGUI.indentLevel += 1;
+                    //EditorGUILayout.LabelField();
+                    List<ValidationInfoComponentCollection> componentCollections = infoCollection[i].componentCollections;
+
+                    for (int j = 0; j < componentCollections.Count; j++)
+                    {
+                        foldoutBoolsCombonents[i][j] = EditorGUILayout.Foldout(foldoutBoolsCombonents[i][j], componentCollections[j].name);
+                        
+                        if(foldoutBoolsCombonents[i][j])
+                        {
+                            foreach (ValidationInfo info in componentCollections[j].validationInfos)
+                            {
+                                DrawValidationInfo(info);
+                            }
+                        }
+                    }
+                    EditorGUI.indentLevel -= 1;
+                }
+                // EditorGUILayout.EndFoldoutHeaderGroup();
+            }
+        }
+
+        void DrawValidationInfo(ValidationInfo validationInfo)
         {
             EditorGUILayout.BeginHorizontal();
             {
-                if(info.type == ValidationInfo.Type.GameObject)
+
+                EditorGUILayout.LabelField(validationInfo.fieldName);
+                if (validationInfo.isValid)
                 {
-                    EditorGUILayout.LabelField(info.gameObjectInScene.name);
+                    EditorGUILayout.LabelField("Is Correct");
                 }
-                else if(info.type == ValidationInfo.Type.Prefab)
+                else
                 {
-                    EditorGUILayout.LabelField(info.prefabPath);
+                    EditorGUILayout.HelpBox(validationInfo.attribute.errorMessage, MessageType.Error);
                 }
+
             }
             EditorGUILayout.EndHorizontal();
         }
@@ -110,21 +176,37 @@ namespace Benito.ScriptingFoundations.Validator.Editor
         void SearchForObjectsInScene()
         {
             GameObject[] allGoInScene = FindObjectsOfType<GameObject>(true);
-            objectsToValidate = CheckGameObjectsForValidateAttribute(allGoInScene);
+            CheckGameObjectsForInvalidValues(allGoInScene, out allObjects, out objectsWithInvalidValues);
+            //objectsWithInvalidValues = CheckObjectsForInvalidValues(objectsToValidate);
         }
 
         void SearchForPrefabsInFolder()
         {
             string[] prefabGUIDs = AssetDatabase.FindAssets("t: prefab");
-            objectsToValidate = CheckPrefabsForValidateAttribute(prefabGUIDs);
+            CheckPrefabsForInvalidValues(prefabGUIDs, out allObjects, out objectsWithInvalidValues);
+            //objectsWithInvalidValues = CheckObjectsForInvalidValues(objectsToValidate);
         }
 
-
-        List<ValidationInfo> CheckPrefabsForValidateAttribute(string[] prefabsToCheckGUIDs)
+        /*List<ValidationInfo> CheckObjectsForInvalidValues(List<ValidationInfo> objectsToCheck)
         {
-            List<ValidationInfo> prefabsWithValidateAttribute = new List<ValidationInfo>();
+            List<ValidationInfo> objectsWithInvalidValues = new List<ValidationInfo>();
 
-            for (int i = 0; i < prefabsToCheckGUIDs.Length; i++)
+            for (int i = 0; i < objectsToCheck.Count; i++)
+            {
+                if (EditorUtility.DisplayCancelableProgressBar($"Scanning for Invalid Values ...", "", (i / (float)objectsToCheck.Count)))
+                    break;
+
+                objectsToCheck[i].isValid = 
+            }
+        }*/
+
+
+        void CheckPrefabsForInvalidValues(string[] prefabsToCheckGUIDs, out List<ValidationInfoGameObjectCollection> allObjects, out List<ValidationInfoGameObjectCollection> invalidObjects)
+        {
+            allObjects = new List<ValidationInfoGameObjectCollection>();
+            invalidObjects = new List<ValidationInfoGameObjectCollection>();
+
+            /*for (int i = 0; i < prefabsToCheckGUIDs.Length; i++)
             {
                 string path = AssetDatabase.GUIDToAssetPath(prefabsToCheckGUIDs[i]);
 
@@ -136,59 +218,127 @@ namespace Benito.ScriptingFoundations.Validator.Editor
                     ValidateAttribute attribute;
                     if (DoesGameObjectHasValidateAttribute(prefab, out attribute))
                     {
-                        prefabsWithValidateAttribute.Add(new ValidationInfo(attribute, path));
+                        if(ValidationHelper.IsPropertyValid(attribute))
+
+                        prefabsWithInvalidValues.Add(new ValidationInfo(attribute, path));
                     }
                 }
             }
 
             EditorUtility.ClearProgressBar();
 
-            return prefabsWithValidateAttribute;
+            return prefabsWithInvalidValues;*/
         }
 
-        List<ValidationInfo> CheckGameObjectsForValidateAttribute(GameObject[] gosToCheck)
+        void CheckGameObjectsForInvalidValues(GameObject[] gosToCheck, out List<ValidationInfoGameObjectCollection> allObjects, out List<ValidationInfoGameObjectCollection> invalidObjects)
         {
-            List<ValidationInfo> gosWithValidateAttribute = new List<ValidationInfo>();
+            allObjects = new List<ValidationInfoGameObjectCollection>();
+            invalidObjects = new List<ValidationInfoGameObjectCollection>();
 
             for (int i = 0; i < gosToCheck.Length; i++)
             {
                 if (EditorUtility.DisplayCancelableProgressBar($"Looking for Objects to validate ...", gosToCheck[i].name, (i / (float)gosToCheck.Length)))
                     break;
 
-                ValidateAttribute attribute;
-                if (DoesGameObjectHasValidateAttribute(gosToCheck[i], out attribute))
+
+                List<ValidationInfoComponentCollection> allComponentCollections = new List<ValidationInfoComponentCollection>();
+                List<ValidationInfoComponentCollection> invalidComponentCollections = new List<ValidationInfoComponentCollection>();
+
+                Component[] components = gosToCheck[i].GetComponents<Component>();
+
+                foreach (Component component in components)
                 {
-                    gosWithValidateAttribute.Add(new ValidationInfo(attribute, gosToCheck[i]));
+                    if (component == null)
+                        continue;
+
+                    List<ValidationInfo> allInfosOnComponent = new List<ValidationInfo>();
+                    List<ValidationInfo> invalidInfosOnComponent = new List<ValidationInfo>();
+
+                    FieldInfo[] fieldInfos = component.GetType().GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+
+                    foreach (FieldInfo fieldInfo in fieldInfos)
+                    {
+                        ValidateAttribute attribute = fieldInfo.GetCustomAttribute<ValidateAttribute>();
+                        if (attribute != null)
+                        {
+                            SerializedObject serializedObject = new SerializedObject(component);
+
+                            string errorMessage;
+                            MessageType messageType;
+
+                            ValidationInfo validationInfo = new ValidationInfo(
+                                fieldInfo.Name,
+                                attribute,
+                                ValidationHelper.IsPropertyValid(serializedObject.FindProperty(fieldInfo.Name), attribute, out errorMessage, out messageType),
+                                gosToCheck[i]);
+
+                            allInfosOnComponent.Add(validationInfo);
+
+                            if (!validationInfo.isValid)
+                                invalidInfosOnComponent.Add(validationInfo);
+                        }
+                    }
+
+                    if(allInfosOnComponent.Count > 0)
+                        allComponentCollections.Add(new ValidationInfoComponentCollection(component.GetType().ToString(), allInfosOnComponent));
+
+                    if (invalidInfosOnComponent.Count > 0)
+                        invalidComponentCollections.Add(new ValidationInfoComponentCollection(component.GetType().ToString(), invalidInfosOnComponent));
                 }
+
+                if(allComponentCollections.Count>0)
+                    allObjects.Add(new ValidationInfoGameObjectCollection(gosToCheck[i].name, allComponentCollections));
+
+                if (invalidComponentCollections.Count > 0)
+                    invalidObjects.Add(new ValidationInfoGameObjectCollection(gosToCheck[i].name, invalidComponentCollections));
             }
 
             EditorUtility.ClearProgressBar();
 
-            return gosWithValidateAttribute;
+            // Prepare Foldout Bools
+            allGoObjectFoldout = new bool[allObjects.Count];
+            allComponentsFoldout = new bool[allObjects.Count][];
+            for (int i = 0; i < allObjects.Count; i++)
+            {
+                allComponentsFoldout[i] = new bool[allObjects[i].componentCollections.Count];
+            }
+
+            invalidGoObjectFoldout = new bool[invalidObjects.Count];
+            invalidComponentsFoldout = new bool[invalidObjects.Count][];
+            for (int i = 0; i < invalidObjects.Count; i++)
+            {
+                invalidComponentsFoldout[i] = new bool[invalidObjects[i].componentCollections.Count];
+            }
+
+
         }
 
-        bool DoesGameObjectHasValidateAttribute(GameObject gameObject, out ValidateAttribute attribute)
+        bool DoesGameObjectHasValidateAttribute(GameObject gameObject, out ValidateAttribute attribute, out FieldInfo fieldInfo, out SerializedObject serializedObject)
         {
             Component[] components = gameObject.GetComponents<Component>();
 
-            for (int j = 0; j < components.Length; j++)
+            for (int i = 0; i < components.Length; i++)
             {
-                if (components[j] == null)
+                if (components[i] == null)
                     continue;
 
-                FieldInfo[] fieldInfos = components[j].GetType().GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                FieldInfo[] fieldInfos = components[i].GetType().GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
 
                 foreach (FieldInfo info in fieldInfos)
                 {
                     attribute = info.GetCustomAttribute<ValidateAttribute>();
                     if (attribute != null)
                     {
+                        fieldInfo = info;
+                        serializedObject = new SerializedObject(components[i]);
                         return true;
                     }
                 }
             }
 
             attribute = null;
+            fieldInfo = null;
+            serializedObject = null;
             return false;
         }
 

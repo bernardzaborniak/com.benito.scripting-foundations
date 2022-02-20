@@ -32,7 +32,7 @@ namespace Benito.ScriptingFoundations.Validator
         {
             this.type = ValidateAttributeType.ObjectNotNull;
             this.errorMessage = errorMessage;
-            this.messageType = messageType;
+            this.messageType = messageType;           
         }
 
         public ValidateAttribute(string errorMessage, string validateMethodName, MessageType messageType = MessageType.Error)
