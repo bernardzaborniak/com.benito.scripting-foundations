@@ -109,7 +109,7 @@ namespace Benito.ScriptingFoundations.Validator.Editor
                 {
                     SearchForPrefabsInFolder();
                 }
-            }       
+            }
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
@@ -128,16 +128,20 @@ namespace Benito.ScriptingFoundations.Validator.Editor
             DisplaySearchResult();
         }
 
+        #region Drawing Results
+
         void DisplaySearchResult()
         {
             scroll = GUILayout.BeginScrollView(scroll);
             {
-                EditorGUILayout.LabelField("Invalid Values");
+                var labelStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontSize = 16, fontStyle = FontStyle.Bold };
+
+                EditorGUILayout.LabelField("Invalid Values", labelStyle);
                 DrawValidationInfoCollection(objectsWithInvalidValues, invalidGoObjectFoldout, invalidComponentsFoldout);
 
                 EditorGUILayout.Space();
 
-                EditorGUILayout.LabelField("All Objects");
+                EditorGUILayout.LabelField("All Objects", labelStyle);
                 DrawValidationInfoCollection(allObjects, allGoObjectFoldout, allComponentsFoldout);
             }
             GUILayout.EndScrollView();
@@ -145,9 +149,13 @@ namespace Benito.ScriptingFoundations.Validator.Editor
 
         void DrawValidationInfoCollection(List<ValidationInfoGameObjectCollection> infoCollection, bool[] foldoutBoolsObject, bool[][] foldoutBoolsCombonents)
         {
+            var foldout = EditorStyles.foldoutHeader;
+
             for (int i = 0; i < infoCollection.Count; i++)
             {
-                foldoutBoolsObject[i] = EditorGUILayout.Foldout(foldoutBoolsObject[i], infoCollection[i].name);
+                foldout.fontSize = 14; 
+                foldoutBoolsObject[i] = EditorGUILayout.Foldout(foldoutBoolsObject[i], infoCollection[i].name, foldout);
+                foldout.fontSize = 12;
 
                 if (foldoutBoolsObject[i])
                 {
@@ -156,13 +164,20 @@ namespace Benito.ScriptingFoundations.Validator.Editor
 
                     for (int j = 0; j < componentCollections.Count; j++)
                     {
-                        foldoutBoolsCombonents[i][j] = EditorGUILayout.Foldout(foldoutBoolsCombonents[i][j], componentCollections[j].name);
-                        
-                        if(foldoutBoolsCombonents[i][j])
+                        foldoutBoolsCombonents[i][j] = EditorGUILayout.Foldout(foldoutBoolsCombonents[i][j], componentCollections[j].name, foldout);
+
+                        if (foldoutBoolsCombonents[i][j])
                         {
                             foreach (ValidationInfo info in componentCollections[j].validationInfos)
                             {
+                                EditorGUI.indentLevel += 1;
+
+                                Rect rect = EditorGUILayout.GetControlRect(false, 2);
+                                rect.height = 2;
+                                EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 1));
+
                                 DrawValidationInfo(info);
+                                EditorGUI.indentLevel -= 1;
                             }
                         }
                     }
@@ -173,29 +188,104 @@ namespace Benito.ScriptingFoundations.Validator.Editor
 
         void DrawValidationInfo(ValidationInfo validationInfo)
         {
-            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.BeginHorizontal();//GUILayout.Height(EditorGUIUtility.singleLineHeight * 2f));
             {
+                if (validationInfo.prefabPath != "")
+                {
+                    EditorGUILayout.LabelField(validationInfo.fieldInfo.FieldType.ToString(), GUILayout.Width(position.width*0.15f));              
+                    EditorGUILayout.LabelField(validationInfo.fieldInfo.Name, GUILayout.Width(position.width * 0.2f));
+                    EditorGUILayout.LabelField(validationInfo.prefabPath, GUILayout.Width(position.width * 0.3f));
+                }
+                else
+                {
+                    EditorGUILayout.LabelField(validationInfo.fieldInfo.FieldType.ToString(), GUILayout.Width(position.width * 0.2f));
+                    EditorGUILayout.LabelField(validationInfo.fieldInfo.Name, GUILayout.Width(position.width * 0.4f));
+                }
 
-                EditorGUILayout.LabelField(validationInfo.fieldInfo.FieldType.ToString());
-                EditorGUILayout.LabelField(validationInfo.fieldInfo.Name);
-
-
-                if(validationInfo.prefabPath != "")
-                    EditorGUILayout.LabelField(validationInfo.prefabPath);
+                //EditorGUILayout.Space(position.width * 0.1f);
 
                 if (validationInfo.isValid)
                 {
-                    EditorGUILayout.LabelField("Is Correct");
+                    EditorGUILayout.LabelField("Is Correct", GUILayout.Width(position.width * 0.2f));
                 }
                 else
                 {
                     EditorGUILayout.HelpBox(validationInfo.attribute.errorMessage, MessageType.Error);
                 }
 
+                if (GUILayout.Button("Select", GUILayout.Width(position.width * 0.05f), GUILayout.Height(EditorGUIUtility.singleLineHeight * 2f)))
+                {
+                    Selection.activeObject = validationInfo.gameObject;
+                    
+                }
+                EditorGUILayout.LabelField("", GUILayout.Width(position.width * 0.001f)); // Small space so the button doesnt go too far to the right
+
+
             }
             EditorGUILayout.EndHorizontal();
         }
 
+        void ExpandAll()
+        {
+            for (int i = 0; i < allGoObjectFoldout.Length; i++)
+            {
+                allGoObjectFoldout[i] = true;
+            }
+
+            for (int i = 0; i < allComponentsFoldout.Length; i++)
+            {
+                for (int j = 0; j < allComponentsFoldout[i].Length; j++)
+                {
+                    allComponentsFoldout[i][j] = true;
+                }
+            }
+
+            for (int i = 0; i < invalidGoObjectFoldout.Length; i++)
+            {
+                invalidGoObjectFoldout[i] = true;
+            }
+
+            for (int i = 0; i < invalidComponentsFoldout.Length; i++)
+            {
+                for (int j = 0; j < invalidComponentsFoldout[i].Length; j++)
+                {
+                    invalidComponentsFoldout[i][j] = true;
+                }
+            }
+        }
+
+        void CollapseAll()
+        {
+            for (int i = 0; i < allGoObjectFoldout.Length; i++)
+            {
+                allGoObjectFoldout[i] = false;
+            }
+
+            for (int i = 0; i < allComponentsFoldout.Length; i++)
+            {
+                for (int j = 0; j < allComponentsFoldout[i].Length; j++)
+                {
+                    allComponentsFoldout[i][j] = false;
+                }
+            }
+
+            for (int i = 0; i < invalidGoObjectFoldout.Length; i++)
+            {
+                invalidGoObjectFoldout[i] = false;
+            }
+
+            for (int i = 0; i < invalidComponentsFoldout.Length; i++)
+            {
+                for (int j = 0; j < invalidComponentsFoldout[i].Length; j++)
+                {
+                    invalidComponentsFoldout[i][j] = false;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Scanning for Results
 
         void SearchForObjectsInScene()
         {
@@ -283,14 +373,14 @@ namespace Benito.ScriptingFoundations.Validator.Editor
                         }
                     }
 
-                    if(allInfosOnComponent.Count > 0)
+                    if (allInfosOnComponent.Count > 0)
                         allComponentCollections.Add(new ValidationInfoComponentCollection(component.GetType().ToString(), allInfosOnComponent));
 
                     if (invalidInfosOnComponent.Count > 0)
                         invalidComponentCollections.Add(new ValidationInfoComponentCollection(component.GetType().ToString(), invalidInfosOnComponent));
                 }
 
-                if(allComponentCollections.Count>0)
+                if (allComponentCollections.Count > 0)
                     allObjects.Add(new ValidationInfoGameObjectCollection(gosToCheck[i].gameObject.name, allComponentCollections));
 
                 if (invalidComponentCollections.Count > 0)
@@ -317,63 +407,7 @@ namespace Benito.ScriptingFoundations.Validator.Editor
 
         }
 
+        #endregion
 
-        void ExpandAll()
-        {
-            for (int i = 0; i < allGoObjectFoldout.Length; i++)
-            {
-                allGoObjectFoldout[i] = true;
-            }
-
-            for (int i = 0; i < allComponentsFoldout.Length; i++)
-            {
-                for (int j = 0; j < allComponentsFoldout[i].Length; j++)
-                {
-                    allComponentsFoldout[i][j] = true;
-                }
-            }
-
-            for (int i = 0; i < invalidGoObjectFoldout.Length; i++)
-            {
-                invalidGoObjectFoldout[i] = true;
-            }
-
-            for (int i = 0; i < invalidComponentsFoldout.Length; i++)
-            {
-                for (int j = 0; j < invalidComponentsFoldout[i].Length; j++)
-                {
-                    invalidComponentsFoldout[i][j] = true;
-                }
-            }
-        }
-
-        void CollapseAll()
-        {
-            for (int i = 0; i < allGoObjectFoldout.Length; i++)
-            {
-                allGoObjectFoldout[i] = false;
-            }
-
-            for (int i = 0; i < allComponentsFoldout.Length; i++)
-            {
-                for (int j = 0; j < allComponentsFoldout[i].Length; j++)
-                {
-                    allComponentsFoldout[i][j] = false;
-                }
-            }
-
-            for (int i = 0; i < invalidGoObjectFoldout.Length; i++)
-            {
-                invalidGoObjectFoldout[i] = false;
-            }
-
-            for (int i = 0; i < invalidComponentsFoldout.Length; i++)
-            {
-                for (int j = 0; j < invalidComponentsFoldout[i].Length; j++)
-                {
-                    invalidComponentsFoldout[i][j] = false;
-                }
-            }
-        }
     }
 }

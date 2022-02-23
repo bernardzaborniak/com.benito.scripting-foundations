@@ -21,7 +21,7 @@ namespace Benito.ScriptingFoundations.Validator.Editor
                 else if (property.objectReferenceValue == null)
                 {
                     errorMessage = attribute.errorMessage;
-                    errorMessageType = attribute.messageType == ValidateAttribute.MessageType.Error ? MessageType.Error : MessageType.Warning;
+                    errorMessageType = ConvertToEditorMessageType(attribute.messageType);
                     return false;
                 }
             }
@@ -45,7 +45,7 @@ namespace Benito.ScriptingFoundations.Validator.Editor
                 else
                 {
                     errorMessage = attribute.errorMessage;
-                    errorMessageType = attribute.messageType == ValidateAttribute.MessageType.Error ? MessageType.Error : MessageType.Warning;
+                    errorMessageType = ConvertToEditorMessageType(attribute.messageType);
                     return (bool)validateMethod.Invoke(property.serializedObject.targetObject, null);
                 }  
             }
@@ -53,6 +53,20 @@ namespace Benito.ScriptingFoundations.Validator.Editor
             errorMessage = "";
             errorMessageType = MessageType.None;
             return true;
+        }
+
+        public static MessageType ConvertToEditorMessageType(ValidateAttribute.MessageType attributeType)
+        {
+            if(attributeType == ValidateAttribute.MessageType.Error)
+            {
+                return MessageType.Error;
+            }
+            else if(attributeType == ValidateAttribute.MessageType.Warning)
+            {
+                return MessageType.Warning;
+            }
+
+            return MessageType.None;
         }
     }
 }
