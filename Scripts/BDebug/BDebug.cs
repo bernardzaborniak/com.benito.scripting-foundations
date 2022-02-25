@@ -146,7 +146,7 @@ namespace Benito.ScriptingFoundations.BDebug
             Matrix4x4 matrix = new Matrix4x4();
             matrix.SetTRS(position, Quaternion.LookRotation(arcDirection, normal), Vector3.one*arcLength);
 
-            float scalar = (arcAngle * Mathf.Deg2Rad) / verticesNumber;
+            float scalar = (arcAngle * Mathf.Deg2Rad) / (verticesNumber-1);
             float startAngle = Mathf.PI / 2 - (arcAngle * Mathf.Deg2Rad) / 2;
             float endAngle = Mathf.PI / 2 + (arcAngle * Mathf.Deg2Rad) / 2;
 
@@ -180,7 +180,7 @@ namespace Benito.ScriptingFoundations.BDebug
             Matrix4x4 matrix = new Matrix4x4();
             matrix.SetTRS(position, Quaternion.LookRotation(arcDirection, normal), Vector3.one * arcLength);
 
-            float scalar = (arcAngle * Mathf.Deg2Rad) / verticesNumber;
+            float scalar = (arcAngle * Mathf.Deg2Rad) / (verticesNumber-1);
             float startAngle = Mathf.PI / 2 + (arcAngle * Mathf.Deg2Rad) / 2;
             float endAngle = Mathf.PI / 2 - (arcAngle * Mathf.Deg2Rad) / 2;
 
