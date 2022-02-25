@@ -13,6 +13,7 @@ namespace Benito.ScriptingFoundations.Modding
     public class ModdingSettings : ScriptableObject
     {
         const string DefaultSettingsPathInResourcesFolder = "Settings/Modding Settings";
+        [HideInInspector]
         public string lastExportModPath;
 
         public enum PathPrefix

@@ -36,7 +36,7 @@ namespace Benito.ScriptingFoundations.Modding.Editor
             }
             else
             {
-                EditorGUILayout.HelpBox($"Please Assign or Create and Assign a valid {typeof(ModdingSettingsProvider)} Asset. \n The default location is \"Resources/Settings/Modding Settings\" ", MessageType.Error);
+                EditorGUILayout.HelpBox($"Please Assign or Create and Assign a valid {typeof(ModdingSettings)} Asset. \n The default location is \"Resources/Settings/Modding Settings\" ", MessageType.Error);
             }
         }
     }
