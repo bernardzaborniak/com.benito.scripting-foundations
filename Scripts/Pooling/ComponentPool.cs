@@ -18,6 +18,12 @@ namespace Benito.ScriptingFoundations.Pools
             this.spawnParent = spawnParent;
             base.Initialize();
         }
+        public void InitializeWithParams(Transform spawnParent, GameObject prefabWithComponent, int defaultSize, bool expandSize = false, int expandSizeInterval = 5, int maxExpandedSize = 50, bool reduceSize = true, float reduceSizeThreshold = 0.7f)
+        {
+            this.prefabWithComponent = prefabWithComponent;
+            this.spawnParent = spawnParent;
+            base.InitializeWithParams(defaultSize, expandSize ,  expandSizeInterval, maxExpandedSize, reduceSize, reduceSizeThreshold);
+        }
 
         protected override T CreatePoolObject()
         {

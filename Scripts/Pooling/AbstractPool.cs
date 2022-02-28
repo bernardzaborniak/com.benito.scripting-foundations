@@ -47,6 +47,31 @@ namespace Benito.ScriptingFoundations.Pools
             UpdatePoolStats();
         }
 
+        public virtual void InitializeWithParams(int defaultSize, bool expandSize = false, int expandSizeInterval = 5, int maxExpandedSize = 50, bool reduceSize = true, float reduceSizeThreshold = 0.7f)
+        {
+            this.defaultSize = defaultSize;
+            this.expandSize = expandSize;
+            this.expandSizeInterval = expandSizeInterval;
+            this.maxExpandedSize = maxExpandedSize;
+            this.reduceSize = reduceSize;
+            this.reduceSizeThreshold = reduceSizeThreshold;
+
+
+            unusedObjectQueue = new Queue<T>();
+            usedObjects = new HashSet<T>();
+
+
+            for (int i = 0; i < defaultSize; i++)
+            {
+                T obj = CreatePoolObject();
+                unusedObjectQueue.Enqueue(obj);
+                OnAddObjectToPool?.Invoke(obj);
+            }
+
+            UpdatePoolStats();
+        }
+
+
         public T Get()
         {
             if (unusedObjectQueue.Count == 0)
@@ -91,6 +116,11 @@ namespace Benito.ScriptingFoundations.Pools
         protected abstract T CreatePoolObject();
 
         protected abstract void DestroyPoolObject(T objectToDestroy);
+
+        public bool HasUnusedObjects()
+        {
+            return unusedObjectQueue.Count > 0;
+        }
 
         void UpdatePoolStats()
         {

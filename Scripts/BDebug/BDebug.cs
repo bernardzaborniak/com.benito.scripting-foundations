@@ -10,17 +10,26 @@ namespace Benito.ScriptingFoundations.BDebug
     {
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawText(string text, Vector3 position, float size, Color color, float maxDrawDistance = 50, float scaleWithDistanceRatio = 1)
+        public static void DrawText(string text, Vector3 position, float size, Color color, bool overlay, float scaleWithDistanceRatio = 0, float maxDrawDistance = 50)
         {
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawTextCommand(new BDebugDrawTextCommand(text, position, size, color, maxDrawDistance, scaleWithDistanceRatio));
+            GlobalSingletonManager.Get<BDebugManager>().AddDrawTextCommand(new BDebugDrawTextCommand(text, position, size, color, overlay, scaleWithDistanceRatio, maxDrawDistance));
         }
-
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
         public static void DrawLine(Vector3 start, Vector3 end, Color color, float thickness = 1, float maxDrawDistance = 100)
         {
             GlobalSingletonManager.Get<BDebugManager>().AddDrawLinesCommand(new BDebugDrawMultipleLinesCommand(new BDebugLineDrawingParams(start, end), color, thickness, maxDrawDistance));
+        }
+
+
+        [Conditional("UNITY_EDITOR")]
+        [Conditional("DEVELOPMENT_BUILD")]
+        public static void DrawLineWithDistance(Vector3 start, Vector3 end, Color lineColor, float lineThickness, float textSize, Color textColor, bool overlayText, float scaleTextWithDistanceRatio = 0, float maxDrawDistance = 100)
+        {
+            DrawLine(start, end, lineColor, lineThickness, maxDrawDistance);
+            Vector3 lineVector = end - start;
+            DrawText(lineVector.magnitude.ToString("F2") + " m", start + lineVector * 0.5f, textSize, textColor, overlayText, scaleTextWithDistanceRatio, maxDrawDistance);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -87,13 +96,6 @@ namespace Benito.ScriptingFoundations.BDebug
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawLineWithDistance(Vector3 start, Vector3 end, Color lineColor, float lineThickness, float textSize, Color textColor)
-        {
-            //TODO
-        }
-
-        [Conditional("UNITY_EDITOR")]
-        [Conditional("DEVELOPMENT_BUILD")]
         public static void DrawPoint(Vector3 position, Color color, float maxDrawingDistance = 50)
         {
             BDebugLineDrawingParams[] lines = new BDebugLineDrawingParams[]
@@ -112,15 +114,16 @@ namespace Benito.ScriptingFoundations.BDebug
         {
             BDebugLineDrawingParams[] lines = new BDebugLineDrawingParams[verticesNumber];
 
-            Matrix4x4 matrix = GetTransformMatrix(normal, radius);
+            Matrix4x4 matrix = new Matrix4x4();
+            matrix.SetTRS(position,Quaternion.LookRotation(Vector3.Slerp(normal, -normal, 0.5f),normal),Vector3.one*radius);
 
-            Vector3 lastPoint = position + matrix.MultiplyPoint3x4(new Vector3(Mathf.Cos(0), 0, Mathf.Sin(0)));
+            Vector3 lastPoint = matrix.MultiplyPoint3x4(new Vector3(Mathf.Cos(0), 0, Mathf.Sin(0)));
             Vector3 nextPoint = Vector3.zero;
 
             float scalar =  2*Mathf.PI / verticesNumber;
             for (int i = 0; i < verticesNumber; i++)
             {
-                nextPoint = position + matrix.MultiplyPoint3x4(new Vector3(Mathf.Cos((i+1)* scalar), 0, Mathf.Sin((i+1)* scalar)));
+                nextPoint =  matrix.MultiplyPoint3x4(new Vector3(Mathf.Cos((i+1)* scalar), 0, Mathf.Sin((i+1)* scalar)));
 
                 lines[i] = new BDebugLineDrawingParams(lastPoint, nextPoint);
                 lastPoint = nextPoint;
@@ -132,9 +135,14 @@ namespace Benito.ScriptingFoundations.BDebug
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawWireViewCone(Vector3 startPosition, Vector3 direction, float distance, float angle, Color color)
+        public static void DrawWireViewCone(Vector3 position, Vector3 direction, float distance, float angle, Color color, int verticesNumber = 24, float maxDrawingDistance = 50, float lineThickness = 1)
         {
-
+            // TODO just draw 2 arcs?
+            DrawWireArc(position, Vector3.up, direction, distance, angle, color, verticesNumber, maxDrawingDistance, lineThickness);
+            DrawWireArc(position, Vector3.right, direction, distance, angle, color, verticesNumber, maxDrawingDistance, lineThickness);
+            float circleRadius = Mathf.Sin(angle * 0.5f * Mathf.Deg2Rad) * distance;
+            float circleCenterDistance = Mathf.Cos(angle* 0.5f * Mathf.Deg2Rad) * distance;
+            DrawWireCircle(position + direction * circleCenterDistance, direction, circleRadius, color, verticesNumber, maxDrawingDistance, lineThickness);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -205,36 +213,6 @@ namespace Benito.ScriptingFoundations.BDebug
             mesh.triangles = triangles;
 
             GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(mesh, Vector3.zero, Quaternion.identity, Vector3.one, color, false, maxDrawingDistance));
-
         }
-
-        static Matrix4x4 GetTransformMatrix(Vector3 normal, Vector3 forward, float scale)
-        {
-            Matrix4x4 matrix = new Matrix4x4();
-            normal = normal.normalized * scale;
-            Vector3 right = Vector3.Cross(normal, forward).normalized * scale;
-
-            matrix[0] = right.x;
-            matrix[1] = right.y;
-            matrix[2] = right.z;
-
-            matrix[4] = normal.x;
-            matrix[5] = normal.y;
-            matrix[6] = normal.z;
-
-            matrix[8] = forward.x;
-            matrix[9] = forward.y;
-            matrix[10] = forward.z;
-
-            return matrix;
-        }
-
-        static Matrix4x4 GetTransformMatrix(Vector3 normal, float scale)
-        {
-            normal = normal.normalized * scale;
-            return GetTransformMatrix(normal,Vector3.Slerp(normal,-normal, 0.5f),scale);
-        }
-
-
     }
 }

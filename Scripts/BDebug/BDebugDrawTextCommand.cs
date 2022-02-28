@@ -12,8 +12,9 @@ namespace Benito.ScriptingFoundations.BDebug
         public Color color;
         public float maxDrawDistance;
         public float scaleWithDistanceRatio;
+        public bool overlay;
 
-        public BDebugDrawTextCommand(string text, Vector3 position, float size, Color color, float maxDrawDistance, float scaleWithDistanceRatio)
+        public BDebugDrawTextCommand(string text, Vector3 position, float size, Color color, bool overlay, float scaleWithDistanceRatio, float maxDrawDistance)
         {
             this.text = text;
             this.position = position;
@@ -21,6 +22,7 @@ namespace Benito.ScriptingFoundations.BDebug
             this.color = color;
             this.maxDrawDistance = maxDrawDistance;
             this.scaleWithDistanceRatio = scaleWithDistanceRatio;
+            this.overlay = overlay;
         }
     }
 }
