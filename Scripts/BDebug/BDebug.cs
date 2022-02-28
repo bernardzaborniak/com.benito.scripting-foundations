@@ -10,94 +10,125 @@ namespace Benito.ScriptingFoundations.BDebug
     {
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawText(string text, Vector3 position, float size, Color color, bool overlay, float scaleWithDistanceRatio = 0, float maxDrawDistance = 50)
+        public static void DrawText(string text, Vector3 position, float size, Color color, int drawingLayer = 0, bool overlay = false, float scaleWithDistanceRatio = 0, float maxDrawDistance = 50)
         {
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
+
             GlobalSingletonManager.Get<BDebugManager>().AddDrawTextCommand(new BDebugDrawTextCommand(text, position, size, color, overlay, scaleWithDistanceRatio, maxDrawDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawLine(Vector3 start, Vector3 end, Color color, float thickness = 1, float maxDrawDistance = 100)
+        public static void DrawLine(Vector3 start, Vector3 end, Color color, int drawingLayer = 0, float thickness = 1, float maxDrawDistance = 100)
         {
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
+
             GlobalSingletonManager.Get<BDebugManager>().AddDrawLinesCommand(new BDebugDrawMultipleLinesCommand(new BDebugLineDrawingParams(start, end), color, thickness, maxDrawDistance));
         }
 
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawLineWithDistance(Vector3 start, Vector3 end, Color lineColor, float lineThickness, float textSize, Color textColor, bool overlayText, float scaleTextWithDistanceRatio = 0, float maxDrawDistance = 100)
+        public static void DrawLineWithDistance(Vector3 start, Vector3 end, Color lineColor, float lineThickness, float textSize, Color textColor, int drawingLayer = 0, bool overlayText = false, float scaleTextWithDistanceRatio = 0, float maxDrawDistance = 100)
         {
-            DrawLine(start, end, lineColor, lineThickness, maxDrawDistance);
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
+
+            DrawLine(start, end, lineColor, drawingLayer, lineThickness, maxDrawDistance);
             Vector3 lineVector = end - start;
-            DrawText(lineVector.magnitude.ToString("F2") + " m", start + lineVector * 0.5f, textSize, textColor, overlayText, scaleTextWithDistanceRatio, maxDrawDistance);
+            DrawText(lineVector.magnitude.ToString("F2") + " m", start + lineVector * 0.5f, textSize, textColor, drawingLayer, overlayText, scaleTextWithDistanceRatio, maxDrawDistance);
         }
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float maxDrawDistance = 100)
+        public static void DrawMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, int drawingLayer = 0, float maxDrawDistance = 100)
         {
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
+
             GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(mesh, position, rotation, scale, color, false, maxDrawDistance));
-
         }
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawWireMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float maxDrawDistance = 100)
+        public static void DrawWireMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, int drawingLayer = 0, float maxDrawDistance = 100)
         {
-            UnityEngine.Profiling.Profiler.BeginSample("AddDrawMeshCommand");
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
 
             GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(mesh, position, rotation, scale, color, true, maxDrawDistance));
-            UnityEngine.Profiling.Profiler.EndSample();
-
         }
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawSphere(Vector3 position, Quaternion rotation, Vector3 scale, Color color, float maxDrawDistance = 100)
+        public static void DrawSphere(Vector3 position, Quaternion rotation, Vector3 scale, Color color, int drawingLayer = 0, float maxDrawDistance = 100)
         {
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
+
             GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Sphere.fbx"), position, rotation, scale, color, false, maxDrawDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawWireSphere(Vector3 position, Quaternion rotation, Vector3 scale, Color color, float maxDrawDistance = 100)
+        public static void DrawWireSphere(Vector3 position, Quaternion rotation, Vector3 scale, Color color, int drawingLayer = 0, float maxDrawDistance = 100)
         {
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
+
             // TODO Draw with lines instead of wiremesh shader?
             GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Sphere.fbx"), position, rotation, scale, color, true, maxDrawDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawCube(Vector3 position, Quaternion rotation, Vector3 scale, Color color, float maxDrawDistance = 100)
+        public static void DrawCube(Vector3 position, Quaternion rotation, Vector3 scale, Color color, int drawingLayer = 0, float maxDrawDistance = 100)
         {
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
+
             GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Cube.fbx"), position, rotation, scale, color, false, maxDrawDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawWireCube(Vector3 position, Quaternion rotation, Vector3 scale, Color color, float maxDrawDistance = 100)
+        public static void DrawWireCube(Vector3 position, Quaternion rotation, Vector3 scale, Color color, int drawingLayer = 0, float maxDrawDistance = 100)
         {
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
+
             GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Cube.fbx"), position, rotation, scale, color, true, maxDrawDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawCylinder(Vector3 position, Quaternion rotation, Vector3 scale, Color color, float maxDrawDistance = 100)
+        public static void DrawCylinder(Vector3 position, Quaternion rotation, Vector3 scale, Color color, int drawingLayer = 0, float maxDrawDistance = 100)
         {
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
+
             GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Cylinder.fbx"), position, rotation, scale, color, false, maxDrawDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawWireCylinder(Vector3 position, Quaternion rotation, Vector3 scale, Color color, float maxDrawDistance = 100)
+        public static void DrawWireCylinder(Vector3 position, Quaternion rotation, Vector3 scale, Color color, int drawingLayer = 0, float maxDrawDistance = 100)
         {
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
+
             GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Cylinder.fbx"), position, rotation, scale, color, true, maxDrawDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawPoint(Vector3 position, Color color, float maxDrawingDistance = 50)
+        public static void DrawPoint(Vector3 position, Color color, float maxDrawingDistance = 50, int drawingLayer = 0)
         {
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
+
             BDebugLineDrawingParams[] lines = new BDebugLineDrawingParams[]
                 {
                     new BDebugLineDrawingParams(position + Vector3.right * 0.5f, position + Vector3.left * 0.5f),
@@ -110,8 +141,11 @@ namespace Benito.ScriptingFoundations.BDebug
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawWireCircle(Vector3 position, Vector3 normal, float radius, Color color, int verticesNumber = 24, float maxDrawingDistance = 50, float lineThickness = 1)
+        public static void DrawWireCircle(Vector3 position, Vector3 normal, float radius, Color color, int drawingLayer = 0, int verticesNumber = 24, float maxDrawingDistance = 50, float lineThickness = 1)
         {
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
+
             BDebugLineDrawingParams[] lines = new BDebugLineDrawingParams[verticesNumber];
 
             Matrix4x4 matrix = new Matrix4x4();
@@ -135,20 +169,26 @@ namespace Benito.ScriptingFoundations.BDebug
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawWireViewCone(Vector3 position, Vector3 direction, float distance, float angle, Color color, int verticesNumber = 24, float maxDrawingDistance = 50, float lineThickness = 1)
+        public static void DrawWireViewCone(Vector3 position, Vector3 direction, float distance, float angle, Color color, int drawingLayer = 0, int verticesNumber = 24, float maxDrawingDistance = 50, float lineThickness = 1)
         {
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
+
             // TODO just draw 2 arcs?
-            DrawWireArc(position, Vector3.up, direction, distance, angle, color, verticesNumber, maxDrawingDistance, lineThickness);
-            DrawWireArc(position, Vector3.right, direction, distance, angle, color, verticesNumber, maxDrawingDistance, lineThickness);
+            DrawWireArc(position, Vector3.up, direction, distance, angle, color, verticesNumber,drawingLayer, maxDrawingDistance, lineThickness);
+            DrawWireArc(position, Vector3.right, direction, distance, angle, color, verticesNumber, drawingLayer, maxDrawingDistance, lineThickness);
             float circleRadius = Mathf.Sin(angle * 0.5f * Mathf.Deg2Rad) * distance;
             float circleCenterDistance = Mathf.Cos(angle* 0.5f * Mathf.Deg2Rad) * distance;
-            DrawWireCircle(position + direction * circleCenterDistance, direction, circleRadius, color, verticesNumber, maxDrawingDistance, lineThickness);
+            DrawWireCircle(position + direction * circleCenterDistance, direction, circleRadius, color, verticesNumber, drawingLayer, maxDrawingDistance, lineThickness);
         }
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawWireArc(Vector3 position, Vector3 normal, Vector3 arcDirection, float arcLength, float arcAngle, Color color, int verticesNumber = 24, float maxDrawingDistance = 50, float lineThickness = 1)
+        public static void DrawWireArc(Vector3 position, Vector3 normal, Vector3 arcDirection, float arcLength, float arcAngle, Color color, int drawingLayer = 0, int verticesNumber = 24, float maxDrawingDistance = 50, float lineThickness = 1)
         {
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
+
             BDebugLineDrawingParams[] lines = new BDebugLineDrawingParams[verticesNumber + 1];
 
             Matrix4x4 matrix = new Matrix4x4();
@@ -179,8 +219,11 @@ namespace Benito.ScriptingFoundations.BDebug
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawArc(Vector3 position, Vector3 normal, Vector3 arcDirection, float arcLength, float arcAngle, Color color, int verticesNumber = 24, float maxDrawingDistance = 50)
+        public static void DrawArc(Vector3 position, Vector3 normal, Vector3 arcDirection, float arcLength, float arcAngle, Color color, int drawingLayer = 0, int verticesNumber = 24, float maxDrawingDistance = 50)
         {
+            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
+                return;
+
             Mesh mesh = new Mesh();
             Vector3[] vertices = new Vector3[verticesNumber + 1];
             int[] triangles = new int[(verticesNumber -1)*3];

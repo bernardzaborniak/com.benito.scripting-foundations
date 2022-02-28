@@ -11,14 +11,27 @@ namespace Benito.ScriptingFoundations.Validator.Editor
         float buttonHeight = 28f;
 
         List<ValidationInfoGameObjectCollection> allObjects = new List<ValidationInfoGameObjectCollection>();
-        bool[] allGoObjectFoldout;
-        bool[][] allComponentsFoldout;
+        bool[] allGoObjectFoldout = new bool[0];
+        bool[][] allComponentsFoldout = new bool[0][];
 
         List<ValidationInfoGameObjectCollection> objectsWithInvalidValues = new List<ValidationInfoGameObjectCollection>();
-        bool[] invalidGoObjectFoldout;
-        bool[][] invalidComponentsFoldout;
+        bool[] invalidGoObjectFoldout = new bool[0];
+        bool[][] invalidComponentsFoldout = new bool[0][];
+
+        List<ValidationInfoCollection> allScriptableObjects = new List<ValidationInfoCollection>();
+        List<ValidationInfoCollection> scriptableObjectsWithInvalidValues = new List<ValidationInfoCollection>();
+        bool[] allScriptableObjectsFoldout = new bool[0];
+        bool[] invalidScriptableObjectsFoldout = new bool[0];
 
         Vector2 scroll;
+
+        enum SearchMode
+        {
+            Scene,
+            Prefabs,
+            ScriptableObjects
+        }
+        SearchMode currentSearchMode;
 
         #region Helper Classes
 
@@ -33,28 +46,28 @@ namespace Benito.ScriptingFoundations.Validator.Editor
 
             public readonly FieldInfo fieldInfo;
             public readonly ValidateAttribute attribute;
-            public readonly string prefabPath;
-            public readonly GameObject gameObject;
+            public readonly string path;
+            public readonly Object validationObject;
 
             public readonly bool isValid;
 
-            public ValidationInfo(FieldInfo fieldInfo, ValidateAttribute attribute, bool isValid, GameObject gameObject, string prefabPath = "")
+            public ValidationInfo(FieldInfo fieldInfo, ValidateAttribute attribute, bool isValid, Object validationObject, string path = "")
             {
                 type = Type.GameObject;
                 this.fieldInfo = fieldInfo;
                 this.attribute = attribute;
                 this.isValid = isValid;
-                this.gameObject = gameObject;
-                this.prefabPath = prefabPath;
+                this.validationObject = validationObject;
+                this.path = path;
             }
         }
 
-        class ValidationInfoComponentCollection
+        class ValidationInfoCollection
         {
             public string name;
             public List<ValidationInfo> validationInfos;
 
-            public ValidationInfoComponentCollection(string name, List<ValidationInfo> validationInfos)
+            public ValidationInfoCollection(string name, List<ValidationInfo> validationInfos)
             {
                 this.name = name;
                 this.validationInfos = validationInfos;
@@ -64,24 +77,37 @@ namespace Benito.ScriptingFoundations.Validator.Editor
         class ValidationInfoGameObjectCollection
         {
             public string name;
-            public List<ValidationInfoComponentCollection> componentCollections;
+            public List<ValidationInfoCollection> componentCollections;
 
-            public ValidationInfoGameObjectCollection(string name, List<ValidationInfoComponentCollection> componentCollections)
+            public ValidationInfoGameObjectCollection(string name, List<ValidationInfoCollection> componentCollections)
             {
                 this.name = name;
                 this.componentCollections = componentCollections;
             }
         }
 
+
         class ObjectToValidate
         {
-            public readonly string prefabPath;
-            public readonly GameObject gameObject;
+            public readonly string path;
+            public readonly Object validationObject;
 
-            public ObjectToValidate(GameObject gameObject, string prefabPath = "")
+            public ObjectToValidate(Object validationObject, string path = "")
             {
-                this.gameObject = gameObject;
-                this.prefabPath = prefabPath;
+                this.validationObject = validationObject;
+                this.path = path;
+            }
+        }
+
+        class ScriptableObjectToValidate
+        {
+            public readonly string path;
+            public readonly ScriptableObject scriptableObject;
+
+            public ScriptableObjectToValidate(ScriptableObject scriptableObject, string prefabPath = "")
+            {
+                this.scriptableObject = scriptableObject;
+                this.path = prefabPath;
             }
         }
 
@@ -101,13 +127,17 @@ namespace Benito.ScriptingFoundations.Validator.Editor
 
             EditorGUILayout.BeginHorizontal();
             {
-                if (GUILayout.Button("Search in Scene", GUILayout.Width(position.width * 0.49f), GUILayout.Height(buttonHeight)))
+                if (GUILayout.Button("Search in Scene", GUILayout.Width(position.width * 0.32f), GUILayout.Height(buttonHeight)))
                 {
                     SearchForObjectsInScene();
                 }
-                if (GUILayout.Button("Search in Prefabs in Assets and Packages", GUILayout.Width(position.width * 0.49f), GUILayout.Height(buttonHeight)))
+                if (GUILayout.Button("Search in Prefabs in Assets and Packages", GUILayout.Width(position.width * 0.32f), GUILayout.Height(buttonHeight)))
                 {
                     SearchForPrefabsInFolder();
+                }
+                if (GUILayout.Button("Search in Scriptable Objects in Assets and Packages", GUILayout.Width(position.width * 0.32f), GUILayout.Height(buttonHeight)))
+                {
+                    SearchForScriptableObjectsInFolder();
                 }
             }
             EditorGUILayout.EndHorizontal();
@@ -137,30 +167,44 @@ namespace Benito.ScriptingFoundations.Validator.Editor
                 var labelStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontSize = 16, fontStyle = FontStyle.Bold };
 
                 EditorGUILayout.LabelField("Invalid Values", labelStyle);
-                DrawValidationInfoCollection(objectsWithInvalidValues, invalidGoObjectFoldout, invalidComponentsFoldout);
+                if(currentSearchMode == SearchMode.ScriptableObjects)
+                {
+                    DrawValidationInfoColletionForSO(scriptableObjectsWithInvalidValues, invalidScriptableObjectsFoldout);
+                }
+                else
+                {
+                    DrawValidationInfoCollectionForGO(objectsWithInvalidValues, invalidGoObjectFoldout, invalidComponentsFoldout);
+                }
 
                 EditorGUILayout.Space();
 
                 EditorGUILayout.LabelField("All Objects", labelStyle);
-                DrawValidationInfoCollection(allObjects, allGoObjectFoldout, allComponentsFoldout);
+                if (currentSearchMode == SearchMode.ScriptableObjects)
+                {
+                    DrawValidationInfoColletionForSO(allScriptableObjects, allScriptableObjectsFoldout);
+                }
+                else
+                {
+                    DrawValidationInfoCollectionForGO(allObjects, allGoObjectFoldout, allComponentsFoldout);
+                }
             }
             GUILayout.EndScrollView();
         }
 
-        void DrawValidationInfoCollection(List<ValidationInfoGameObjectCollection> infoCollection, bool[] foldoutBoolsObject, bool[][] foldoutBoolsCombonents)
+        void DrawValidationInfoCollectionForGO(List<ValidationInfoGameObjectCollection> infoCollection, bool[] foldoutBoolsObjects, bool[][] foldoutBoolsCombonents)
         {
             var foldout = EditorStyles.foldoutHeader;
 
             for (int i = 0; i < infoCollection.Count; i++)
             {
-                foldout.fontSize = 14; 
-                foldoutBoolsObject[i] = EditorGUILayout.Foldout(foldoutBoolsObject[i], infoCollection[i].name, foldout);
+                foldout.fontSize = 14;
+                foldoutBoolsObjects[i] = EditorGUILayout.Foldout(foldoutBoolsObjects[i], infoCollection[i].name, foldout);
                 foldout.fontSize = 12;
 
-                if (foldoutBoolsObject[i])
+                if (foldoutBoolsObjects[i])
                 {
                     EditorGUI.indentLevel += 1;
-                    List<ValidationInfoComponentCollection> componentCollections = infoCollection[i].componentCollections;
+                    List<ValidationInfoCollection> componentCollections = infoCollection[i].componentCollections;
 
                     for (int j = 0; j < componentCollections.Count; j++)
                     {
@@ -186,15 +230,38 @@ namespace Benito.ScriptingFoundations.Validator.Editor
             }
         }
 
+        void DrawValidationInfoColletionForSO(List<ValidationInfoCollection> infoCollection, bool[] foldoutBoolsObjects)
+        {
+            for (int i = 0; i < infoCollection.Count; i++)
+            {
+                foldoutBoolsObjects[i] = EditorGUILayout.Foldout(foldoutBoolsObjects[i], infoCollection[i].name, EditorStyles.foldoutHeader);
+
+                if (foldoutBoolsObjects[i])
+                {
+                    foreach (ValidationInfo info in infoCollection[i].validationInfos)
+                    {
+                        EditorGUI.indentLevel += 1;
+
+                        Rect rect = EditorGUILayout.GetControlRect(false, 2);
+                        rect.height = 2;
+                        EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 1));
+
+                        DrawValidationInfo(info);
+                        EditorGUI.indentLevel -= 1;
+                    }
+                }
+            }
+        }
+
         void DrawValidationInfo(ValidationInfo validationInfo)
         {
             EditorGUILayout.BeginHorizontal();//GUILayout.Height(EditorGUIUtility.singleLineHeight * 2f));
             {
-                if (validationInfo.prefabPath != "")
+                if (validationInfo.path != "")
                 {
-                    EditorGUILayout.LabelField(validationInfo.fieldInfo.FieldType.ToString(), GUILayout.Width(position.width*0.15f));              
+                    EditorGUILayout.LabelField(validationInfo.fieldInfo.FieldType.ToString(), GUILayout.Width(position.width * 0.15f));
                     EditorGUILayout.LabelField(validationInfo.fieldInfo.Name, GUILayout.Width(position.width * 0.2f));
-                    EditorGUILayout.LabelField(validationInfo.prefabPath, GUILayout.Width(position.width * 0.3f));
+                    EditorGUILayout.LabelField(validationInfo.path, GUILayout.Width(position.width * 0.3f));
                 }
                 else
                 {
@@ -215,8 +282,8 @@ namespace Benito.ScriptingFoundations.Validator.Editor
 
                 if (GUILayout.Button("Select", GUILayout.Width(position.width * 0.05f), GUILayout.Height(EditorGUIUtility.singleLineHeight * 2f)))
                 {
-                    Selection.activeObject = validationInfo.gameObject;
-                    
+                    Selection.activeObject = validationInfo.validationObject;
+
                 }
                 EditorGUILayout.LabelField("", GUILayout.Width(position.width * 0.001f)); // Small space so the button doesnt go too far to the right
 
@@ -252,6 +319,15 @@ namespace Benito.ScriptingFoundations.Validator.Editor
                     invalidComponentsFoldout[i][j] = true;
                 }
             }
+
+            for (int i = 0; i < invalidScriptableObjectsFoldout.Length; i++)
+            {
+                invalidScriptableObjectsFoldout[i] = true;
+            }
+            for (int i = 0; i < allScriptableObjectsFoldout.Length; i++)
+            {
+                allScriptableObjectsFoldout[i] = true;
+            }
         }
 
         void CollapseAll()
@@ -281,6 +357,15 @@ namespace Benito.ScriptingFoundations.Validator.Editor
                     invalidComponentsFoldout[i][j] = false;
                 }
             }
+
+            for (int i = 0; i < invalidScriptableObjectsFoldout.Length; i++)
+            {
+                invalidScriptableObjectsFoldout[i] = false;
+            }
+            for (int i = 0; i < allScriptableObjectsFoldout.Length; i++)
+            {
+                allScriptableObjectsFoldout[i] = false;
+            }
         }
 
         #endregion
@@ -289,6 +374,8 @@ namespace Benito.ScriptingFoundations.Validator.Editor
 
         void SearchForObjectsInScene()
         {
+            currentSearchMode = SearchMode.Scene;
+
             GameObject[] allGoInScene = FindObjectsOfType<GameObject>(true);
 
             List<ObjectToValidate> objectsInScene = new List<ObjectToValidate>();
@@ -297,46 +384,130 @@ namespace Benito.ScriptingFoundations.Validator.Editor
                 objectsInScene.Add(new ObjectToValidate(allGoInScene[i]));
             }
 
-            CheckObjectsForInvalidValues(objectsInScene, out allObjects, out objectsWithInvalidValues);
+            CheckGameObjectsForInvalidValues(objectsInScene, out allObjects, out objectsWithInvalidValues);
         }
 
         void SearchForPrefabsInFolder()
         {
-            string[] prefabGUIDs = AssetDatabase.FindAssets("t: prefab");
-            Debug.Log("prefabGUIDs: " + prefabGUIDs.Length);
+            currentSearchMode = SearchMode.Prefabs;
+
+            string[] prefabAndSoGUIDs = AssetDatabase.FindAssets("t: prefab");
 
             List<ObjectToValidate> objectsInFolder = new List<ObjectToValidate>();
-            foreach (string guid in prefabGUIDs)
+            for (int i = 0; i < prefabAndSoGUIDs.Length; i++)
             {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                Debug.Log("check at path: " + path);
+                if (EditorUtility.DisplayCancelableProgressBar($"Looking for GameObjects to validate in Folder...", prefabAndSoGUIDs[i], (i / (float)prefabAndSoGUIDs.Length)))
+                    break;
+
+                string path = AssetDatabase.GUIDToAssetPath(prefabAndSoGUIDs[i]);
 
                 if (AssetDatabase.LoadMainAssetAtPath(path) is GameObject prefab)
                 {
-                    Debug.Log("add asset object: " + path);
                     objectsInFolder.Add(new ObjectToValidate(prefab, path));
                 }
             }
+            EditorUtility.ClearProgressBar();
 
-
-            CheckObjectsForInvalidValues(objectsInFolder, out allObjects, out objectsWithInvalidValues);
+            CheckGameObjectsForInvalidValues(objectsInFolder, out allObjects, out objectsWithInvalidValues);
         }
 
-        void CheckObjectsForInvalidValues(List<ObjectToValidate> gosToCheck, out List<ValidationInfoGameObjectCollection> allObjects, out List<ValidationInfoGameObjectCollection> invalidObjects)
+        void SearchForScriptableObjectsInFolder()
+        {
+            currentSearchMode = SearchMode.ScriptableObjects;
+
+            string[] prefabAndSoGUIDs = AssetDatabase.FindAssets("t: Object");
+
+            List<ObjectToValidate> scriptableObjectsInFolder = new List<ObjectToValidate>();
+
+
+            for (int i = 0; i < prefabAndSoGUIDs.Length; i++)
+            {
+                if (EditorUtility.DisplayCancelableProgressBar($"Looking for Scriptable Objects to validate in Folder...", prefabAndSoGUIDs[i], (i / (float)prefabAndSoGUIDs.Length)))
+                    break;
+
+                string path = AssetDatabase.GUIDToAssetPath(prefabAndSoGUIDs[i]);
+
+                if (AssetDatabase.LoadMainAssetAtPath(path) is ScriptableObject so)
+                {
+                    scriptableObjectsInFolder.Add(new ObjectToValidate(so, path));
+                }
+            }
+            EditorUtility.ClearProgressBar();
+
+            CheckScriptableObjectsForInvalidValues(scriptableObjectsInFolder, out allScriptableObjects, out scriptableObjectsWithInvalidValues);
+        }
+
+        void CheckScriptableObjectsForInvalidValues(List<ObjectToValidate> objectsToCheck, out List<ValidationInfoCollection> allScriptableObjects, out List<ValidationInfoCollection> invalidScriptableObjects)
+        {
+            allScriptableObjects = new List<ValidationInfoCollection>();
+            invalidScriptableObjects = new List<ValidationInfoCollection>();
+
+            for (int i = 0; i < objectsToCheck.Count; i++)
+            {
+                if (EditorUtility.DisplayCancelableProgressBar($"Validating Scriptable Objects ...", objectsToCheck[i].validationObject.name, (i / (float)objectsToCheck.Count)))
+                    break;
+
+                List<ValidationInfo> allValidationInfosForObject = new List<ValidationInfo>();
+                List<ValidationInfo> invalidValidationInfosForObject = new List<ValidationInfo>();
+
+
+                FieldInfo[] fieldInfos = objectsToCheck[i].validationObject.GetType().GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+
+                foreach (FieldInfo fieldInfo in fieldInfos)
+                {
+                    ValidateAttribute attribute = fieldInfo.GetCustomAttribute<ValidateAttribute>();
+                    if (attribute != null)
+                    {
+                        SerializedObject serializedObject = new SerializedObject(objectsToCheck[i].validationObject);
+
+                        string errorMessage;
+                        MessageType messageType;
+
+                        ValidationInfo validationInfo = new ValidationInfo(
+                            fieldInfo,
+                            attribute,
+                            ValidationHelper.IsPropertyValid(serializedObject.FindProperty(fieldInfo.Name), attribute, out errorMessage, out messageType),
+                            objectsToCheck[i].validationObject,
+                            objectsToCheck[i].path
+                            );
+
+                        allValidationInfosForObject.Add(validationInfo);
+
+                        if (!validationInfo.isValid)
+                            invalidValidationInfosForObject.Add(validationInfo);
+                    }
+                }
+
+                if (allValidationInfosForObject.Count > 0)
+                    allScriptableObjects.Add(new ValidationInfoCollection(objectsToCheck[i].validationObject.GetType().Name, allValidationInfosForObject));
+
+                if (invalidValidationInfosForObject.Count > 0)
+                    invalidScriptableObjects.Add(new ValidationInfoCollection(objectsToCheck[i].validationObject.GetType().Name, invalidValidationInfosForObject));
+
+            }
+
+            EditorUtility.ClearProgressBar();
+
+            // Prepare Foldout Bools
+            allScriptableObjectsFoldout = new bool[allScriptableObjects.Count];
+            invalidScriptableObjectsFoldout = new bool[invalidScriptableObjects.Count];
+        }
+
+        void CheckGameObjectsForInvalidValues(List<ObjectToValidate> gosToCheck, out List<ValidationInfoGameObjectCollection> allObjects, out List<ValidationInfoGameObjectCollection> invalidObjects)
         {
             allObjects = new List<ValidationInfoGameObjectCollection>();
             invalidObjects = new List<ValidationInfoGameObjectCollection>();
 
             for (int i = 0; i < gosToCheck.Count; i++)
             {
-                if (EditorUtility.DisplayCancelableProgressBar($"Looking for Objects to validate ...", gosToCheck[i].gameObject.name, (i / (float)gosToCheck.Count)))
+                if (EditorUtility.DisplayCancelableProgressBar($"Validating Objects ...", gosToCheck[i].validationObject.name, (i / (float)gosToCheck.Count)))
                     break;
 
 
-                List<ValidationInfoComponentCollection> allComponentCollections = new List<ValidationInfoComponentCollection>();
-                List<ValidationInfoComponentCollection> invalidComponentCollections = new List<ValidationInfoComponentCollection>();
+                List<ValidationInfoCollection> allComponentCollections = new List<ValidationInfoCollection>();
+                List<ValidationInfoCollection> invalidComponentCollections = new List<ValidationInfoCollection>();
 
-                Component[] components = gosToCheck[i].gameObject.GetComponents<Component>();
+                Component[] components = (gosToCheck[i].validationObject as GameObject).GetComponents<Component>();
 
                 foreach (Component component in components)
                 {
@@ -362,8 +533,8 @@ namespace Benito.ScriptingFoundations.Validator.Editor
                                 fieldInfo,
                                 attribute,
                                 ValidationHelper.IsPropertyValid(serializedObject.FindProperty(fieldInfo.Name), attribute, out errorMessage, out messageType),
-                                gosToCheck[i].gameObject,
-                                gosToCheck[i].prefabPath
+                                gosToCheck[i].validationObject,
+                                gosToCheck[i].path
                                 );
 
                             allInfosOnComponent.Add(validationInfo);
@@ -374,17 +545,17 @@ namespace Benito.ScriptingFoundations.Validator.Editor
                     }
 
                     if (allInfosOnComponent.Count > 0)
-                        allComponentCollections.Add(new ValidationInfoComponentCollection(component.GetType().ToString(), allInfosOnComponent));
+                        allComponentCollections.Add(new ValidationInfoCollection(component.GetType().ToString(), allInfosOnComponent));
 
                     if (invalidInfosOnComponent.Count > 0)
-                        invalidComponentCollections.Add(new ValidationInfoComponentCollection(component.GetType().ToString(), invalidInfosOnComponent));
+                        invalidComponentCollections.Add(new ValidationInfoCollection(component.GetType().ToString(), invalidInfosOnComponent));
                 }
 
                 if (allComponentCollections.Count > 0)
-                    allObjects.Add(new ValidationInfoGameObjectCollection(gosToCheck[i].gameObject.name, allComponentCollections));
+                    allObjects.Add(new ValidationInfoGameObjectCollection(gosToCheck[i].validationObject.name, allComponentCollections));
 
                 if (invalidComponentCollections.Count > 0)
-                    invalidObjects.Add(new ValidationInfoGameObjectCollection(gosToCheck[i].gameObject.name, invalidComponentCollections));
+                    invalidObjects.Add(new ValidationInfoGameObjectCollection(gosToCheck[i].validationObject.name, invalidComponentCollections));
             }
 
             EditorUtility.ClearProgressBar();

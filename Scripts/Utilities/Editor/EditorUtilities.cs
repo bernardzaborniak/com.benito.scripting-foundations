@@ -28,13 +28,34 @@ namespace Benito.ScriptingFoundations.Utilities.Editor
 
         public static void DrawDefaultInspectorForSerializedObject(SerializedObject so)
         {
+            //GUIStyle boldFoldoutStyle = new GUIStyle(EditorStyles.foldoutHeader);
+            //boldFoldoutStyle.
+
             so.Update();
 
             SerializedProperty prop = so.GetIterator();
             prop.NextVisible(true);
             while (prop.NextVisible(false))
             {
-                EditorGUILayout.PropertyField(prop);
+                
+                // I dont know why but I have to do this woraround or changes in arrays wont be saved :/
+                if(prop.isArray && prop.isExpanded)
+                {
+                    prop.isExpanded = EditorGUILayout.Foldout(prop.isExpanded, prop.displayName, EditorStyles.foldoutHeader);
+
+                    EditorGUI.indentLevel++;
+                    for (int i = 0; i < prop.arraySize; i++)
+                    {
+                        EditorGUILayout.PropertyField(prop.GetArrayElementAtIndex(i));
+                    }
+                    EditorGUI.indentLevel--;
+                }
+                else
+                {
+                    EditorGUILayout.PropertyField(prop);
+                }
+               
+
             }
 
             so.ApplyModifiedProperties();

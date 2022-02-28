@@ -41,6 +41,8 @@ namespace Benito.ScriptingFoundations.BDebug
             debugTransparentMaterial = settings.debugMeshTransparentMaterial;
             debugWireframeMaterial = settings.debugMeshWireframeMaterial;
             debugLineMaterial = settings.debugLineMaterial;
+            defaultTextMeshMaterial = settings.defaultTextMeshMaterial;
+            overlayTextMeshMaterial = settings.overlayTextMeshMaterial;
 
             lineMesh = Resources.GetBuiltinResource<Mesh>("Cube.fbx");
 
@@ -184,6 +186,15 @@ namespace Benito.ScriptingFoundations.BDebug
                 textMesh.fontSize = command.size * (distanceToCamera*command.scaleWithDistanceRatio);
                 textMesh.color = command.color;
                 textMesh.transform.forward = cameraTransform.forward;
+
+                if (command.overlay)
+                {
+                    textMesh.fontMaterial = overlayTextMeshMaterial;
+                }
+                else
+                {
+                    textMesh.fontMaterial = defaultTextMeshMaterial;
+                }
 
 
             }

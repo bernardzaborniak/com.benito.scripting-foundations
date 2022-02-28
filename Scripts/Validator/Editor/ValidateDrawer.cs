@@ -16,10 +16,11 @@ namespace Benito.ScriptingFoundations.Validator.Editor
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			isInvalid = false;
-			defaultHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+			defaultHeight = EditorGUIUtility.singleLineHeight;
 			helpBoxHeight = EditorGUIUtility.singleLineHeight * 2 + EditorGUIUtility.standardVerticalSpacing;
 
 			EditorGUI.PropertyField(new Rect(position.x, position.y, position.width, defaultHeight), property, new GUIContent(property.displayName));
+
 
 			ValidateAttribute attribute = (ValidateAttribute)this.attribute;
 
@@ -31,6 +32,8 @@ namespace Benito.ScriptingFoundations.Validator.Editor
 				isInvalid = true;
 				EditorGUI.HelpBox(new Rect(position.x, position.y + defaultHeight, position.width, helpBoxHeight), errorMessage, errorMessageType);
 			}
+
+
 		}
 
 
