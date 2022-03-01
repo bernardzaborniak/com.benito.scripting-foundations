@@ -30,7 +30,7 @@ namespace Benito.ScriptingFoundations.BDebug
 
 
         [Space(10)]
-        [SerializeField] bool[] drawingLayers = new bool[24];
+        [SerializeField] bool[] drawingLayers = new bool[24] { true, true , true , true , true , true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true };
         public bool[] DrawingLayers { get => drawingLayers; }
 
 

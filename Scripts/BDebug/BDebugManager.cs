@@ -13,7 +13,6 @@ namespace Benito.ScriptingFoundations.BDebug
 {
     public class BDebugManager : Singleton
     {
-        //ComponentPool<TextMeshPro> textMeshPool = new ComponentPool<TextMeshPro>();
         List<TextMeshPro> textMeshPool = new List<TextMeshPro>();
         List<TextMeshPro> usedTextMeshes = new List<TextMeshPro>();
 
@@ -57,10 +56,7 @@ namespace Benito.ScriptingFoundations.BDebug
                 TextMeshPro text = Instantiate(textPrefab, transform).GetComponent<TextMeshPro>();
                 textMeshPool.Add(text);
                 textMeshPool[i].enabled = false;
-                textMeshPool[i].text = "sefsefsefsefsef";
             }
-
-            UnityEngine.Debug.Log(" textMeshPool[0] " + textMeshPool[0]);
 
             Destroy(textPrefab);
 #endif
@@ -68,20 +64,15 @@ namespace Benito.ScriptingFoundations.BDebug
 
         public override void UpdateSingleton()
         {
-            //if (!initialized)
-            //    DoInitialiseSingleton();
-            //throw new System.NotImplementedException();
+
         }
 
         public void LateUpdate()
         {
             float distanceToCameraSquared = 0;
             float distanceToCamera = 0;
-            //float angleTowardsCamera;
             Transform cameraTransform = Camera.main.transform;
             Vector3 cameraPosition = cameraTransform.position;
-            //Vector3 cameraForward = Camera.current.transform.forward;
-            //Vector3 directionFromCameraToMesh;
             MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
 
             int colorPropertyID = Shader.PropertyToID("_BaseColor");
@@ -89,7 +80,6 @@ namespace Benito.ScriptingFoundations.BDebug
             // Go through all commands and execute them 
             foreach (BDebugDrawMeshCommand command in drawMeshCommands)
             {
-                // 1 Check Distance
                 distanceToCameraSquared = (command.matrix.GetPosition() - cameraPosition).sqrMagnitude;
                 if (distanceToCameraSquared > command.maxDrawDistance * command.maxDrawDistance)
                     continue;
@@ -148,7 +138,7 @@ namespace Benito.ScriptingFoundations.BDebug
 
 
 
-            //this code crashes with uCOntext - ive wrote to the dev and asked him to fix it...
+            //this code crashes with uCOntext - ive wrote to the dev and asked him to fix it... which he did at the same ay +1
             for (int i = 0; i < usedTextMeshes.Count; i++)
             {
                 usedTextMeshes[i].enabled = false;
@@ -205,15 +195,6 @@ namespace Benito.ScriptingFoundations.BDebug
             drawLinesCommands.Clear();
         }
 
-        /* [Conditional("UNITY_EDITOR")]
-         [Conditional("DEVELOPMENT_BUILD")]
-         public void Draw(Transform  transform)
-         {
-             transform.position += Vector3.up * Time.deltaTime * 0.1f;
-            // UnityEngine.Debug.Log("amma draw 2");
-             //UnityEngine.Debug.DrawLine(transform.position ,Vector3.forward * 2, Color.blue);
-         }*/
-
         public void AddDrawMeshCommand(BDebugDrawMeshCommand command)
         {
             drawMeshCommands.Add(command);
@@ -228,7 +209,6 @@ namespace Benito.ScriptingFoundations.BDebug
         {
             drawLinesCommands.Add(command);
         }
-
 
     }
 }
