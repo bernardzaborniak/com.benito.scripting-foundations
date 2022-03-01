@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using Benito.ScriptingFoundations.Utilities;
 using Benito.ScriptingFoundations.Validator;
+using System.IO;
 
 namespace Benito.ScriptingFoundations.BDebug
 {
     public class BDebugSettings : ScriptableObject
     {
         const string DefaultSettingsPathInResourcesFolder = "Settings/BDebug Settings";
+        const string DebugMaterialsFolderLocation = "Packages/com.benito.scripting-foundations/Materials/BDebug URP";
+
         [Space(10)]
         [Validate("cant be null")]
         public Material debugMeshMaterial;
@@ -34,7 +37,36 @@ namespace Benito.ScriptingFoundations.BDebug
 
         public static BDebugSettings GetOrCreateSettings()
         {
-            return SettingsUtilities.GetOrCreateSettingAsset<BDebugSettings>(DefaultSettingsPathInResourcesFolder);
+            BDebugSettings settings = SettingsUtilities.GetOrCreateSettingAsset<BDebugSettings>(DefaultSettingsPathInResourcesFolder);
+
+#if UNITY_EDITOR
+            if (settings.debugMeshMaterial == null)        
+                settings.debugMeshMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath(Path.Combine(DebugMaterialsFolderLocation, "Debug.mat"), typeof(Material)) as Material;
+
+            if (settings.debugMeshTransparentMaterial == null)
+                settings.debugMeshTransparentMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath(Path.Combine(DebugMaterialsFolderLocation, "Debug Transparent.mat"), typeof(Material)) as Material;
+
+            if (settings.debugMeshWireframeMaterial == null)
+                settings.debugMeshWireframeMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath(Path.Combine(DebugMaterialsFolderLocation, "Debug Wireframe.mat"), typeof(Material)) as Material;
+
+            if (settings.debugLineMaterial == null)
+                settings.debugLineMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath(Path.Combine(DebugMaterialsFolderLocation, "Debug Line.mat"), typeof(Material)) as Material;
+
+            if (settings.defaultTextMeshMaterial == null)
+                settings.defaultTextMeshMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath(Path.Combine(DebugMaterialsFolderLocation, "Debug TextMesh.mat"), typeof(Material)) as Material;
+
+            if (settings.defaultTextMeshMaterial == null)
+                settings.defaultTextMeshMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath(Path.Combine(DebugMaterialsFolderLocation, "Debug TextMesh.mat"), typeof(Material)) as Material;
+
+            if (settings.defaultTextMeshMaterial == null)
+                settings.defaultTextMeshMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath(Path.Combine(DebugMaterialsFolderLocation, "Debug TextMesh.mat"), typeof(Material)) as Material;
+
+            if (settings.overlayTextMeshMaterial == null)
+                settings.overlayTextMeshMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath(Path.Combine(DebugMaterialsFolderLocation, "Debug Overlay TextMesh.mat"), typeof(Material)) as Material;
+
+#endif
+
+            return settings;
         }
 
     }
