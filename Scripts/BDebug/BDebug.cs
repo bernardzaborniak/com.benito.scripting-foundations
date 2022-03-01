@@ -28,7 +28,6 @@ namespace Benito.ScriptingFoundations.BDebug
             GlobalSingletonManager.Get<BDebugManager>().AddDrawLinesCommand(new BDebugDrawMultipleLinesCommand(new BDebugLineDrawingParams(start, end), color, thickness, maxDrawDistance));
         }
 
-
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
         public static void DrawLineWithDistance(Vector3 start, Vector3 end, Color lineColor, float lineThickness, float textSize, Color textColor, int drawingLayer = 0, bool overlayText = false, float scaleTextWithDistanceRatio = 0, float maxDrawDistance = 100)
@@ -73,13 +72,33 @@ namespace Benito.ScriptingFoundations.BDebug
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawWireSphere(Vector3 position, Quaternion rotation, Vector3 scale, Color color, int drawingLayer = 0, float maxDrawDistance = 100)
+        public static void DrawWireSphere(Vector3 position, Quaternion rotation, float radius, Color color, int drawingLayer = 0, int vertCount = 12, bool moreCircles = false,float maxDrawDistance = 100,float lineThickness = 1)
         {
             if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
                 return;
 
-            // TODO Draw with lines instead of wiremesh shader?
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Sphere.fbx"), position, rotation, scale, color, true, maxDrawDistance));
+            if (vertCount < 3)
+            {
+                UnityEngine.Debug.LogError("Cant draw a Wire Sphere with less than 3 vertices!");
+                return;
+            }
+
+            DrawWireCircle(position, rotation * Vector3.forward, radius, color, drawingLayer, vertCount, maxDrawDistance, lineThickness);
+            DrawWireCircle(position, rotation * Vector3.right, radius, color, drawingLayer, vertCount, maxDrawDistance, lineThickness);
+            DrawWireCircle(position, rotation * Vector3.up, radius, color, drawingLayer, vertCount, maxDrawDistance, lineThickness);
+
+
+            if (moreCircles)
+            {
+                DrawWireCircle(position, rotation * (Vector3.forward + Vector3.right), radius, color, drawingLayer, vertCount, maxDrawDistance, lineThickness);
+                DrawWireCircle(position, rotation * (Vector3.forward + Vector3.left), radius, color, drawingLayer, vertCount, maxDrawDistance, lineThickness);
+
+                DrawWireCircle(position, rotation * (Vector3.right + Vector3.up), radius, color, drawingLayer, vertCount, maxDrawDistance, lineThickness);
+                DrawWireCircle(position, rotation * (Vector3.right + Vector3.down), radius, color, drawingLayer, vertCount, maxDrawDistance, lineThickness);
+
+                DrawWireCircle(position, rotation * (Vector3.up + Vector3.forward), radius, color, drawingLayer, vertCount, maxDrawDistance, lineThickness);
+                DrawWireCircle(position, rotation * (Vector3.up + Vector3.back), radius, color, drawingLayer, vertCount, maxDrawDistance, lineThickness);
+            }
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -94,12 +113,48 @@ namespace Benito.ScriptingFoundations.BDebug
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawWireCube(Vector3 position, Quaternion rotation, Vector3 scale, Color color, int drawingLayer = 0, float maxDrawDistance = 100)
+        public static void DrawWireCube(Vector3 position, Quaternion rotation, Vector3 scale, Color color, int drawingLayer = 0, float maxDrawingDistance = 50, float lineThickness = 1)
         {
             if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
                 return;
 
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Cube.fbx"), position, rotation, scale, color, true, maxDrawDistance));
+            BDebugLineDrawingParams[] lines = new BDebugLineDrawingParams[12];
+
+            Matrix4x4 matrix = new Matrix4x4();
+            matrix.SetTRS(position, rotation, scale);
+
+            Vector3[] points = new Vector3[8];
+
+            // Draw lower Quad Verts
+            points[0] = matrix.MultiplyPoint3x4(new Vector3(-0.5f, -0.5f, -0.5f));
+            points[1] = matrix.MultiplyPoint3x4(new Vector3(-0.5f, -0.5f, 0.5f));
+            points[2] = matrix.MultiplyPoint3x4(new Vector3(0.5f, -0.5f, 0.5f));
+            points[3] = matrix.MultiplyPoint3x4(new Vector3(0.5f, -0.5f, -0.5f));
+
+            // Draw upper Quad Verts
+            points[4] = matrix.MultiplyPoint3x4(new Vector3(-0.5f, 0.5f, -0.5f));
+            points[5] = matrix.MultiplyPoint3x4(new Vector3(-0.5f, 0.5f, 0.5f));
+            points[6] = matrix.MultiplyPoint3x4(new Vector3(0.5f, 0.5f, 0.5f));
+            points[7] = matrix.MultiplyPoint3x4(new Vector3(0.5f, 0.5f, -0.5f));
+
+            // Connect Points
+            lines[0] = new BDebugLineDrawingParams(points[0],points[1]);
+            lines[1] = new BDebugLineDrawingParams(points[1],points[2]);
+            lines[2] = new BDebugLineDrawingParams(points[2],points[3]);
+            lines[3] = new BDebugLineDrawingParams(points[3],points[0]);
+
+            lines[4] = new BDebugLineDrawingParams(points[4],points[5]);
+            lines[5] = new BDebugLineDrawingParams(points[5],points[6]);
+            lines[6] = new BDebugLineDrawingParams(points[6],points[7]);
+            lines[7] = new BDebugLineDrawingParams(points[7],points[4]);
+
+            lines[8] = new BDebugLineDrawingParams(points[0], points[4]);
+            lines[9] = new BDebugLineDrawingParams(points[1], points[5]);
+            lines[10] = new BDebugLineDrawingParams(points[2], points[6]);
+            lines[11] = new BDebugLineDrawingParams(points[3], points[7]);
+
+
+            GlobalSingletonManager.Get<BDebugManager>().AddDrawLinesCommand(new BDebugDrawMultipleLinesCommand(lines, color, lineThickness, maxDrawingDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -110,16 +165,6 @@ namespace Benito.ScriptingFoundations.BDebug
                 return;
 
             GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Cylinder.fbx"), position, rotation, scale, color, false, maxDrawDistance));
-        }
-
-        [Conditional("UNITY_EDITOR")]
-        [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawWireCylinder(Vector3 position, Quaternion rotation, Vector3 scale, Color color, int drawingLayer = 0, float maxDrawDistance = 100)
-        {
-            if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
-                return;
-
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Cylinder.fbx"), position, rotation, scale, color, true, maxDrawDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
