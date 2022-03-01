@@ -146,6 +146,12 @@ namespace Benito.ScriptingFoundations.BDebug
             if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
                 return;
 
+            if (verticesNumber < 3)
+            {
+                UnityEngine.Debug.LogError("Cant draw a Wire Circle with less than 3 vertices!");
+                return;
+            }
+
             BDebugLineDrawingParams[] lines = new BDebugLineDrawingParams[verticesNumber];
 
             Matrix4x4 matrix = new Matrix4x4();
@@ -174,12 +180,17 @@ namespace Benito.ScriptingFoundations.BDebug
             if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
                 return;
 
-            // TODO just draw 2 arcs?
-            DrawWireArc(position, Vector3.up, direction, distance, angle, color, verticesNumber,drawingLayer, maxDrawingDistance, lineThickness);
-            DrawWireArc(position, Vector3.right, direction, distance, angle, color, verticesNumber, drawingLayer, maxDrawingDistance, lineThickness);
+            if (verticesNumber < 2)
+            {
+                UnityEngine.Debug.LogError("Cant draw a View Cone with less than 2 vertices!");
+                return;
+            }
+
+            DrawWireArc(position, Vector3.up, direction, distance, angle, color,drawingLayer, verticesNumber, maxDrawingDistance, lineThickness);
+            DrawWireArc(position, Vector3.right, direction, distance, angle, color, drawingLayer, verticesNumber, maxDrawingDistance, lineThickness);
             float circleRadius = Mathf.Sin(angle * 0.5f * Mathf.Deg2Rad) * distance;
             float circleCenterDistance = Mathf.Cos(angle* 0.5f * Mathf.Deg2Rad) * distance;
-            DrawWireCircle(position + direction * circleCenterDistance, direction, circleRadius, color, verticesNumber, drawingLayer, maxDrawingDistance, lineThickness);
+            DrawWireCircle(position + direction * circleCenterDistance, direction, circleRadius, color, drawingLayer,verticesNumber*2, maxDrawingDistance, lineThickness);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -188,6 +199,12 @@ namespace Benito.ScriptingFoundations.BDebug
         {
             if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
                 return;
+
+            if (verticesNumber < 2)
+            {
+                UnityEngine.Debug.LogError("Cant draw an Arc with less than 2 vertices!");
+                return;
+            }
 
             BDebugLineDrawingParams[] lines = new BDebugLineDrawingParams[verticesNumber + 1];
 
@@ -223,6 +240,12 @@ namespace Benito.ScriptingFoundations.BDebug
         {
             if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
                 return;
+
+            if (verticesNumber < 2)
+            {
+                UnityEngine.Debug.LogError("Cant draw an Arc with less than 2 vertices!");
+                return;
+            }
 
             Mesh mesh = new Mesh();
             Vector3[] vertices = new Vector3[verticesNumber + 1];
