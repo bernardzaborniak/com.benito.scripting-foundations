@@ -10,7 +10,7 @@ namespace Benito.ScriptingFoundations.BDebug
     {
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawText(string text, Vector3 position, float size, Color color, int drawingLayer = 0, bool overlay = false, float scaleWithDistanceRatio = 0, float maxDrawDistance = 50)
+        public static void DrawText(string text, Vector3 position, float size, Color color, float scaleWithDistanceRatio = 0, int drawingLayer = 0, bool overlay = false, float maxDrawDistance = 50)
         {
             if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
                 return;
@@ -30,14 +30,14 @@ namespace Benito.ScriptingFoundations.BDebug
 
         [Conditional("UNITY_EDITOR")]
         [Conditional("DEVELOPMENT_BUILD")]
-        public static void DrawLineWithDistance(Vector3 start, Vector3 end, Color lineColor, float lineThickness, float textSize, Color textColor, int drawingLayer = 0, bool overlayText = false, float scaleTextWithDistanceRatio = 0, float maxDrawDistance = 100)
+        public static void DrawLineWithDistance(Vector3 start, Vector3 end, Color lineColor, float lineThickness, float textSize, Color textColor, float scaleTextWithDistanceRatio = 0, int drawingLayer = 0, bool overlayText = false, float maxDrawDistance = 100)
         {
             if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
                 return;
 
             DrawLine(start, end, lineColor, drawingLayer, lineThickness, maxDrawDistance);
             Vector3 lineVector = end - start;
-            DrawText(lineVector.magnitude.ToString("F2") + " m", start + lineVector * 0.5f, textSize, textColor, drawingLayer, overlayText, scaleTextWithDistanceRatio, maxDrawDistance);
+            DrawText(lineVector.magnitude.ToString("F2") + " m", start + lineVector * 0.5f, textSize, textColor, scaleTextWithDistanceRatio, drawingLayer, overlayText, maxDrawDistance);
         }
 
         [Conditional("UNITY_EDITOR")]
