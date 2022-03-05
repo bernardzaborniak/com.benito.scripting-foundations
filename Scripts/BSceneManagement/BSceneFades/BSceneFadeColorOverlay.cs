@@ -36,10 +36,12 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 {
                     playTransition = false;
                     colorOverlayImage.color = endColor;
+                    OnTransitionFinished?.Invoke();
                 }
                 else
                 {
                     float progress = Mathf.Lerp(0, 1, (Time.time-transitionStartTime)/ (nextTransitionEndTime - transitionStartTime));
+                   // Debug.Log("progress: " + progress);
                     colorOverlayImage.color = Color.Lerp(startColor, endColor, progress);
                 }
             }

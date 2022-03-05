@@ -13,7 +13,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         BSceneTransition currentTransition;
 
         public Action OnPreloadingSceneFinished;
-        //bool hasPreloadedScene { get => }
 
         public enum Status
         {
@@ -27,6 +26,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         AsyncOperation preloadSceneOperation;
         public float PreloadingSceneProgress { get => preloadSceneOperation.progress; }
+        public float NormalizedPreloadingSceneProgress { get => preloadSceneOperation.progress/0.9f; }
 
 
         public override void InitialiseSingleton()
@@ -79,21 +79,20 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             //SceneManager.LoadScene
         }
 
-        public void SwitchToPreloadedSceneAsync(BSceneFade exitCurrentSceneFade = null, BSceneFade enterNextSceneFade = null)
+        public void SwitchToPreloadedSceneAsync(GameObject exitCurrentSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
-            currentTransition = new BSceneTransitionDefault(SceneManager.GetActiveScene().name, preloadedScene, preloadSceneOperation, exitCurrentSceneFade, enterNextSceneFade);
+            currentTransition = new BSceneTransitionDefault(transform,SceneManager.GetActiveScene().name, preloadedScene, preloadSceneOperation, exitCurrentSceneFadePrefab, enterNextSceneFadePrefab);
+            status = Status.Transitioning;
+        }
+
+        public void SwitchThroughPreloadedTransitionScene(string nextScene, string transitionScene,
+            GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
+            GameObject exitTransitiontSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
+        {
+            currentTransition = new BSceneTransitionWithTransitionScene();
             status = Status.Transitioning;
 
         }
-
-        public void SwitchThroughPreloadedTransitionScene(string nextScene, string transitionScene, 
-            BSceneFade exitCurrentSceneFade = null, BSceneFade enterTransitionSceneFade = null,
-            BSceneFade exitTransitiontSceneFade = null, BSceneFade enterNextSceneFade = null)
-        {
-            currentTransition = new BSceneTransitionWithTransitionScene();
-
-
-        }      
     }
 
 }

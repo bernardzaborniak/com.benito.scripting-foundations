@@ -32,13 +32,19 @@ namespace Benito.ScriptingFoundations.Validator.Editor
 
                 if(validateMethod == null)
                 {
-                    errorMessage = $"The Name of the validateMethod is wrong, no such method exists - Attribute of \"{property.name}\" in \"{property.serializedObject.targetObject.GetType()}\" ";
+                    errorMessage = $"The Name of the validateMethod \"{validateMethod.Name}\" is wrong, no such method exists - Attribute of \"{property.name}\" in \"{property.serializedObject.targetObject.GetType()}\" ";
                     errorMessageType = MessageType.Error;
                     return false;
                 }
                 else if(validateMethod.ReturnType != typeof(bool))
                 {
-                    errorMessage = $"The validateMethod needs to return a bool - Attribute of \"{property.name}\" in \"{property.serializedObject.targetObject.GetType()}\" ";
+                    errorMessage = $"The validateMethod \"{validateMethod.Name}\" needs to return a bool - Attribute of \"{property.name}\" in \"{property.serializedObject.targetObject.GetType()}\" ";
+                    errorMessageType = MessageType.Error;
+                    return false;
+                }
+                else if (validateMethod.GetParameters().Length >0)
+                {
+                    errorMessage = $"The validateMethod \"{validateMethod.Name}\" should not have any parameters - Attribute of \"{property.name}\" in \"{property.serializedObject.targetObject.GetType()}\" ";
                     errorMessageType = MessageType.Error;
                     return false;
                 }
