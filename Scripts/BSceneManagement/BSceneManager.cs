@@ -63,33 +63,48 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             SceneManager.LoadScene(newScene);
         }
 
-        public Action PreloadScene(string sceneName)
+        public AsyncOperation PreloadScene(string sceneName)
         {
             status = Status.PreloadingScene;
             preloadSceneOperation =  SceneManager.LoadSceneAsync(sceneName);
             preloadSceneOperation.allowSceneActivation = false;
             preloadedScene = sceneName;
             
-            return OnPreloadingSceneFinished;
+            return preloadSceneOperation;
         }
 
         // Needs to be called by the transition scene - every transition scene can do it differently?
         public void ExitTransitionScene()
         {
+            BSceneTransitionWithTransitionScene transition = currentTransition as BSceneTransitionWithTransitionScene;
+            if (transition != null)
+            {
+                Debug.Log("yep 2");
+
+                transition.OnTransitionSceneAllowsContinuation();
+            }
+            else
+            {
+                Debug.LogError("ExitTransitionScene failed, as current transition is not a BSceneTransitionWithTransitionScene");
+            }
             //SceneManager.LoadScene
         }
 
-        public void SwitchToPreloadedSceneAsync(GameObject exitCurrentSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
+        public void SwitchToPreloadedScene(GameObject exitCurrentSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
-            currentTransition = new BSceneTransitionDefault(transform,SceneManager.GetActiveScene().name, preloadedScene, preloadSceneOperation, exitCurrentSceneFadePrefab, enterNextSceneFadePrefab);
+            currentTransition = new BSceneTransitionDefault(transform, preloadSceneOperation, exitCurrentSceneFadePrefab, enterNextSceneFadePrefab);
+            currentTransition.StartTransition();
             status = Status.Transitioning;
         }
 
-        public void SwitchThroughPreloadedTransitionScene(string nextScene, string transitionScene,
+        public void SwitchThroughPreloadedTransitionScene(string targetScene,
             GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
             GameObject exitTransitiontSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
-            currentTransition = new BSceneTransitionWithTransitionScene();
+            currentTransition = new BSceneTransitionWithTransitionScene(targetScene, transform, preloadSceneOperation,
+                exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab,
+                exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
+            currentTransition.StartTransition();
             status = Status.Transitioning;
 
         }

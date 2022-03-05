@@ -1,21 +1,201 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Benito.ScriptingFoundations.Managers;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
 {
     public class BSceneTransitionWithTransitionScene : BSceneTransition
     {
-        public BSceneTransitionWithTransitionScene()
-        {
+        string targetScene;
 
+        GameObject exitCurrentSceneFadePrefab;
+        GameObject enterTransitionSceneFadePrefab;
+        GameObject exitTransitionSceneFadePrefab;
+        GameObject enterNextSceneFadePrefab;
+
+
+        BSceneFade exitCurrentSceneFade;
+        BSceneFade enterTransitionSceneFade;
+        BSceneFade exitTransitionSceneFade;
+        BSceneFade enterNextSceneFade;
+
+        AsyncOperation preloadSceneOperation;
+
+        Transform sceneManagerTransform;
+
+        enum Stage
+        {
+            Idle,
+            PlayingExitCurrentSceneFade,
+            PlayingEnterTransitionSceneFade,
+            WaitingForTransitionScene,
+            PlayingExitTransitionSceneFade,
+            PlayingEnterNextSceneFade,
+            Finished
         }
 
+        Stage stage;
+
+        public BSceneTransitionWithTransitionScene(string targetScene, Transform sceneManagerTransform, AsyncOperation preloadSceneOperation,
+            GameObject exitCurrentSceneFadePrefab, GameObject enterTransitionSceneFadePrefab,
+            GameObject exitTransitionSceneFadePrefab, GameObject enterNextSceneFadePrefab)
+        {
+            this.targetScene = targetScene;
+            this.sceneManagerTransform = sceneManagerTransform;
+            this.preloadSceneOperation = preloadSceneOperation;
+            this.exitCurrentSceneFadePrefab = exitCurrentSceneFadePrefab;
+            this.enterTransitionSceneFadePrefab = enterTransitionSceneFadePrefab;
+            this.exitTransitionSceneFadePrefab = exitTransitionSceneFadePrefab;
+            this.enterNextSceneFadePrefab = enterNextSceneFadePrefab;
+        }
+
+
+        public override void StartTransition()
+        {
+            StartExitCurrentSceneFade();
+        }
 
         public override void UpdateTransition()
         {
-            throw new System.NotImplementedException();
+
         }
+
+        /// <summary>
+        /// Call this to allow exiting a transition scene.
+        /// </summary>
+        public void OnTransitionSceneAllowsContinuation()
+        {
+            Debug.Log("yep 3");
+
+            if (stage == Stage.WaitingForTransitionScene)
+            {
+                Debug.Log("yep 4");
+
+                StartExitTransitionSceneFade();
+            }
+        }
+
+        void StartExitCurrentSceneFade()
+        {
+            if (exitCurrentSceneFadePrefab != null)
+            {
+                exitCurrentSceneFade = CreateFade(exitCurrentSceneFadePrefab, sceneManagerTransform);
+                exitCurrentSceneFade.OnTransitionFinished += OnExitCurrentSceneFadeFinished;
+                exitCurrentSceneFade.StartTransition();
+                stage = Stage.PlayingExitCurrentSceneFade;
+            }
+            else
+            {
+                OnExitCurrentSceneFadeFinished();
+            }
+        }
+
+        void OnExitCurrentSceneFadeFinished()
+        {
+            preloadSceneOperation.allowSceneActivation = true;
+            preloadSceneOperation.completed += OnLoadingTransitionSceneComplete;
+
+
+
+            StartEnterTransitionSceneFade();
+        }
+
+        void OnLoadingTransitionSceneComplete(AsyncOperation asyncOperation)
+        {
+            preloadSceneOperation.completed -= OnLoadingTransitionSceneComplete;
+
+            if (exitCurrentSceneFade)
+                GameObject.Destroy(exitCurrentSceneFade.gameObject);
+
+            preloadSceneOperation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(targetScene);
+            preloadSceneOperation.allowSceneActivation = false;
+
+            StartEnterTransitionSceneFade();
+        }
+
+        void StartEnterTransitionSceneFade()
+        {
+            if (enterTransitionSceneFadePrefab != null)
+            {
+                enterTransitionSceneFade = CreateFade(enterTransitionSceneFadePrefab, sceneManagerTransform);
+                enterTransitionSceneFade.OnTransitionFinished += OnEnterTransitionSceneFadeFinished;
+                enterTransitionSceneFade.StartTransition();
+                stage = Stage.PlayingEnterTransitionSceneFade;
+            }
+            else
+            {
+                OnEnterTransitionSceneFadeFinished();
+            }
+        }
+
+        void OnEnterTransitionSceneFadeFinished()
+        {
+            if (enterTransitionSceneFade)
+                GameObject.Destroy(enterTransitionSceneFade.gameObject);
+            stage = Stage.WaitingForTransitionScene;
+        }
+
+        void StartExitTransitionSceneFade()
+        {
+            if (exitTransitionSceneFadePrefab != null)
+            {
+                exitTransitionSceneFade = CreateFade(exitTransitionSceneFadePrefab, sceneManagerTransform);
+                exitTransitionSceneFade.OnTransitionFinished += OnExitTransitionSceneFadeFinished;
+                exitTransitionSceneFade.StartTransition();
+                stage = Stage.PlayingExitTransitionSceneFade;
+            }
+            else
+            {
+                Debug.Log("yep 5");
+
+                OnExitTransitionSceneFadeFinished();
+            }
+
+        }
+
+        void OnExitTransitionSceneFadeFinished()
+        {
+            preloadSceneOperation.allowSceneActivation = true;
+            preloadSceneOperation.completed += OnLoadingNextSceneComplete;
+        }
+
+        void OnLoadingNextSceneComplete(AsyncOperation asyncOperation)
+        {
+            preloadSceneOperation.completed -= OnLoadingNextSceneComplete;
+
+            if (exitTransitionSceneFade)
+                GameObject.Destroy(exitTransitionSceneFade.gameObject);
+
+            StartEnterNextSceneFade();
+        }
+
+        void StartEnterNextSceneFade()
+        {
+            Debug.Log("yep 6");
+
+            if (enterNextSceneFadePrefab != null)
+            {
+                enterNextSceneFade = CreateFade(enterNextSceneFadePrefab, sceneManagerTransform);
+                enterNextSceneFade.OnTransitionFinished += OnEnterNextSceneFadeFinished;
+                enterNextSceneFade.StartTransition();
+                stage = Stage.PlayingEnterNextSceneFade;
+            }
+            else
+            {
+                Debug.Log("yep 7");
+
+                OnEnterNextSceneFadeFinished();
+            }
+
+
+        }
+
+        void OnEnterNextSceneFadeFinished()
+        {
+            stage = Stage.Finished;
+        }
+
 
     }
 }
