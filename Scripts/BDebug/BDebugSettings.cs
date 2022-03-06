@@ -37,7 +37,7 @@ namespace Benito.ScriptingFoundations.BDebug
 
         public static BDebugSettings GetOrCreateSettings()
         {
-            BDebugSettings settings = SettingsUtilities.GetOrCreateSettingAsset<BDebugSettings>(DefaultSettingsPathInResourcesFolder);
+            BDebugSettings settings = RessourceSettingsUtilities.GetOrCreateSettingAsset<BDebugSettings>(DefaultSettingsPathInResourcesFolder);
 
 #if UNITY_EDITOR
             if (settings.debugMeshMaterial == null)        

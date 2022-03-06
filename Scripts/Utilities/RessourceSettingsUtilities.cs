@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Benito.ScriptingFoundations.Utilities
 {
-    public static class SettingsUtilities
+    public static class RessourceSettingsUtilities
     {
         public static T GetOrCreateSettingAsset<T>(string defaultSettingsPathInRessourceFolder) where T : ScriptableObject
         {

@@ -12,7 +12,7 @@ namespace Benito.ScriptingFoundations.LayerMaskOrganiser.Editor
 
         public static LayerMaskOrganiser GetOrCreateSettings()
         {
-            return SettingsUtilities.GetOrCreateSettingAsset<LayerMaskOrganiser>(DefaultSettingsPathInResourcesFolder);
+            return RessourceSettingsUtilities.GetOrCreateSettingAsset<LayerMaskOrganiser>(DefaultSettingsPathInResourcesFolder);
         }
 
         public enum LayerType

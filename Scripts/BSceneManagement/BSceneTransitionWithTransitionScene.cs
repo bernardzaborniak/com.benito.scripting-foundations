@@ -66,12 +66,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         /// </summary>
         public void OnTransitionSceneAllowsContinuation()
         {
-            Debug.Log("yep 3");
-
             if (stage == Stage.WaitingForTransitionScene)
             {
-                Debug.Log("yep 4");
-
                 StartExitTransitionSceneFade();
             }
         }
@@ -95,8 +91,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         {
             preloadSceneOperation.allowSceneActivation = true;
             preloadSceneOperation.completed += OnLoadingTransitionSceneComplete;
-
-
 
             StartEnterTransitionSceneFade();
         }
@@ -147,8 +141,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
             else
             {
-                Debug.Log("yep 5");
-
                 OnExitTransitionSceneFadeFinished();
             }
 
@@ -172,8 +164,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void StartEnterNextSceneFade()
         {
-            Debug.Log("yep 6");
-
             if (enterNextSceneFadePrefab != null)
             {
                 enterNextSceneFade = CreateFade(enterNextSceneFadePrefab, sceneManagerTransform);
@@ -183,7 +173,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
             else
             {
-                Debug.Log("yep 7");
 
                 OnEnterNextSceneFadeFinished();
             }

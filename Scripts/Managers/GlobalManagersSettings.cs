@@ -16,7 +16,7 @@ namespace Benito.ScriptingFoundations.Managers
 
         public static GlobalManagersSettings GetOrCreateSettings()
         {
-            return SettingsUtilities.GetOrCreateSettingAsset<GlobalManagersSettings>(DefaultSettingsPathInResourcesFolder);
+            return RessourceSettingsUtilities.GetOrCreateSettingAsset<GlobalManagersSettings>(DefaultSettingsPathInResourcesFolder);
         }
     }  
 }

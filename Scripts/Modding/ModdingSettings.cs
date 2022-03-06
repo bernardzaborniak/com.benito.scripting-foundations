@@ -26,40 +26,45 @@ namespace Benito.ScriptingFoundations.Modding
         [Space(10)]
         [Tooltip("Combines persistent or game data path with the following string")]
         [SerializeField] PathPrefix modFolderPathPrefix;
-        [Tooltip("Leave out the / or \\ at the start of this string")]
-        [SerializeField] string modFolderPath;
+        [Tooltip("Leave out the / or \\ at the start of this string, use \\ for subfolders")]
+        [SerializeField] string modFolderRelativePath = "Mods";
 
     
         public static ModdingSettings GetOrCreateSettings()
         {
-            return SettingsUtilities.GetOrCreateSettingAsset<ModdingSettings>(DefaultSettingsPathInResourcesFolder);
+            return RessourceSettingsUtilities.GetOrCreateSettingAsset<ModdingSettings>(DefaultSettingsPathInResourcesFolder);
         }
         public string GetModFolderPath()
         {
-            if (modFolderPath == string.Empty)
-                return null;
+            string path = null;
+
+            if (modFolderRelativePath == string.Empty)
+                return path;
 
             switch (modFolderPathPrefix)
             {
                 case PathPrefix.PersistendData:
                     {
-                        return Path.Combine(Application.persistentDataPath, modFolderPath);
+                        path = Path.Combine(Application.persistentDataPath, modFolderRelativePath);
+                        break;
                     }
 
                 case PathPrefix.GameData:
                     {
-                        return Path.Combine(Application.dataPath, modFolderPath);
+                        path = Path.Combine(Application.dataPath, modFolderRelativePath);
+                        break;
                     }
 
                 case PathPrefix.None:
                     {
-                        return modFolderPath;
+                        path = modFolderRelativePath;
+                        break;
                     }
             }
+
+            IOUtilities.EnsurePathExists(path);
             return null;
         }
-
-
     }
 }
 
