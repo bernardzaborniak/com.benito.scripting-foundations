@@ -15,6 +15,7 @@ namespace Benito.ScriptingFoundations.Modding
             if (!Directory.Exists(modsDirectory))
             {
                 Debug.LogError($"Mod Directory: {modsDirectory} does not exist :(");
+                Debug.Log("path: " + modsDirectory);
                 return modInfos;
             }
 

@@ -4,8 +4,17 @@ using UnityEngine;
 
 namespace Benito.ScriptingFoundations.InGameSettings
 {
-    public abstract class InGameSettings : ScriptableObject
+    [System.Serializable]
+    public class InGameSettings
     {
-        public abstract string GetSettingsPath();
+        [SerializeField]
+        public string settingsTypeName;
+        [SerializeField]
+        public string settingsAssemblyName;
+
+        /// <summary>
+        /// All InGameSettings should be in one folder, so the path is just "name".json
+        /// </summary>
+        public string RelativeSettingsPath { get => this.GetType() + ".json"; }
     }
 }

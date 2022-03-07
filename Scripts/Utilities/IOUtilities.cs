@@ -17,8 +17,6 @@ namespace Benito.ScriptingFoundations.Utilities
             string allPreviousDirectoriesCombined = "";
             foreach (string directory in directories)
             {
-                Debug.Log("directory: " + directory);
-
                 if (allPreviousDirectoriesCombined == "")
                 {
                     allPreviousDirectoriesCombined = directory;

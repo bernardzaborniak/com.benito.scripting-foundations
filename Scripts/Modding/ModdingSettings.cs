@@ -63,7 +63,8 @@ namespace Benito.ScriptingFoundations.Modding
             }
 
             IOUtilities.EnsurePathExists(path);
-            return null;
+
+            return path;
         }
     }
 }
