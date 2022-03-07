@@ -16,8 +16,9 @@ namespace Benito.ScriptingFoundations.InGameSettings
 
 
         // Debug Only
-        [ReadOnly]
-        [SerializeField] List<InGameSettings> loadedSettings;
+        [HideInInspector]
+        [SerializeField] public List<InGameSettings> loadedSettings;
+        [SerializeField] public List<InGameSettings> LoadedSettings {get => new List<InGameSettings>(settingsDictionary.Values);}
 
 
         public override void InitialiseSingleton()
@@ -35,8 +36,6 @@ namespace Benito.ScriptingFoundations.InGameSettings
                 reader.Close();
 
                 InGameSettings settingsGeneric = JsonUtility.FromJson<InGameSettings>(fileContent);
-                //Debug.Log("settingsTypeName: "  + settings.settingsTypeName);
-
                
                 Type settingsType = null;
 
@@ -49,45 +48,6 @@ namespace Benito.ScriptingFoundations.InGameSettings
                 }
 
                 InGameSettings settings = (InGameSettings)JsonUtility.FromJson(fileContent, settingsType);
-
-                /*Debug.Log("looking for type: " + Path.GetFileNameWithoutExtension(fileInfo.FullName));
-
-                Type settingsType = null;
-                foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    settingsType = assembly.GetType(Path.GetFileNameWithoutExtension(fileInfo.FullName));
-                    if (settingsType != null)
-                        break;
-
-                }
-
-                if (settingsType == null)
-                    Debug.LogError($"Check the name of the InGameSettings.json file {fileInfo.Name} needs to have the same name as a type");
-                */
-
-                /*InGameSettingsJsonWrapper<InGameSettings> settingsWrapper = JsonUtility.FromJson<InGameSettingsJsonWrapper<InGameSettings>>(fileContent);
-                Debug.Log("content: " + settingsWrapper.settingsTypeName);
-                Debug.Log("content: " + settingsWrapper.settingsAssemblyName);
-                Debug.Log("content: " + settingsWrapper.settings);
-
-                Type correctedType = null;
-                
-                foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    if(assembly.FullName == settingsWrapper.settingsAssemblyName)
-                    {
-                        correctedType = assembly.GetType(settingsWrapper.settingsTypeName);
-                    }
-                }
-
-
-                InGameSettings settings = JsonUtility.FromJson<InGameSettingsJsonWrapper<correctedType>>(fileContent);*/
-
-                //InGameSettingsJsonWrapper settingsWrapper = JsonUtility.FromJson<InGameSettingsJsonWrapper>(fileContent);
-                //InGameSettings settings = (InGameSettings) JsonUtility.FromJson(fileContent, settingsType);
-                //typeof(type) settings
-
-
 
                 settingsDictionary.Add(settings.GetType(), settings);
             }
@@ -110,7 +70,7 @@ namespace Benito.ScriptingFoundations.InGameSettings
             if (settingsDictionary.ContainsValue(settingsToSave))
             {
                 string jsonFileContents = JsonUtility.ToJson(settingsToSave);
-                File.WriteAllText(Path.Combine(pathToLoadSettingsFrom, settingsToSave.RelativeSettingsPath), jsonFileContents);
+                File.WriteAllText(Path.Combine(pathToLoadSettingsFrom, settingsToSave.GetFileName), jsonFileContents);
             }
             else
             {
@@ -136,10 +96,9 @@ namespace Benito.ScriptingFoundations.InGameSettings
             T newSettings = new T();
             newSettings.settingsTypeName = typeof(T).FullName;
             newSettings.settingsAssemblyName = typeof(T).Assembly.GetName().ToString();
-            //InGameSettingsJsonWrapper<T> settingsWrapper = new InGameSettingsJsonWrapper<T>(newSettings);
 
             string jsonFileContents = JsonUtility.ToJson(newSettings);
-            File.WriteAllText(Path.Combine(pathToLoadSettingsFrom, newSettings.RelativeSettingsPath), jsonFileContents);  
+            File.WriteAllText(Path.Combine(pathToLoadSettingsFrom, newSettings.GetFileName), jsonFileContents);  
 
             Debug.Log($"File {typeof(T)}.json was not present in the IngameSettings Folder, so it was automatically created");
             return newSettings;
