@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8054860171716048918}
   - component: {fileID: 181888077097450157}
   m_Layer: 0
-  m_Name: Global Managers Prefab
+  m_Name: Global Managers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
