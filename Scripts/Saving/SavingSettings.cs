@@ -11,6 +11,18 @@ namespace Benito.ScriptingFoundations.Saving
         const string DefaultSettingsPathInResourcesFolder = "Settings/Saving Settings";
 
         [SerializeField]
-        IOUtilities.AssigneableGameDataPath path = new IOUtilities.AssigneableGameDataPath(IOUtilities.AssigneableGameDataPath.PathPrefix.PersistendData,"Default");
+        IOUtilities.AssigneableGameDataPath savesPath = new IOUtilities.AssigneableGameDataPath(IOUtilities.AssigneableGameDataPath.PathPrefix.PersistendData, "Saves");
+
+
+        public static SavingSettings GetOrCreateSettings()
+        {
+            return RessourceSettingsUtilities.GetOrCreateSettingAsset<SavingSettings>(DefaultSettingsPathInResourcesFolder);
+        }
+        public string GetSavesFolderPath()
+        {
+            string path = savesPath.GetPath();
+            IOUtilities.EnsurePathExists(path);
+            return path;
+        }
     }
 }

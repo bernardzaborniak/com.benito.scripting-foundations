@@ -8,18 +8,7 @@ public class InGameSettingsSettings : ScriptableObject
 {
     const string DefaultSettingsPathInResourcesFolder = "Settings/InGame Settings Settings";
 
-    public enum PathPrefix
-    {
-        PersistendData,
-        GameData,
-        None
-    }
-
-    [Space(10)]
-    [Tooltip("Combines persistent or game data path with the following string")]
-    [SerializeField] PathPrefix settingsFolderPathPrefix;
-    [Tooltip("Leave out the / or \\ at the start of this string, use \\ for subfolders")]
-    [SerializeField] string settingsFolderRelativePath = "InGameSettings";
+    IOUtilities.AssigneableGameDataPath inGameSettingsPath = new IOUtilities.AssigneableGameDataPath(IOUtilities.AssigneableGameDataPath.PathPrefix.PersistendData,"InGameSettings");
 
 
     public static InGameSettingsSettings GetOrCreateSettings()
@@ -28,35 +17,8 @@ public class InGameSettingsSettings : ScriptableObject
     }
     public string GetInGameSettingsFolderPath()
     {
-        string path = null;
-
-        if (settingsFolderRelativePath == string.Empty)
-            return path;
-      
-        switch (settingsFolderPathPrefix)
-        {
-            case PathPrefix.PersistendData:
-                {
-                    path =  Path.Combine(Application.persistentDataPath, settingsFolderRelativePath);
-                    break;
-                }
-
-            case PathPrefix.GameData:
-                {
-                    path =  Path.Combine(Application.dataPath, settingsFolderRelativePath);
-                    break;
-                }
-
-            case PathPrefix.None:
-                {
-                    path = settingsFolderRelativePath;
-                    break;
-                }
-        }
-
+        string path = inGameSettingsPath.GetPath();
         IOUtilities.EnsurePathExists(path);
-
         return path;
     }
-
 }
