@@ -97,7 +97,7 @@ namespace Benito.ScriptingFoundations.InGameSettings
             newSettings.settingsTypeName = typeof(T).FullName;
             newSettings.settingsAssemblyName = typeof(T).Assembly.GetName().ToString();
 
-            string jsonFileContents = JsonUtility.ToJson(newSettings);
+            string jsonFileContents = JsonUtility.ToJson(newSettings,true);
             File.WriteAllText(Path.Combine(pathToLoadSettingsFrom, newSettings.GetFileName), jsonFileContents);  
 
             Debug.Log($"File {typeof(T)}.json was not present in the IngameSettings Folder, so it was automatically created");
