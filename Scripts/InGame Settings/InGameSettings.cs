@@ -17,7 +17,7 @@ namespace Benito.ScriptingFoundations.InGameSettings
         public string settingsAssemblyName;
 
         /// <summary>
-        /// All InGameSettings should be in one folder, so the path is just "name".json
+        /// Is being used as path, All InGameSettings should be in one folder, so the path is just "name".json
         /// </summary>
         public string GetFileName { get => this.GetType().Name + ".json"; }
     }
