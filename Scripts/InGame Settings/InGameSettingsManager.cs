@@ -23,14 +23,12 @@ namespace Benito.ScriptingFoundations.InGameSettings
 
         public override void InitialiseSingleton()
         {
-            Debug.Log("initialize singleton");
             // Load all exisiting settings from folder.
             pathToLoadSettingsFrom = InGameSettingsSettings.GetOrCreateSettings().GetInGameSettingsFolderPath();
             DirectoryInfo directoryInfo = new DirectoryInfo(pathToLoadSettingsFrom);
 
             foreach (FileInfo fileInfo in directoryInfo.GetFiles("*.json"))
             {
-                Debug.Log("fileinfo in folder: " + fileInfo.FullName);
                 StreamReader reader = new StreamReader(fileInfo.FullName);
                 string fileContent = reader.ReadToEnd();
                 reader.Close();

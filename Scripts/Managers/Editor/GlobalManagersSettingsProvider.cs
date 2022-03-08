@@ -38,24 +38,7 @@ namespace Benito.ScriptingFoundations.Managers.Editor
                 }
                 else
                 {
-                    EditorGUILayout.HelpBox($"Please Assign or Create and Assign a {typeof(GlobalSingletonManager)} Asset. \n The default location is Assets/Prefabs/Managers/ ", MessageType.Error);
-                    
-                    if(GUILayout.Button("Create GlobalSingletonManagers Prefab at default location"))
-                    {
-                        if (!AssetDatabase.IsValidFolder("Assets/Prefabs"))
-                        {
-                            AssetDatabase.CreateFolder("Assets", "Prefabs");
-                        }
-
-                        if (!AssetDatabase.IsValidFolder("Assets/Prefabs/Managers"))
-                        {
-                            AssetDatabase.CreateFolder("Assets/Prefabs", "Managers");
-                        }
-
-                        GameObject globalManagersPrefab = new GameObject("Global Managers Prefab", typeof(GlobalSingletonManager));
-                        PrefabUtility.SaveAsPrefabAssetAndConnect(globalManagersPrefab, "Assets/Resources/Settings/Global Managers Prefab.prefab", InteractionMode.UserAction);
-                        GameObject.DestroyImmediate(globalManagersPrefab);
-                    }
+                    EditorGUILayout.HelpBox($"Please Assign or Create and Assign a {typeof(GlobalSingletonManager)} Asset. \n The default location is Benitos Scripting Foundations/Prefabs/ ", MessageType.Error);                   
                 }
             }
             else

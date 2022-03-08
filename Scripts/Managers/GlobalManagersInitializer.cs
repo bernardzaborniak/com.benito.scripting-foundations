@@ -18,10 +18,11 @@ namespace Benito.ScriptingFoundations.Managers
         {
             if(Instance == null)
             {
-                GameObject dontDestroyWrapper = new GameObject("Dont Destroy On Load Wrapper", typeof(DontDestroyOnLoadWrapper));
-                GameObject.Instantiate(GlobalManagersSettings.GetOrCreateSettings().globalManagersPrefab, dontDestroyWrapper.transform);
+                //GameObject dontDestroyWrapper = new GameObject("Dont Destroy On Load Wrapper", typeof(DontDestroyOnLoadWrapper));
+               //GameObject.Instantiate(GlobalManagersSettings.GetOrCreateSettings().globalManagersPrefab, dontDestroyWrapper.transform);
+               GameObject globalManagers = GameObject.Instantiate(GlobalManagersSettings.GetOrCreateSettings().globalManagersPrefab);
                
-                Instance = dontDestroyWrapper;
+                Instance = globalManagers;
 
             }
         }   
