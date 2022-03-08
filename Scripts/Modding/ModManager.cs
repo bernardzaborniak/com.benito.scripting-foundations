@@ -9,7 +9,7 @@ namespace Benito.ScriptingFoundations.Modding
     /// Takes Care of managing, loading and unloading Mods.
     /// Should be together with the Global Managers.
     /// </summary>
-    public class ModManager : Singleton
+    public class ModManager : SingletonManagerGlobal
     {
         List<ModInfo> availabeMods = new List<ModInfo>();
         List<ModInfo> loadedMods = new List<ModInfo>();
@@ -24,12 +24,12 @@ namespace Benito.ScriptingFoundations.Modding
             return loadedMods;
         }
 
-        public override void InitialiseSingleton()
+        public override void InitialiseManager()
         {
             availabeMods = ModLoader.GetAllMods();
         }
 
-        public override void UpdateSingleton()
+        public override void UpdateManager()
         {
 
         }

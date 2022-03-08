@@ -5,11 +5,11 @@ using System;
 
 namespace Benito.ScriptingFoundations.Managers
 {
-    public class SceneSingletonManager : AbstractSingletonManager
+    public class SceneManagers : AbstractManagersManager<SingletonManagerScene>
     {
-        public static SceneSingletonManager Instance;
+        public static SceneManagers Instance;
 
-        protected Dictionary<Type, object> singletonDictionary = new Dictionary<Type, object>();
+        protected Dictionary<Type, object> managersDictionary = new Dictionary<Type, object>();
 
         void Awake()
         {
@@ -22,21 +22,21 @@ namespace Benito.ScriptingFoundations.Managers
                 Instance = this;
             }
 
-            for (int i = 0; i < Instance.singletons.Count; i++)
+            for (int i = 0; i < Instance.managers.Count; i++)
             {
-                Instance.singletonDictionary.Add(singletons[i].GetType(), singletons[i]);
+                Instance.managersDictionary.Add(managers[i].GetType(), managers[i]);
             }
         }
 
         public static T Get<T>()
         {
-            if (!Instance.singletonDictionary.ContainsKey(typeof(T)))
+            if (!Instance.managersDictionary.ContainsKey(typeof(T)))
             {
                 Debug.LogError($"Type: {typeof(T)} could not be found in the SceneSingletonManager");
                 return default(T);
             }
 
-            return (T)Instance.singletonDictionary[typeof(T)];
+            return (T)Instance.managersDictionary[typeof(T)];
         }
     }
 }

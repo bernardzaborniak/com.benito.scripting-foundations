@@ -11,7 +11,7 @@ namespace Benito.ScriptingFoundations.Managers.Editor
         public static void CreateSceneSingletonManager()
         {
             GameObject obj = new GameObject("SCENE SINGLETON MANAGER");
-            obj.AddComponent<SceneSingletonManager>();
+            obj.AddComponent<SceneManagers>();
         }
     }
 }

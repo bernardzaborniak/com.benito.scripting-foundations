@@ -33,12 +33,12 @@ namespace Benito.ScriptingFoundations.Managers.Editor
                 //Check if the assinged Prefab is correct
                 if(settings.globalManagersPrefab != null)
                 {
-                    if (settings.globalManagersPrefab?.GetComponentInChildren<GlobalSingletonManager>() == null)
+                    if (settings.globalManagersPrefab?.GetComponentInChildren<GlobalManagers>() == null)
                         EditorGUILayout.HelpBox("Make sure the assigned Prefab has a GlobalSingletonManager(parent or child) on it", MessageType.Error);
                 }
                 else
                 {
-                    EditorGUILayout.HelpBox($"Please Assign or Create and Assign a {typeof(GlobalSingletonManager)} Asset. \n The default location is Benitos Scripting Foundations/Prefabs/ ", MessageType.Error);                   
+                    EditorGUILayout.HelpBox($"Please Assign or Create and Assign a {typeof(GlobalManagers)} Asset. \n The default location is Benitos Scripting Foundations/Prefabs/ ", MessageType.Error);                   
                 }
             }
             else

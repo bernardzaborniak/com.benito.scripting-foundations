@@ -17,7 +17,7 @@ namespace Benito.ScriptingFoundations.Managers.Editor
         [MenuItem("Assets/Create/Scripting Foundations/Global Managers Prefab", isValidateFunction: false, priority: -20)]
         public static void CreateGlobalManagersPrefab()
         {
-            GameObject globalManagersPrefab = new GameObject("Global Managers Prefab", typeof(GlobalSingletonManager));
+            GameObject globalManagersPrefab = new GameObject("Global Managers Prefab", typeof(GlobalManagers));
 
             PrefabUtility.SaveAsPrefabAssetAndConnect(globalManagersPrefab, EditorUtilities.TryGetActiveProjectWindowFolderPath() + "/Global Managers Prefab.prefab", InteractionMode.UserAction);
 

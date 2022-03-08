@@ -11,7 +11,7 @@ using TMPro;
 
 namespace Benito.ScriptingFoundations.BDebug
 {
-    public class BDebugManager : Singleton
+    public class BDebugManager : SingletonManagerGlobal
     {
         List<TextMeshPro> textMeshPool = new List<TextMeshPro>();
         List<TextMeshPro> usedTextMeshes = new List<TextMeshPro>();
@@ -31,7 +31,7 @@ namespace Benito.ScriptingFoundations.BDebug
         Mesh lineMesh;
 
 
-        public override void InitialiseSingleton()
+        public override void InitialiseManager()
         {
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -62,7 +62,7 @@ namespace Benito.ScriptingFoundations.BDebug
 #endif
         }
 
-        public override void UpdateSingleton()
+        public override void UpdateManager()
         {
 
         }

@@ -38,7 +38,7 @@ namespace Benito.ScriptingFoundations.Managers
                 }
 
                 Debug.Log("Created new GlobalManagersPrefab at Packages/com.benito.scripting-foundations/Prefabs, as none was assigned inside ProjectSettings/Global Managers Settings");
-                GameObject newGlobalManagersPrefab = new GameObject("Global Managers Prefab", typeof(GlobalSingletonManager), typeof(DontDestroyOnLoadWrapper));
+                GameObject newGlobalManagersPrefab = new GameObject("Global Managers Prefab", typeof(GlobalManagers), typeof(DontDestroyOnLoadWrapper));
                 UnityEditor.PrefabUtility.SaveAsPrefabAssetAndConnect(newGlobalManagersPrefab, "Packages/com.benito.scripting-foundations/Prefabs/Global Managers Prefab.prefab", UnityEditor.InteractionMode.UserAction);
                 settings.globalManagersPrefab = newGlobalManagersPrefab;
                 UnityEditor.EditorUtility.SetDirty(settings);

@@ -7,7 +7,7 @@ using System;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
 {
-    public class BSceneManager : Singleton
+    public class BSceneManager : SingletonManagerGlobal
     {
         string preloadedScene;
         
@@ -31,12 +31,12 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         public float NormalizedPreloadingSceneProgress { get => preloadSceneOperation.progress/0.9f; }
 
 
-        public override void InitialiseSingleton()
+        public override void InitialiseManager()
         {
             status = Status.Idle;
         }
 
-        public override void UpdateSingleton()
+        public override void UpdateManager()
         {
             switch (status)
             {

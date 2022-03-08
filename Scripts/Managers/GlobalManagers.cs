@@ -5,9 +5,9 @@ using System;
 
 namespace Benito.ScriptingFoundations.Managers
 {
-    public class GlobalSingletonManager : AbstractSingletonManager
+    public class GlobalManagers : AbstractManagersManager<SingletonManagerGlobal>
     {
-        public static GlobalSingletonManager Instance;
+        public static GlobalManagers Instance;
 
         // Dictionary used to simplify the get by type process internaly.
         protected Dictionary<Type, object> singletonDictionary = new Dictionary<Type, object>();
@@ -23,9 +23,9 @@ namespace Benito.ScriptingFoundations.Managers
                 Instance = this;
             }
 
-            for (int i = 0; i < Instance.singletons.Count; i++)
+            for (int i = 0; i < Instance.managers.Count; i++)
             {
-                Instance.singletonDictionary.Add(singletons[i].GetType(), singletons[i]);
+                Instance.singletonDictionary.Add(managers[i].GetType(), managers[i]);
             }
         }
 

@@ -15,7 +15,7 @@ namespace Benito.ScriptingFoundations.BDebug
             if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
                 return;
 
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawTextCommand(new BDebugDrawTextCommand(text, position, size, color, overlay, scaleWithDistanceRatio, maxDrawDistance));
+            GlobalManagers.Get<BDebugManager>().AddDrawTextCommand(new BDebugDrawTextCommand(text, position, size, color, overlay, scaleWithDistanceRatio, maxDrawDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -25,7 +25,7 @@ namespace Benito.ScriptingFoundations.BDebug
             if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
                 return;
 
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawLinesCommand(new BDebugDrawMultipleLinesCommand(new BDebugLineDrawingParams(start, end), color, thickness, maxDrawDistance));
+            GlobalManagers.Get<BDebugManager>().AddDrawLinesCommand(new BDebugDrawMultipleLinesCommand(new BDebugLineDrawingParams(start, end), color, thickness, maxDrawDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -47,7 +47,7 @@ namespace Benito.ScriptingFoundations.BDebug
             if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
                 return;
 
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(mesh, position, rotation, scale, color, false, maxDrawDistance));
+            GlobalManagers.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(mesh, position, rotation, scale, color, false, maxDrawDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -57,7 +57,7 @@ namespace Benito.ScriptingFoundations.BDebug
             if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
                 return;
 
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(mesh, position, rotation, scale, color, true, maxDrawDistance));
+            GlobalManagers.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(mesh, position, rotation, scale, color, true, maxDrawDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -67,7 +67,7 @@ namespace Benito.ScriptingFoundations.BDebug
             if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
                 return;
 
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Sphere.fbx"), position, rotation, scale, color, false, maxDrawDistance));
+            GlobalManagers.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Sphere.fbx"), position, rotation, scale, color, false, maxDrawDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -108,7 +108,7 @@ namespace Benito.ScriptingFoundations.BDebug
             if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
                 return;
 
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Cube.fbx"), position, rotation, scale, color, false, maxDrawDistance));
+            GlobalManagers.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Cube.fbx"), position, rotation, scale, color, false, maxDrawDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -154,7 +154,7 @@ namespace Benito.ScriptingFoundations.BDebug
             lines[11] = new BDebugLineDrawingParams(points[3], points[7]);
 
 
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawLinesCommand(new BDebugDrawMultipleLinesCommand(lines, color, lineThickness, maxDrawingDistance));
+            GlobalManagers.Get<BDebugManager>().AddDrawLinesCommand(new BDebugDrawMultipleLinesCommand(lines, color, lineThickness, maxDrawingDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -164,7 +164,7 @@ namespace Benito.ScriptingFoundations.BDebug
             if (!BDebugSettings.GetOrCreateSettings().DrawingLayers[drawingLayer])
                 return;
 
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Cylinder.fbx"), position, rotation, scale, color, false, maxDrawDistance));
+            GlobalManagers.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(Resources.GetBuiltinResource<Mesh>("Cylinder.fbx"), position, rotation, scale, color, false, maxDrawDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -181,7 +181,7 @@ namespace Benito.ScriptingFoundations.BDebug
                     new BDebugLineDrawingParams(position + Vector3.forward * 0.5f, position + Vector3.back * 0.5f),
                 };
 
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawLinesCommand(new BDebugDrawMultipleLinesCommand(lines, color, 1, maxDrawingDistance));
+            GlobalManagers.Get<BDebugManager>().AddDrawLinesCommand(new BDebugDrawMultipleLinesCommand(lines, color, 1, maxDrawingDistance));
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -214,7 +214,7 @@ namespace Benito.ScriptingFoundations.BDebug
                 lastPoint = nextPoint;
             }
 
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawLinesCommand(new BDebugDrawMultipleLinesCommand(lines, color, lineThickness, maxDrawingDistance));
+            GlobalManagers.Get<BDebugManager>().AddDrawLinesCommand(new BDebugDrawMultipleLinesCommand(lines, color, lineThickness, maxDrawingDistance));
 
         }
 
@@ -275,7 +275,7 @@ namespace Benito.ScriptingFoundations.BDebug
             lines[verticesNumber-1] = new BDebugLineDrawingParams(position,  matrix.MultiplyPoint3x4(new Vector3(Mathf.Cos(startAngle), 0, Mathf.Sin(startAngle))));
             lines[verticesNumber] = new BDebugLineDrawingParams(position, matrix.MultiplyPoint3x4(new Vector3(Mathf.Cos(endAngle), 0, Mathf.Sin(endAngle))));
 
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawLinesCommand(new BDebugDrawMultipleLinesCommand(lines, color, lineThickness, maxDrawingDistance));
+            GlobalManagers.Get<BDebugManager>().AddDrawLinesCommand(new BDebugDrawMultipleLinesCommand(lines, color, lineThickness, maxDrawingDistance));
 
         }
 
@@ -323,7 +323,7 @@ namespace Benito.ScriptingFoundations.BDebug
             mesh.vertices = vertices;
             mesh.triangles = triangles;
 
-            GlobalSingletonManager.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(mesh, Vector3.zero, Quaternion.identity, Vector3.one, color, false, maxDrawingDistance));
+            GlobalManagers.Get<BDebugManager>().AddDrawMeshCommand(new BDebugDrawMeshCommand(mesh, Vector3.zero, Quaternion.identity, Vector3.one, color, false, maxDrawingDistance));
         }
     }
 }

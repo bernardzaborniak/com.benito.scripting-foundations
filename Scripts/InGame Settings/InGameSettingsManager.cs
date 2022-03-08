@@ -9,7 +9,7 @@ using Benito.ScriptingFoundations.InspectorAttributes;
 
 namespace Benito.ScriptingFoundations.InGameSettings
 {
-    public class InGameSettingsManager : Singleton
+    public class InGameSettingsManager : SingletonManagerGlobal
     {
         Dictionary<Type, InGameSettings> settingsDictionary = new Dictionary<Type, InGameSettings>();
         string pathToLoadSettingsFrom;
@@ -21,7 +21,7 @@ namespace Benito.ScriptingFoundations.InGameSettings
         [SerializeField] public List<InGameSettings> LoadedSettings {get => new List<InGameSettings>(settingsDictionary.Values);}
 
 
-        public override void InitialiseSingleton()
+        public override void InitialiseManager()
         {
             // Load all exisiting settings from folder.
             pathToLoadSettingsFrom = InGameSettingsSettings.GetOrCreateSettings().GetInGameSettingsFolderPath();
@@ -53,7 +53,7 @@ namespace Benito.ScriptingFoundations.InGameSettings
             UpdateDebugInfoOnLoadedSettings();
         }
 
-        public override void UpdateSingleton()
+        public override void UpdateManager()
         {
             //throw new NotImplementedException();
         }
