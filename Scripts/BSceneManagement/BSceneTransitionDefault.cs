@@ -1,11 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using System;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
 {
+    [System.Serializable]
     public class BSceneTransitionDefault : BSceneTransition
     {
         GameObject exitCurrentSceneFadePrefab;
@@ -31,12 +30,13 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         public BSceneTransitionDefault(Transform sceneManagerTransform, AsyncOperation preloadSceneOperation, GameObject exitCurrentSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
+            Finished = false;
+            stage = Stage.Idle;
+
             this.sceneManagerTransform = sceneManagerTransform;
             this.preloadSceneOperation = preloadSceneOperation;
             this.exitCurrentSceneFadePrefab = exitCurrentSceneFadePrefab;
             this.enterNextSceneFadePrefab = enterNextSceneFadePrefab;
-
-            stage = Stage.Idle;
         }
 
         public override void StartTransition()
@@ -103,6 +103,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 GameObject.Destroy(enterNextSceneFade.gameObject);
 
             stage = Stage.Finished;
+            Finished = true;
+            OnTransitionFinished?.Invoke();
         }
 
       

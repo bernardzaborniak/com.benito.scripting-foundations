@@ -10,6 +10,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
     public class BSceneManager : Singleton
     {
         string preloadedScene;
+        
         BSceneTransition currentTransition;
 
         public Action OnPreloadingSceneFinished;
@@ -21,6 +22,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             IdleWithPreloadedScene,
             Transitioning
         }
+
 
         Status status;
 
@@ -51,7 +53,15 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                     }
                 case Status.Transitioning:
                     {
-                        currentTransition.UpdateTransition();              
+                        currentTransition.UpdateTransition();
+
+                        if (currentTransition.Finished)
+                        {
+                            currentTransition = null;
+                            status = Status.Idle;
+                        }
+                            
+
                         break;
                     }
             }

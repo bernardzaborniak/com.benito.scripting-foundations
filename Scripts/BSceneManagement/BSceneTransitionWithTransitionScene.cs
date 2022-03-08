@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Benito.ScriptingFoundations.Managers;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
 {
@@ -41,6 +40,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             GameObject exitCurrentSceneFadePrefab, GameObject enterTransitionSceneFadePrefab,
             GameObject exitTransitionSceneFadePrefab, GameObject enterNextSceneFadePrefab)
         {
+            Finished = false;
+            stage = Stage.Idle;
+
             this.targetScene = targetScene;
             this.sceneManagerTransform = sceneManagerTransform;
             this.preloadSceneOperation = preloadSceneOperation;
@@ -183,6 +185,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         void OnEnterNextSceneFadeFinished()
         {
             stage = Stage.Finished;
+            OnTransitionFinished?.Invoke();
+            Finished = true;
         }
 
 
