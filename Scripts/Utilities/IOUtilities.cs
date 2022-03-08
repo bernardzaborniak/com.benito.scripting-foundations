@@ -32,6 +32,60 @@ namespace Benito.ScriptingFoundations.Utilities
                 }
             }
         }
+
+        [System.Serializable]
+        public class AssigneableGameDataPath
+        {
+            public enum PathPrefix
+            {
+                PersistendData,
+                GameData,
+                None
+            }
+           
+            [Tooltip("Combines persistent or game data path with the following string.")]
+            [SerializeField] PathPrefix pathPrefix;
+            [Tooltip("Leave out the / or \\ at the start of this string, use \\ for subfolders")]
+            [SerializeField] string relativePath = "Mods";
+
+            public AssigneableGameDataPath(PathPrefix defaultPathPrefix, string defaultRelativePath)
+            {
+                pathPrefix = defaultPathPrefix;
+                relativePath = defaultRelativePath;
+
+            }
+
+            public string GetPath()
+            {
+                string path = null;
+
+                if (relativePath == string.Empty)
+                    return path;
+
+                switch (pathPrefix)
+                {
+                    case PathPrefix.PersistendData:
+                        {
+                            path = Path.Combine(Application.persistentDataPath, relativePath);
+                            break;
+                        }
+
+                    case PathPrefix.GameData:
+                        {
+                            path = Path.Combine(Application.dataPath, relativePath);
+                            break;
+                        }
+
+                    case PathPrefix.None:
+                        {
+                            path = relativePath;
+                            break;
+                        }
+                }
+
+                return path;
+            }
+        }
     }
 }
 
