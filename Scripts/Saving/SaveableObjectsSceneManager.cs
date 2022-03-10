@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Benito.ScriptingFoundations.Managers;
+using Benito.ScriptingFoundations.InspectorAttributes;
+using System.IO;
 
 namespace Benito.ScriptingFoundations.Saving
 {
@@ -10,39 +12,92 @@ namespace Benito.ScriptingFoundations.Saving
     /// </summary>
     public class SaveableObjectsSceneManager : SingletonManagerScene
     {
-        List<ISaveableObject> saveableObjects = new List<ISaveableObject>();
+       [SerializeField] List<SaveableObject> saveableObjects;
+       [SerializeField] int[] saveableObjectIds;
 
-        public void RegisterSaveableObject(ISaveableObject saveable)
+        [Button("ScanSceneForSaveableObjects")]
+        public void ScanSceneForSaveableObjects()
         {
+            saveableObjects = new List<SaveableObject>(FindObjectsOfType<SaveableObject>(true));
 
-        }
-
-        public void UnregisterSaveableObject(ISaveableObject saveable)
-        {
-
-        }
-
-        public void SaveAllObjects()
-        {
+            saveableObjectIds = new int[saveableObjects.Count];
             for (int i = 0; i < saveableObjects.Count; i++)
             {
-
+                saveableObjectIds[i] = saveableObjects[i].GetId();
             }
+        }
+
+        [Button("Assign IDS")]
+        public void AssignIds()
+        {
+            SaveableObjectsIdAssigner.AssignIdsInCurrentScene();
+        }
+        
+        [Button("Save")]
+        public void SaveAllObjects()
+        {
+            List<SaveableObjectData> objectsData = new List<SaveableObjectData>();
+
+            for (int i = 0; i < saveableObjects.Count; i++)
+            {
+                SaveableObjectData data = saveableObjects[i].Save();
+                if(data != null)
+                {
+                    objectsData.Add(data);
+                }
+            }
+
+            TempCreateSaveFile(objectsData);
+        }
+
+        public void TempCreateSaveFile(List<SaveableObjectData> objectsToSave)
+        {
+            SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsToSave);
+
+            string contents = save.GetJsonString();
+
+            File.WriteAllText(Path.Combine(Application.persistentDataPath, "Saves/test.json"), contents);
+        }
+
+        [Button("Load")]
+
+        public void TempLoadSaveFile()
+        {
+            StreamReader reader = new StreamReader(Path.Combine(Application.persistentDataPath, "Saves/test.json"));
+            string fileContent = reader.ReadToEnd();
+            reader.Close();
+
+            SceneSavegame save = SceneSavegame.CreateFromJsonString(fileContent);
+
+            LoadFromSaveData(save.GetSavedObjectsFromSave());
         }
 
         public void LoadFromSaveData(List<SaveableObjectData> objectsData)
         {
+            Dictionary<int, SaveableObject> saveableObjectsIdDictionary = new Dictionary<int, SaveableObject>();
 
+            for (int i = 0; i < saveableObjects.Count; i++)
+            {
+                saveableObjectsIdDictionary.Add(saveableObjectIds[i],saveableObjects[i]);
+            }
+
+            foreach (SaveableObjectData data in objectsData)
+            {
+                Debug.Log("loaded data type: " + data.GetType());
+                saveableObjectsIdDictionary[data.saveableObjectID].Load(data);
+            }
         }
+
+       
 
         public override void InitialiseManager()
         {
-            throw new System.NotImplementedException();
+
         }
 
         public override void UpdateManager()
         {
-            throw new System.NotImplementedException();
+
         }
     }
 }

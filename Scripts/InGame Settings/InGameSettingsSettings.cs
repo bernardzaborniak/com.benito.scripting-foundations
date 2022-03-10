@@ -8,6 +8,7 @@ public class InGameSettingsSettings : ScriptableObject
 {
     const string DefaultSettingsPathInResourcesFolder = "Settings/InGame Settings Settings";
 
+    [SerializeField]
     IOUtilities.AssigneableGameDataPath inGameSettingsPath = new IOUtilities.AssigneableGameDataPath(IOUtilities.AssigneableGameDataPath.PathPrefix.PersistendData,"InGameSettings");
 
 

@@ -1,21 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+//using Newtonsoft.Json;
 
 namespace Benito.ScriptingFoundations.Saving
 {
-    public class SaveableObjectData : MonoBehaviour
+    // [System.Serializable]
+    //[JsonObject(MemberSerialization.Fields)]
+    public class SaveableObjectData 
     {
-        // Start is called before the first frame update
-        void Start()
+        public string typeName;
+        public string assemblyName;
+
+        public int saveableObjectID;
+
+        public void SetSerializationInfos(string typeName, string assemblyName, int saveableObjectID)
         {
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
+            this.typeName = typeName;
+            this.assemblyName = assemblyName;
+            this.saveableObjectID = saveableObjectID;
         }
     }
 

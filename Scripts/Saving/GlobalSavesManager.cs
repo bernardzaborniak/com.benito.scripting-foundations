@@ -13,12 +13,12 @@ namespace Benito.ScriptingFoundations.Saving
     {
         public override void InitialiseManager()
         {
-            throw new System.NotImplementedException();
+            //throw new System.NotImplementedException();
         }
 
         public override void UpdateManager()
         {
-            throw new System.NotImplementedException();
+            //throw new System.NotImplementedException();
         }
     }
 }

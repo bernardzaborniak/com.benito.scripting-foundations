@@ -4,18 +4,10 @@ using UnityEngine;
 
 namespace Benito.ScriptingFoundations.Saving
 {
-    public class ProgressSavegame : MonoBehaviour
+    public abstract class ProgressSavegame
     {
-        // Start is called before the first frame update
-        void Start()
-        {
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
+        public string typeName;
+        public string assemblyName;
+        // this class is abstract as there will be various progress save classes for various 
     }
 }
