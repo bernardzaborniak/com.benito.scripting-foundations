@@ -60,7 +60,6 @@ namespace Benito.ScriptingFoundations.Saving
         }
 
         [Button("Load")]
-
         public void TempLoadSaveFile()
         {
             StreamReader reader = new StreamReader(Path.Combine(Application.persistentDataPath, "Saves/test.json"));

@@ -1,21 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.IO;
-using Newtonsoft.Json;
+using System;
+using System.Reflection;
 
 // how to get unitys newtonsoft?
 //https://stackoverflow.com/questions/63955593/how-do-we-parse-json-in-unity3d
 
 namespace Benito.ScriptingFoundations.Saving 
 {
-    [JsonObject(MemberSerialization.OptIn)]
     public class SceneSavegame 
     {
-        [JsonProperty]
         string sceneName;
 
-        [JsonProperty()]
         List<SaveableObjectData> savedObjects;
 
         public SceneSavegame(string sceneName, List<SaveableObjectData> savedObjects)
@@ -25,74 +22,55 @@ namespace Benito.ScriptingFoundations.Saving
         }
 
         /// <summary>
-        /// Has to be done in a special way to properly serialise the savedObjectsas derived classes
+        /// Has to be done in a special way to properly serialise the savedObjectsas derived classes.
         /// </summary>
         /// <returns></returns>
         public string GetJsonString()
         {
-            //string jsonString = JsonUtility.ToJson(this, true);
-
             // serializing one by one works :(
 
-            /*string jsonString = "{\n\"sceneName\": \"Saving\",\n\"savedObjects\": [\n";
+            string jsonString = sceneName + "\n";
 
             for (int i = 0; i < savedObjects.Count; i++)
-            {
-                jsonString += "\t\t" + JsonUtility.ToJson(savedObjects[i], true);
-
-                if (i != savedObjects.Count - 1)
-                    jsonString += ",\n";
-
+            {            
+                jsonString +=  JsonUtility.ToJson(savedObjects[i], false) + "\n";
             }
 
-            jsonString += "\n]\n}";*/
-
             Debug.Log("convert");
-
-            string jsonString = JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings()
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
 
             return jsonString;
         }
 
-        public static SceneSavegame CreateFromJsonString(string jsonString)
+        public static SceneSavegame CreateFromJsonString(string saveString)
         {
-            /*SceneSavegame savegame = JsonUtility.FromJson<SceneSavegame>(jsonString);
+            string[] seperatedString = saveString.Split("\n");
+            string sceneName = seperatedString[0];
 
+            List<SaveableObjectData> saveableObjects = new List<SaveableObjectData>();
 
-            string[] saveableObjectsStrings = jsonString.Split("[")
-
-            // Recreate the list again using correct derived Types
-            List<SaveableObjectData> newList = new List<SaveableObjectData>();
-
-            for (int i = 0; i < savegame.savedObjects.Count; i++)
+            for (int i = 1; i < seperatedString.Length-1; i++)
             {
+                SaveableObjectData genericData = (SaveableObjectData)JsonUtility.FromJson<SaveableObjectData>(seperatedString[i]);
 
-
-
+                Type saveableDataType = null;
+                foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+                {                    
+                    if (assembly.GetName().ToString() == genericData.assemblyName)
+                    {
+                        saveableDataType = assembly.GetType(genericData.typeName);
+                    }
+                }
+                saveableObjects.Add((SaveableObjectData)JsonUtility.FromJson(seperatedString[i], saveableDataType));
             }
 
-            return savegame;*/
-            //SceneSavegame savegame = new SceneSavegame()
-
-
-            SceneSavegame savegame =  JsonConvert.DeserializeObject<SceneSavegame>(jsonString);
-
-            for (int i = 0; i < savegame.savedObjects.Count; i++)
-            {
-                Debug.Log("loaded object: " + savegame.savedObjects[i].GetType());
-            }
-            return savegame;
+            SceneSavegame newSaveGame = new SceneSavegame(sceneName, saveableObjects);
+            return newSaveGame;
         }
 
         public List<SaveableObjectData> GetSavedObjectsFromSave()
         {
             return savedObjects;
         }
-
-
     }
 }
 

@@ -1,12 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//using Newtonsoft.Json;
 
 namespace Benito.ScriptingFoundations.Saving
 {
-    // [System.Serializable]
-    //[JsonObject(MemberSerialization.Fields)]
     public class SaveableObjectData 
     {
         public string typeName;
@@ -14,10 +11,10 @@ namespace Benito.ScriptingFoundations.Saving
 
         public int saveableObjectID;
 
-        public void SetSerializationInfos(string typeName, string assemblyName, int saveableObjectID)
+        public void SetSerializationInfos<T>(int saveableObjectID)
         {
-            this.typeName = typeName;
-            this.assemblyName = assemblyName;
+            this.typeName = typeof(T).FullName;
+            this.assemblyName = typeof(T).Assembly.GetName().ToString();
             this.saveableObjectID = saveableObjectID;
         }
     }
