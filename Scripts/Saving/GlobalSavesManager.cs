@@ -62,7 +62,6 @@ namespace Benito.ScriptingFoundations.Saving
             reader.Close();
 
             currentyLoadingSave = SceneSavegame.CreateFromJsonString(fileContent);
-            Debug.Log("LoadSceneSave for scene: " + currentyLoadingSave.GetSceneName());
 
             BSceneManager sceneManager = GlobalManagers.Get<BSceneManager>();
 

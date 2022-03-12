@@ -1,20 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Benito.ScriptingFoundations.Saving;
-using Benito.ScriptingFoundations.Managers;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
 {
-
-    /// <summary>
-    /// The Savefile is being loaded after exit transition scene Fade finishes and before enter nextSceneFade Starts
-    /// </summary>
-    public class BSceneTransitionLoadSceneSave : BSceneTransition
+    public class BSceneTransitionWithTransitionScene : BSceneTransition
     {
-        string transitionScene;
         string targetScene;
-        SceneSavegame savegame;
 
         GameObject exitCurrentSceneFadePrefab;
         GameObject enterTransitionSceneFadePrefab;
@@ -34,30 +26,25 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         {
             Idle,
             PlayingExitCurrentSceneFade,
-            WaitingForTransitionSceneToPreload,
             PlayingEnterTransitionSceneFade,
-            WaitingForTransitionSceneToAllowExit,
+            WaitingForTransitionScene,
             PlayingExitTransitionSceneFade,
-            LoadingSaveFile,
             PlayingEnterNextSceneFade,
             Finished
         }
 
         Stage stage;
 
-        public BSceneTransitionLoadSceneSave(SceneSavegame savegame, string transitionScene, Transform sceneManagerTransform, AsyncOperation preloadSceneOperation,
-            GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
-            GameObject exitTransitionSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
+        public BSceneTransitionWithTransitionScene(string targetScene, Transform sceneManagerTransform, AsyncOperation preloadSceneOperation,
+            GameObject exitCurrentSceneFadePrefab, GameObject enterTransitionSceneFadePrefab,
+            GameObject exitTransitionSceneFadePrefab, GameObject enterNextSceneFadePrefab)
         {
             Finished = false;
             stage = Stage.Idle;
 
-            this.savegame = savegame;
-            this.transitionScene = transitionScene;
-            targetScene = savegame.GetSceneName();
+            this.targetScene = targetScene;
             this.sceneManagerTransform = sceneManagerTransform;
             this.preloadSceneOperation = preloadSceneOperation;
-         
 
             this.exitCurrentSceneFadePrefab = exitCurrentSceneFadePrefab;
             this.enterTransitionSceneFadePrefab = enterTransitionSceneFadePrefab;
@@ -65,31 +52,27 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             this.enterNextSceneFadePrefab = enterNextSceneFadePrefab;
         }
 
+
         public override void StartTransition()
         {
             StartExitCurrentSceneFade();
         }
 
+        public override void UpdateTransition()
+        {
+
+        }
+
+        /// <summary>
+        /// Call this to allow exiting a transition scene.
+        /// </summary>
         public void OnTransitionSceneAllowsContinuation()
         {
-            if (stage == Stage.WaitingForTransitionSceneToAllowExit)
+            if (stage == Stage.WaitingForTransitionScene)
             {
                 StartExitTransitionSceneFade();
             }
         }
-
-        public override void UpdateTransition()
-        {
-            if(stage == Stage.WaitingForTransitionSceneToPreload)
-            {
-                if (preloadSceneOperation.progress >= 0.9f)
-                {
-                    Debug.Log("OnExitCurrentSceneFadeFinishedAndTransitionSceneIsPreloaded");
-                    OnExitCurrentSceneFadeFinishedAndTransitionSceneIsPreloaded();
-                }
-            }
-        }
-
 
         void StartExitCurrentSceneFade()
         {
@@ -104,22 +87,14 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             {
                 OnExitCurrentSceneFadeFinished();
             }
-
-            preloadSceneOperation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(transitionScene);
-            preloadSceneOperation.allowSceneActivation = false;
-
         }
 
         void OnExitCurrentSceneFadeFinished()
         {
-            Debug.Log("OnExitCurrentSceneFadeFinished");
-            stage = Stage.WaitingForTransitionSceneToPreload;
-        }
-
-        void OnExitCurrentSceneFadeFinishedAndTransitionSceneIsPreloaded()
-        {
             preloadSceneOperation.allowSceneActivation = true;
             preloadSceneOperation.completed += OnLoadingTransitionSceneComplete;
+
+            //StartEnterTransitionSceneFade();
         }
 
         void OnLoadingTransitionSceneComplete(AsyncOperation asyncOperation)
@@ -131,8 +106,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             preloadSceneOperation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(targetScene);
             preloadSceneOperation.allowSceneActivation = false;
-            Debug.Log("preloadSceneOperation: " + preloadSceneOperation.progress);
-
 
             StartEnterTransitionSceneFade();
         }
@@ -154,16 +127,13 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void OnEnterTransitionSceneFadeFinished()
         {
-            Debug.Log("OnEnterTransitionSceneFadeFinished");
-            Debug.Log("preloadSceneOperation: " + preloadSceneOperation.progress);
             if (enterTransitionSceneFade)
                 GameObject.Destroy(enterTransitionSceneFade.gameObject);
-            stage = Stage.WaitingForTransitionSceneToAllowExit;
+            stage = Stage.WaitingForTransitionScene;
         }
 
         void StartExitTransitionSceneFade()
         {
-            Debug.Log("StartExitTransitionSceneFade");
             if (exitTransitionSceneFadePrefab != null)
             {
                 exitTransitionSceneFade = CreateFade(exitTransitionSceneFadePrefab, sceneManagerTransform);
@@ -186,41 +156,16 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void OnLoadingNextSceneComplete(AsyncOperation asyncOperation)
         {
-            Debug.Log("OnLoadingNextSceneComplete");
-
-
             preloadSceneOperation.completed -= OnLoadingNextSceneComplete;
-
-            StartLoadingSavegame();
-        }
-
-        void StartLoadingSavegame()
-        {
-            Debug.Log("StartLoadingSavegame");
-
-            SaveableObjectsSceneManager saveManager = LocalSceneManagers.Get<SaveableObjectsSceneManager>();
-            saveManager.OnLoadingFinished += OnLoadingSavegameFinished;
-            saveManager.LoadFromSaveData(savegame.GetSavedObjectsFromSave());
-            stage = Stage.LoadingSaveFile;
-        }
-
-        void OnLoadingSavegameFinished()
-        {
-            Debug.Log("OnLoadingSavegameFinished");
-
-            LocalSceneManagers.Get<SaveableObjectsSceneManager>().OnLoadingFinished -= OnLoadingSavegameFinished;
 
             if (exitTransitionSceneFade)
                 GameObject.Destroy(exitTransitionSceneFade.gameObject);
-
 
             StartEnterNextSceneFade();
         }
 
         void StartEnterNextSceneFade()
         {
-            Debug.Log("StartEnterNextSceneFade:enterNextSceneFadePrefab " + enterNextSceneFadePrefab);
-
             if (enterNextSceneFadePrefab != null)
             {
                 enterNextSceneFade = CreateFade(enterNextSceneFadePrefab, sceneManagerTransform);
@@ -239,11 +184,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void OnEnterNextSceneFadeFinished()
         {
-            Debug.Log("OnEnterNextSceneFadeFinished ");
-
-
             if (enterNextSceneFade)
-                GameObject.Destroy(exitTransitionSceneFade.gameObject);
+                GameObject.Destroy(enterNextSceneFade.gameObject);
 
             stage = Stage.Finished;
             OnTransitionFinished?.Invoke();
@@ -252,12 +194,17 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         public override float GetProgress()
         {
-            if (stage == Stage.WaitingForTransitionSceneToAllowExit)
+            if(stage == Stage.WaitingForTransitionScene)
             {
                 return preloadSceneOperation.progress / 0.9f;
             }
 
             return 0;
+        }
+
+        public override string GetCurrentStageDebugString()
+        {
+            return stage.ToString();
         }
     }
 }

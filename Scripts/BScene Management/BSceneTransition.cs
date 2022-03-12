@@ -27,5 +27,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         public abstract float GetProgress();
 
+        public abstract string GetCurrentStageDebugString();
+
     }
 }

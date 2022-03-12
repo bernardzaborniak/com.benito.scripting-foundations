@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.Saving;
+using Benito.ScriptingFoundations.InspectorAttributes;
 using UnityEngine.SceneManagement;
 using System;
 
@@ -24,7 +25,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             IdleWithPreloadedScene,
             Transitioning
         }
-
 
         Status status;
 
@@ -51,7 +51,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                             status = Status.IdleWithPreloadedScene;
                         }
                             
-
                         break;
                     }
                 case Status.Transitioning:
@@ -65,7 +64,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                             status = Status.Idle;
                         }
                             
-
                         break;
                     }
             }
@@ -138,6 +136,37 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             currentTransition.StartTransition();
             status = Status.Transitioning;
         }
+
+        #region Inspector Debug methods
+#if UNITY_EDITOR
+
+        public string GetCurrentState()
+        {
+            return status.ToString();
+        }
+
+        public string GetCurrentTransitionName()
+        {
+            if(currentTransition != null)
+            {
+                return currentTransition.GetType().Name;
+            }
+
+            return "";
+        }
+
+        public string GetCurrentTransitionStage()
+        {
+            if (currentTransition != null)
+            {
+                return currentTransition.GetCurrentStageDebugString();
+            }
+            return "";
+
+        }
+#endif
+
+        #endregion
     }
 
 }

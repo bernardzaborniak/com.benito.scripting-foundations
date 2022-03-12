@@ -7,20 +7,16 @@ using System.Reflection;
 
 namespace Benito.ScriptingFoundations.InGameSettings.Editor 
 {
-    //TODO - Do this some other time
+    // todo allow editiing setting here?
 
     [CustomEditor(typeof(InGameSettingsManager))]
     public class InGameSettingsManagerEditor : UnityEditor.Editor
     {
         List<InGameSettings> loadedSettings;
-        //SerializedProperty loadedSettingsProp;
-
-        //SerializedProperty loadedSettings;
 
         void OnEnable()
         {
             loadedSettings = (target as InGameSettingsManager).LoadedSettings;
-            //loadedSettingsProp = serializedObject.FindProperty("loadedSettings");
         }
 
         public override void OnInspectorGUI()
@@ -44,7 +40,7 @@ namespace Benito.ScriptingFoundations.InGameSettings.Editor
         {
             // SerializedObject serializedSettings = new SerializedObject(settings);
 
-            // TODO do foldout here
+            // TODO do foldout here ? 
 
             Rect rect = EditorGUILayout.GetControlRect();
 
