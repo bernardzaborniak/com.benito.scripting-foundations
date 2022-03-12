@@ -5,6 +5,8 @@ using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.BSceneManagement;
 using System.IO;
 
+using System.Diagnostics;
+
 
 namespace Benito.ScriptingFoundations.Saving
 {
@@ -13,6 +15,8 @@ namespace Benito.ScriptingFoundations.Saving
     /// </summary>
     public class GlobalSavesManager : SingletonManagerGlobal
     {
+        Stopwatch stopwatch = new Stopwatch();
+
         public enum State 
         { 
             Idle,
@@ -42,6 +46,8 @@ namespace Benito.ScriptingFoundations.Saving
 
         public void CreateSceneSave(List<SaveableObjectData> objectsData)
         {
+            stopwatch.Start();
+
             ManagerState = State.CreatingSceneSave;
 
             SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsData);
@@ -49,6 +55,9 @@ namespace Benito.ScriptingFoundations.Saving
             File.WriteAllText(Path.Combine(Application.persistentDataPath, "Saves/test.json"), contents);
 
             ManagerState = State.Idle;
+
+            stopwatch.Stop();
+            UnityEngine.Debug.Log("stopwatch GlobalSavesManager.CreateSceneSave took " + stopwatch.Elapsed.TotalSeconds + " s");
         }
 
         public void LoadSceneSave(string saveFilePath, string transitionSceneName,
@@ -84,7 +93,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         }
 
-        public void OnTransitionToSavedSceneFinishes()
+        void OnTransitionToSavedSceneFinishes()
         {
             ManagerState = State.Idle;
             GlobalManagers.Get<BSceneManager>().OnTransitionFinishes -= OnTransitionToSavedSceneFinishes;

@@ -6,6 +6,9 @@ using Benito.ScriptingFoundations.InspectorAttributes;
 using System.IO;
 using System;
 
+using System.Diagnostics;
+
+
 namespace Benito.ScriptingFoundations.Saving
 {
     /// <summary>
@@ -13,7 +16,10 @@ namespace Benito.ScriptingFoundations.Saving
     /// </summary>
     public class SaveableObjectsSceneManager : SingletonManagerLocalScene
     {
-       [SerializeField] List<SaveableObject> saveableObjects;
+        Stopwatch stopwatch = new Stopwatch();
+
+
+        [SerializeField] List<SaveableObject> saveableObjects;
        [SerializeField] int[] saveableObjectIds;
 
         public Action OnLoadingFinished;
@@ -43,6 +49,8 @@ namespace Benito.ScriptingFoundations.Saving
         [Button("Save")]
         public void SaveAllObjects()
         {
+            stopwatch.Start();
+
             List<SaveableObjectData> objectsData = new List<SaveableObjectData>();
 
             for (int i = 0; i < saveableObjects.Count; i++)
@@ -54,10 +62,16 @@ namespace Benito.ScriptingFoundations.Saving
                 }
             }
 
+            stopwatch.Stop();
+            UnityEngine.Debug.Log("stopwatch SaveableObjectsManager.SaveAllObjects took " + stopwatch.Elapsed.TotalSeconds + " s");
+
             GlobalManagers.Get<GlobalSavesManager>().CreateSceneSave(objectsData);
             //TempCreateSaveFile(objectsData);
 
             OnSavingFinished?.Invoke();
+
+           
+
         }
 
         /*public void TempCreateSaveFile(List<SaveableObjectData> objectsToSave)
@@ -72,7 +86,8 @@ namespace Benito.ScriptingFoundations.Saving
         [Button("Load")]
         public void TempLoadSaveFile()
         {
-            Debug.Log("path: " + Path.Combine(Application.persistentDataPath, "Saves/test.json"));
+            stopwatch.Start();
+
             StreamReader reader = new StreamReader(Path.Combine(Application.persistentDataPath, "Saves/test.json"));
             string fileContent = reader.ReadToEnd();
             reader.Close();
@@ -80,10 +95,15 @@ namespace Benito.ScriptingFoundations.Saving
             SceneSavegame save = SceneSavegame.CreateFromJsonString(fileContent);
 
             LoadFromSaveData(save.GetSavedObjectsFromSave());
+
+            stopwatch.Stop();
+            UnityEngine.Debug.Log("stopwatch SaveableObjectsManager.TempLoadSaveFile took " + stopwatch.Elapsed.TotalSeconds + " s");
+
         }
 
         public void LoadFromSaveData(List<SaveableObjectData> objectsData)
         {
+            stopwatch.Start();
             Dictionary<int, SaveableObject> saveableObjectsIdDictionary = new Dictionary<int, SaveableObject>();
 
             for (int i = 0; i < saveableObjects.Count; i++)
@@ -93,13 +113,13 @@ namespace Benito.ScriptingFoundations.Saving
 
             foreach (SaveableObjectData data in objectsData)
             {
-                Debug.Log("loaded data type: " + data.GetType());
                 saveableObjectsIdDictionary[data.saveableObjectID].Load(data);
             }
 
-            Debug.Log("try to call on loading finished");
-            Debug.Log("OnLoadingFinished: " + OnLoadingFinished);
-            OnLoadingFinished?.Invoke();
+            stopwatch.Stop();
+            UnityEngine.Debug.Log("stopwatch SaveableObjectsManager.LoadFromSaveData took " + stopwatch.Elapsed.TotalSeconds + " s");
+
+            OnLoadingFinished?.Invoke(); 
         }
 
        
