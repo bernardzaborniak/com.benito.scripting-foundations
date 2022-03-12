@@ -163,6 +163,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void StartExitTransitionSceneFade()
         {
+            Debug.Log("StartExitTransitionSceneFade");
             if (exitTransitionSceneFadePrefab != null)
             {
                 exitTransitionSceneFade = CreateFade(exitTransitionSceneFadePrefab, sceneManagerTransform);
@@ -185,6 +186,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void OnLoadingNextSceneComplete(AsyncOperation asyncOperation)
         {
+            Debug.Log("OnLoadingNextSceneComplete");
+
+
             preloadSceneOperation.completed -= OnLoadingNextSceneComplete;
 
             StartLoadingSavegame();
@@ -192,23 +196,31 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void StartLoadingSavegame()
         {
+            Debug.Log("StartLoadingSavegame");
+
             SaveableObjectsSceneManager saveManager = LocalSceneManagers.Get<SaveableObjectsSceneManager>();
-            saveManager. LoadFromSaveData(savegame.GetSavedObjectsFromSave());
             saveManager.OnLoadingFinished += OnLoadingSavegameFinished;
+            saveManager.LoadFromSaveData(savegame.GetSavedObjectsFromSave());
+            stage = Stage.LoadingSaveFile;
         }
 
         void OnLoadingSavegameFinished()
         {
+            Debug.Log("OnLoadingSavegameFinished");
+
             LocalSceneManagers.Get<SaveableObjectsSceneManager>().OnLoadingFinished -= OnLoadingSavegameFinished;
 
             if (exitTransitionSceneFade)
                 GameObject.Destroy(exitTransitionSceneFade.gameObject);
+
 
             StartEnterNextSceneFade();
         }
 
         void StartEnterNextSceneFade()
         {
+            Debug.Log("StartEnterNextSceneFade:enterNextSceneFadePrefab " + enterNextSceneFadePrefab);
+
             if (enterNextSceneFadePrefab != null)
             {
                 enterNextSceneFade = CreateFade(enterNextSceneFadePrefab, sceneManagerTransform);
@@ -227,6 +239,12 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void OnEnterNextSceneFadeFinished()
         {
+            Debug.Log("OnEnterNextSceneFadeFinished ");
+
+
+            if (enterNextSceneFade)
+                GameObject.Destroy(exitTransitionSceneFade.gameObject);
+
             stage = Stage.Finished;
             OnTransitionFinished?.Invoke();
             Finished = true;

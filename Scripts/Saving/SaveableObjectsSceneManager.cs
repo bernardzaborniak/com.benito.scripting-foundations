@@ -97,6 +97,8 @@ namespace Benito.ScriptingFoundations.Saving
                 saveableObjectsIdDictionary[data.saveableObjectID].Load(data);
             }
 
+            Debug.Log("try to call on loading finished");
+            Debug.Log("OnLoadingFinished: " + OnLoadingFinished);
             OnLoadingFinished?.Invoke();
         }
 

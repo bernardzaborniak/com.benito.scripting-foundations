@@ -184,6 +184,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void OnEnterNextSceneFadeFinished()
         {
+            if (enterNextSceneFade)
+                GameObject.Destroy(exitTransitionSceneFade.gameObject);
+
             stage = Stage.Finished;
             OnTransitionFinished?.Invoke();
             Finished = true;
