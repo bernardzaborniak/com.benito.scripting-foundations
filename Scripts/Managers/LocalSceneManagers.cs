@@ -5,9 +5,9 @@ using System;
 
 namespace Benito.ScriptingFoundations.Managers
 {
-    public class SceneManagers : AbstractManagersManager<SingletonManagerScene>
+    public class LocalSceneManagers : AbstractManagersManager<SingletonManagerLocalScene>
     {
-        public static SceneManagers Instance;
+        public static LocalSceneManagers Instance;
 
         protected Dictionary<Type, object> managersDictionary = new Dictionary<Type, object>();
 

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Benito.ScriptingFoundations.Managers
 {
-    public abstract class SingletonManagerScene : MonoBehaviour, ISingletonManager
+    public abstract class SingletonManagerLocalScene : MonoBehaviour, ISingletonManager
     {
         public abstract void InitialiseManager();
 

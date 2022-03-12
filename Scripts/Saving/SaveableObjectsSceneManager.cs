@@ -4,17 +4,22 @@ using UnityEngine;
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.InspectorAttributes;
 using System.IO;
+using System;
 
 namespace Benito.ScriptingFoundations.Saving
 {
     /// <summary>
     /// Manages all saveable objects inside a scene.
     /// </summary>
-    public class SaveableObjectsSceneManager : SingletonManagerScene
+    public class SaveableObjectsSceneManager : SingletonManagerLocalScene
     {
        [SerializeField] List<SaveableObject> saveableObjects;
        [SerializeField] int[] saveableObjectIds;
 
+        public Action OnLoadingFinished;
+        public Action OnSavingFinished;
+
+#if UNITY_EDITOR
         [Button("ScanSceneForSaveableObjects")]
         public void ScanSceneForSaveableObjects()
         {
@@ -30,9 +35,11 @@ namespace Benito.ScriptingFoundations.Saving
         [Button("Assign IDS")]
         public void AssignIds()
         {
-            SaveableObjectsIdAssigner.AssignIdsInCurrentScene();
+            SaveableObjectsIdAssigner.AssignMissingIdsInCurrentScene();
         }
-        
+
+#endif
+
         [Button("Save")]
         public void SaveAllObjects()
         {
@@ -47,21 +54,25 @@ namespace Benito.ScriptingFoundations.Saving
                 }
             }
 
-            TempCreateSaveFile(objectsData);
+            GlobalManagers.Get<GlobalSavesManager>().CreateSceneSave(objectsData);
+            //TempCreateSaveFile(objectsData);
+
+            OnSavingFinished?.Invoke();
         }
 
-        public void TempCreateSaveFile(List<SaveableObjectData> objectsToSave)
+        /*public void TempCreateSaveFile(List<SaveableObjectData> objectsToSave)
         {
             SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsToSave);
 
             string contents = save.GetJsonString();
 
             File.WriteAllText(Path.Combine(Application.persistentDataPath, "Saves/test.json"), contents);
-        }
+        }*/
 
         [Button("Load")]
         public void TempLoadSaveFile()
         {
+            Debug.Log("path: " + Path.Combine(Application.persistentDataPath, "Saves/test.json"));
             StreamReader reader = new StreamReader(Path.Combine(Application.persistentDataPath, "Saves/test.json"));
             string fileContent = reader.ReadToEnd();
             reader.Close();
@@ -85,6 +96,8 @@ namespace Benito.ScriptingFoundations.Saving
                 Debug.Log("loaded data type: " + data.GetType());
                 saveableObjectsIdDictionary[data.saveableObjectID].Load(data);
             }
+
+            OnLoadingFinished?.Invoke();
         }
 
        

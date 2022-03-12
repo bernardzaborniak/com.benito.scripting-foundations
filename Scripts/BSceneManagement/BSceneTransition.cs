@@ -24,5 +24,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
             return fade;
         }
+
+        public abstract float GetProgress();
+
     }
 }

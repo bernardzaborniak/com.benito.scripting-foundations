@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Benito.ScriptingFoundations.Managers;
+using Benito.ScriptingFoundations.Saving;
 using UnityEngine.SceneManagement;
 using System;
 
@@ -14,6 +15,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         BSceneTransition currentTransition;
 
         public Action OnPreloadingSceneFinished;
+        public Action OnTransitionFinishes;
 
         public enum Status
         {
@@ -27,8 +29,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         Status status;
 
         AsyncOperation preloadSceneOperation;
-        public float PreloadingSceneProgress { get => preloadSceneOperation.progress; }
-        public float NormalizedPreloadingSceneProgress { get => preloadSceneOperation.progress/0.9f; }
+        public float PreloadingSceneProgress { get => preloadSceneOperation != null? preloadSceneOperation.progress : -1; }
+        public float NormalizedPreloadingSceneProgress { get => preloadSceneOperation != null ? preloadSceneOperation.progress/0.9f : -1; }
+        public float TransitionProgress { get => currentTransition != null ? currentTransition.GetProgress(): -1; }
 
 
         public override void InitialiseManager()
@@ -58,6 +61,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                         if (currentTransition.Finished)
                         {
                             currentTransition = null;
+                            OnTransitionFinishes?.Invoke();
                             status = Status.Idle;
                         }
                             
@@ -83,21 +87,26 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             return preloadSceneOperation;
         }
 
+        public void UnloadPreloadedScene()
+        {
+            //TODO
+        }
+
         // Needs to be called by the transition scene - every transition scene can do it differently?
         public void ExitTransitionScene()
         {
-            BSceneTransitionWithTransitionScene transition = currentTransition as BSceneTransitionWithTransitionScene;
-            if (transition != null)
+            if (currentTransition is BSceneTransitionWithTransitionScene)
             {
-                Debug.Log("yep 2");
-
-                transition.OnTransitionSceneAllowsContinuation();
+                (currentTransition as BSceneTransitionWithTransitionScene).OnTransitionSceneAllowsContinuation();
+            }
+            else if (currentTransition is BSceneTransitionLoadSceneSave)
+            {
+                (currentTransition as BSceneTransitionLoadSceneSave).OnTransitionSceneAllowsContinuation();
             }
             else
             {
-                Debug.LogError("ExitTransitionScene failed, as current transition is not a BSceneTransitionWithTransitionScene");
+                Debug.LogError("ExitTransitionScene failed, as current transition is not a BSceneTransitionWithTransitionScene or BSceneTransitionLoadSceneSave");
             }
-            //SceneManager.LoadScene
         }
 
         public void SwitchToPreloadedScene(GameObject exitCurrentSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
@@ -117,6 +126,17 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             currentTransition.StartTransition();
             status = Status.Transitioning;
 
+        }
+
+        public void LoadSceneSaveThroughTransitionScene(SceneSavegame savegame, string transitionSceneName,
+            GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
+            GameObject exitTransitiontSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
+        {
+            currentTransition = new BSceneTransitionLoadSceneSave(savegame, transitionSceneName, transform, preloadSceneOperation,
+            exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab,
+                exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
+            currentTransition.StartTransition();
+            status = Status.Transitioning;
         }
     }
 

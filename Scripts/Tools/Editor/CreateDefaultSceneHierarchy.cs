@@ -38,7 +38,7 @@ namespace Benito.ScriptingFoundations.Tool.Editor
             
             GameObject singletonManager = new GameObject("SCENE SINGLETON MANAGER");
             singletonManager.transform.parent = managers.transform;
-            singletonManager.AddComponent<SceneManagers>();
+            singletonManager.AddComponent<LocalSceneManagers>();
 
 
             GameObject globalLighting = new GameObject("-- Global Lighting --");

@@ -71,6 +71,11 @@ namespace Benito.ScriptingFoundations.Saving
         {
             return savedObjects;
         }
+
+        public string GetSceneName()
+        {
+            return sceneName;
+        }
     }
 }
 

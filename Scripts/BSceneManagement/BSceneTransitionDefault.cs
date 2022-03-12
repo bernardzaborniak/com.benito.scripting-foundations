@@ -107,6 +107,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             OnTransitionFinished?.Invoke();
         }
 
-      
+        public override float GetProgress()
+        {
+            return -1;
+        }
     }
 }
