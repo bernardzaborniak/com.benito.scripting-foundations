@@ -4,6 +4,7 @@ using UnityEngine;
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.BSceneManagement;
 using System.IO;
+using System.Threading.Tasks;
 
 using System.Diagnostics;
 
@@ -17,16 +18,16 @@ namespace Benito.ScriptingFoundations.Saving
     {
         Stopwatch stopwatch = new Stopwatch();
 
-        public enum State 
-        { 
+        Task<SceneSavegame> readSceneSaveFileTask;
+
+        public enum State
+        {
             Idle,
-            CreatingSceneSave,
-            ReadingSceneSave,
-            LoadingSceneSave,
-            CreatingProgressSave
+            ReadingSceneSaveFile,
+
         }
 
-        SceneSavegame currentyLoadingSave;
+        // SceneSavegame currentyLoadingSave;
 
         public State ManagerState { get; private set; }
 
@@ -38,17 +39,22 @@ namespace Benito.ScriptingFoundations.Saving
 
         public override void UpdateManager()
         {
-            if(ManagerState == State.LoadingSceneSave)
+            /*if (ManagerState == State.ReadingSceneSaveFile)
             {
+                if (readSceneSaveFileTask.IsCompleted)
+                {
+                    OnReadingSceneSaveFileFinished(readSceneSaveFileTask.Result);
 
-            }
+                    readSceneSaveFileTask = null;
+                }
+            }*/
         }
 
         public void CreateSceneSave(List<SaveableObjectData> objectsData)
         {
             stopwatch.Start();
 
-            ManagerState = State.CreatingSceneSave;
+            //ManagerState = State.CreatingSceneSave;
 
             SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsData);
             string contents = save.GetJsonString();
@@ -60,25 +66,45 @@ namespace Benito.ScriptingFoundations.Saving
             UnityEngine.Debug.Log("stopwatch GlobalSavesManager.CreateSceneSave took " + stopwatch.Elapsed.TotalSeconds + " s");
         }
 
-        public void LoadSceneSave(string saveFilePath, string transitionSceneName,
+        public async Task<SceneSavegame> ReadSceneSaveFile(string saveFilePath)
+        {
+            StreamReader reader = new StreamReader(saveFilePath);
+            var fileContent = await reader.ReadToEndAsync();
+            reader.Close();
+
+            var result = await Task.Run(() =>
+            {
+                return SceneSavegame.CreateFromJsonString(fileContent);
+            });
+
+            return result;
+        }
+
+        public async void LoadSceneSave(string saveFilePath, string transitionSceneName,
             GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
             GameObject exitTransitiontSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
-            ManagerState = State.LoadingSceneSave;
+            ManagerState = State.ReadingSceneSaveFile;
 
-            StreamReader reader = new StreamReader(saveFilePath);
-            string fileContent = reader.ReadToEnd();
-            reader.Close();
-
-            currentyLoadingSave = SceneSavegame.CreateFromJsonString(fileContent);
-
+            SceneSavegame readSavegame = await ReadSceneSaveFile(saveFilePath);
             BSceneManager sceneManager = GlobalManagers.Get<BSceneManager>();
 
-            sceneManager.LoadSceneSaveThroughTransitionScene(currentyLoadingSave, transitionSceneName,
+            sceneManager.LoadSceneSaveThroughTransitionScene(readSavegame, transitionSceneName,
                exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab, exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
 
             sceneManager.OnTransitionFinishes += OnTransitionToSavedSceneFinishes;
         }
+
+        /*void OnReadingSceneSaveFileFinished(SceneSavegame readSavegame)
+        {
+            BSceneManager sceneManager = GlobalManagers.Get<BSceneManager>();
+
+            sceneManager.LoadSceneSaveThroughTransitionScene(readSavegame, transitionSceneName,
+               exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab, exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
+
+            sceneManager.OnTransitionFinishes += OnTransitionToSavedSceneFinishes;
+
+        }*/
 
         public async void ReadSceneSaveAsync(string saveFilePath)
         {
