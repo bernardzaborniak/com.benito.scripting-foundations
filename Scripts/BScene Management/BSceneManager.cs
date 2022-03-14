@@ -137,6 +137,40 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             status = Status.Transitioning;
         }
 
+        public void DisableAllObjectExceptSceneManagers(string targetSceneName)
+        {
+            LocalSceneManagers sceneManagers = null;
+
+
+            foreach (var gameObject in UnityEngine.SceneManagement.SceneManager.GetSceneByName(targetSceneName).GetRootGameObjects())
+            { 
+                gameObject.SetActive(false);
+
+                if(sceneManagers == null)
+                {
+                    sceneManagers = gameObject.GetComponentInChildren<LocalSceneManagers>();
+                    if(sceneManagers != null)
+                    {
+                        sceneManagers.gameObject.SetActive(true);
+                        if(sceneManagers.gameObject.transform.parent != null)
+                        {
+                            Debug.LogError("DisableAllObjectExceptSceneManagers - LocalSceneManagers Should not have a parent!!!");
+                        }
+                    }
+                }
+            }
+
+            
+        }
+
+        public void EnableAllObjects(string targetSceneName)
+        {
+            foreach (var gameObject in UnityEngine.SceneManagement.SceneManager.GetSceneByName(targetSceneName).GetRootGameObjects())
+            {
+                gameObject.SetActive(true);
+            }
+        }
+
         #region Inspector Debug methods
 #if UNITY_EDITOR
 

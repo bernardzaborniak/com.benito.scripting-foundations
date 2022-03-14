@@ -183,6 +183,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         {
             preloadSceneOperation.completed -= OnLoadingNextSceneComplete;
 
+            GlobalManagers.Get<BSceneManager>().DisableAllObjectExceptSceneManagers(targetScene);
+
             //preloadSceneOperation = null;
             StartLoadingSavegame();
         }
@@ -252,6 +254,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void StartEnterNextSceneFade()
         {
+            GlobalManagers.Get<BSceneManager>().EnableAllObjects(targetScene);
+
+
             if (enterNextSceneFadePrefab != null)
             {
                 enterNextSceneFade = CreateFade(enterNextSceneFadePrefab, sceneManagerTransform);

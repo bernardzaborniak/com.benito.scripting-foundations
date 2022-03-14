@@ -39,8 +39,6 @@ namespace Benito.ScriptingFoundations.Saving
 
         public class LoadingSceneSaveBudgetedOperation
         {
-            public Action OnFinished;
-
             public enum Stage
             {
                 CreatingDictionary,
@@ -107,7 +105,6 @@ namespace Benito.ScriptingFoundations.Saving
                         }
                     }
                     stage = Stage.Finished;
-                    OnFinished?.Invoke();
                 }
             }
 
@@ -204,41 +201,11 @@ namespace Benito.ScriptingFoundations.Saving
 
         }
 
-        public void LoadFromSaveData(List<SaveableObjectData> objectsData0//, bool hideOtherSceneObjectsWhileLoading = true)
+        public void LoadFromSaveData(List<SaveableObjectData> objectsData)
         {
             state = State.LoadingSceneSave;
 
-            if (hideOtherSceneObjectsWhileLoading)
-            {
-                foreach (var gameObject in gameObject.scene.GetRootGameObjects())
-                {
-                    if(gameObject != this.transform.parent.gameObject)
-                    {
-                        gameObject.SetActive(false);
-                    }
-                }
-            }
-
             loadingSceneOperation = new LoadingSceneSaveBudgetedOperation(saveableObjects, saveableObjectIds, objectsData, SavingSettings.GetOrCreateSettings().loadingSceneSaveBudgetPerFrame);
-
-            if (hideOtherSceneObjectsWhileLoading)
-            {
-                loadingSceneOperation.OnFinished += EnableOtherSceneObjectsAfterFInishedLoading;
-            }
         }
-
-        void EnableOtherSceneObjectsAfterFinishedLoading()
-        {
-            loadingSceneOperation.OnFinished -= EnableOtherSceneObjectsAfterFInishedLoading;
-
-            foreach (var gameObject in gameObject.scene.GetRootGameObjects())
-            {
-                if (gameObject != this.gameObject)
-                {
-                    gameObject.SetActive(true);
-                }
-            }
-        }
-
     }
 }

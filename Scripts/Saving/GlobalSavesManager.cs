@@ -87,7 +87,7 @@ namespace Benito.ScriptingFoundations.Saving
             return result;
         }
 
-        public async void LoadSceneSave(string saveFilePath, string transitionSceneName,
+        public void LoadSceneSave(string saveFilePath, string transitionSceneName,
             GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
             GameObject exitTransitiontSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
