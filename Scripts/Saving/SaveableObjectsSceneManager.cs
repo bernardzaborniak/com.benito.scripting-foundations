@@ -37,6 +37,87 @@ namespace Benito.ScriptingFoundations.Saving
         [SerializeField]
         State state;
 
+        public float loadingSceneSaveBudgetPerFrame = 0.083f;
+
+        public class LoadingSceneSaveBudgetedOperation
+        {
+            public enum Stage
+            {
+                CreatingDictionary,
+                CallingLoadMethod,
+                Finished
+            }
+
+            public bool Finished { get => stage == Stage.Finished; }
+
+            public Stage stage;
+            List<SaveableObject> saveableObjects;
+            int[] saveableObjectIds;
+            List<SaveableObjectData> objectsData;
+            int creatingDictionaryStoppedAtIndex;
+            int callingLoadMethodStoppedAtIndex;
+
+            float timeBudget;
+
+            Dictionary<int, SaveableObject> saveableObjectsIdDictionary;
+
+            public LoadingSceneSaveBudgetedOperation(List<SaveableObject> saveableObjects, int[] saveableObjectIds, List<SaveableObjectData> objectsData , float timeBudget)
+            {
+                this.saveableObjects = saveableObjects;
+                this.saveableObjectIds = saveableObjectIds;
+                this.objectsData = objectsData;
+                this.timeBudget = timeBudget;
+
+                creatingDictionaryStoppedAtIndex = 0;
+                callingLoadMethodStoppedAtIndex = 0;
+                stage = Stage.CreatingDictionary;
+
+                saveableObjectsIdDictionary = new Dictionary<int, SaveableObject>();
+            }
+
+            public void Update(float deltaTime)
+            {
+                float startUpdateTime = Time.realtimeSinceStartup;
+
+                if(stage == Stage.CreatingDictionary)
+                {
+                    for (int i = creatingDictionaryStoppedAtIndex; i < saveableObjects.Count; i++)
+                    {
+                        saveableObjectsIdDictionary.Add(saveableObjectIds[i], saveableObjects[i]);
+                        
+                        if (Time.realtimeSinceStartup - startUpdateTime > timeBudget)
+                        {
+                            creatingDictionaryStoppedAtIndex = i;
+                            //Debug.Log("reached  time budget");
+                            return;
+                        }
+                    }
+
+                    stage = Stage.CallingLoadMethod;
+                }
+                else if(stage == Stage.CallingLoadMethod)
+                {
+                    for (int i = callingLoadMethodStoppedAtIndex; i < objectsData.Count; i++)
+                    {
+                        saveableObjectsIdDictionary[objectsData[i].saveableObjectID].Load(objectsData[i]);
+                        
+                        if (Time.realtimeSinceStartup - startUpdateTime > timeBudget)
+                        {
+                            callingLoadMethodStoppedAtIndex = i;
+                            //Debug.Log("reached  time budget");
+                            return;
+                        }
+                    }
+                    stage = Stage.Finished;
+                }
+            }
+
+        }
+
+        LoadingSceneSaveBudgetedOperation loadingSceneOperation;
+
+
+
         /*public enum LoadingState
         {
             ReadingFile,
@@ -133,69 +214,20 @@ namespace Benito.ScriptingFoundations.Saving
             stopwatch.Reset();
 
             stopwatch.Start();
-            StartCoroutine(LoadFromSaveData(save.GetSavedObjectsFromSave()));
-            
+            LoadFromSaveData(save.GetSavedObjectsFromSave());
+
             //stopwatch.Stop();
             //UnityEngine.Debug.Log("coroutine LoadFromSaveData took " + stopwatch.Elapsed.TotalSeconds + " s");
 
         }
 
-        /*void OnCreatingSceneSaveFromFileFinished()
+        public void LoadFromSaveData(List<SaveableObjectData> objectsData)
         {
-            stopwatch.Stop();
-            UnityEngine.Debug.Log("stopwatch SceneSavegame.CreateFromJsonString reader took " + stopwatch.Elapsed.TotalSeconds + " s");
-            stopwatch.Reset();
-            stopwatch.Start();
-            LoadFromSaveData(save.GetSavedObjectsFromSave());
-            stopwatch.Stop();
-            UnityEngine.Debug.Log("stopwatch LoadFromSaveData took " + stopwatch.Elapsed.TotalSeconds + " s");
-        }*/
-
-        // Do this one as an coroutine with progress , as maybe the load function will not be thread safe
-        public IEnumerator LoadFromSaveData(List<SaveableObjectData> objectsData)
-        {
-            float startTime = Time.time;
-            float maxTime = 0.008333f;
             state = State.LoadingSceneSave;
-
-            // stopwatch.Start();
-            Dictionary<int, SaveableObject> saveableObjectsIdDictionary = new Dictionary<int, SaveableObject>();
-
-            for (int i = 0; i < saveableObjects.Count; i++)
-            {
-                saveableObjectsIdDictionary.Add(saveableObjectIds[i],saveableObjects[i]);
-                
-                if (Time.time - startTime > maxTime)
-                {
-                    Debug.Log("yield return");
-                    yield return null;
-                }
-            }
-
-            foreach (SaveableObjectData data in objectsData)
-            {
-                saveableObjectsIdDictionary[data.saveableObjectID].Load(data);
-                Debug.Log("Time.time - startTime " + (Time.time - startTime) + "maxTime" + maxTime);
-                if (Time.time - startTime > maxTime)
-                {
-                    Debug.Log("yield return");
-                    yield return null;
-                }
-                   
-            }
-
-           // stopwatch.Stop();
-           // UnityEngine.Debug.Log("stopwatch SaveableObjectsManager.LoadFromSaveData took " + stopwatch.Elapsed.TotalSeconds + " s");
-
-            OnLoadingFinished?.Invoke();
-            stopwatch.Stop();
-            UnityEngine.Debug.Log("coroutine took  " + stopwatch.Elapsed.TotalSeconds + " s");
-            state = State.Idle;
-            yield return null;
+            loadingSceneOperation = new LoadingSceneSaveBudgetedOperation(saveableObjects, saveableObjectIds, objectsData, loadingSceneSaveBudgetPerFrame);
         }
 
-       
- 
+
         public override void InitialiseManager()
         {
 
@@ -203,7 +235,17 @@ namespace Benito.ScriptingFoundations.Saving
 
         public override void UpdateManager()
         {
+            if(state == State.LoadingSceneSave)
+            {
+                loadingSceneOperation.Update(Time.deltaTime);
 
+                if (loadingSceneOperation.Finished)
+                {
+                    state = State.Idle;
+                    loadingSceneOperation = null;
+                    OnLoadingFinished?.Invoke();
+                }
+            }
         }
     }
 }
