@@ -40,7 +40,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             PlayingExitCurrentSceneFade,
             WaitingForTransitionSceneToPreload,
             PlayingEnterTransitionSceneFade,
-            WaitingForNextSceneToPreloadAndSaveToLoad,
+            WaitingForNextSceneToPreloadAndSaveToRead,
             LoadingSaveFile,
             WaitingForTransitionSceneToAllowExit,
             PlayingExitTransitionSceneFade,
@@ -93,7 +93,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                     OnExitCurrentSceneFadeFinishedAndTransitionSceneIsPreloaded();
                 }
             }
-            else if(stage == Stage.WaitingForNextSceneToPreloadAndSaveToLoad)
+            else if(stage == Stage.WaitingForNextSceneToPreloadAndSaveToRead)
             {
                 if (preloadSceneOperation.progress >= 0.9f && readSceneSaveFileTask.IsCompleted)
                 {
@@ -168,7 +168,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 GameObject.Destroy(enterTransitionSceneFade.gameObject);
 
             //if(preloadSceneOperation.progress < 0.9f)
-            stage = Stage.WaitingForNextSceneToPreloadAndSaveToLoad;
+            stage = Stage.WaitingForNextSceneToPreloadAndSaveToRead;
         }
 
         void OnNextSceneFinishedPreloadingAndSavefileFinishedReading()
@@ -182,6 +182,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         void OnLoadingNextSceneComplete(AsyncOperation asyncOperation)
         {
             preloadSceneOperation.completed -= OnLoadingNextSceneComplete;
+
             //preloadSceneOperation = null;
             StartLoadingSavegame();
         }
@@ -189,6 +190,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         void StartLoadingSavegame()
         {
             stage = Stage.LoadingSaveFile;
+
+            Time.timeScale = 0;
 
             savegame = readSceneSaveFileTask.Result;
 
@@ -200,6 +203,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void OnLoadingSavegameFinished()
         {
+            Time.timeScale = 1;
+
             LocalSceneManagers.Get<SaveableObjectsSceneManager>().OnLoadingFinished -= OnLoadingSavegameFinished;
 
             if (exitTransitionSceneFade)
@@ -238,6 +243,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         {
             unloadSceneOperation.completed -= OnUnloadTransitionSceneCompleted;
             unloadSceneOperation = null;
+
             StartEnterNextSceneFade();
         }
        
