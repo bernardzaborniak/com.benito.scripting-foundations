@@ -37,8 +37,6 @@ namespace Benito.ScriptingFoundations.Saving
         [SerializeField]
         State state;
 
-        public float loadingSceneSaveBudgetPerFrame = 0.083f;
-
         public class LoadingSceneSaveBudgetedOperation
         {
             public enum Stage
@@ -88,7 +86,6 @@ namespace Benito.ScriptingFoundations.Saving
                         if (Time.realtimeSinceStartup - startUpdateTime > timeBudget)
                         {
                             creatingDictionaryStoppedAtIndex = i;
-                            //Debug.Log("reached  time budget");
                             return;
                         }
                     }
@@ -104,7 +101,6 @@ namespace Benito.ScriptingFoundations.Saving
                         if (Time.realtimeSinceStartup - startUpdateTime > timeBudget)
                         {
                             callingLoadMethodStoppedAtIndex = i;
-                            //Debug.Log("reached  time budget");
                             return;
                         }
                     }
@@ -118,16 +114,25 @@ namespace Benito.ScriptingFoundations.Saving
 
 
 
-        /*public enum LoadingState
+        public override void InitialiseManager()
         {
-            ReadingFile,
-            InterpretingFile,
-            LoadingInScene
+
         }
 
-        [SerializeField]
-        LoadingState loadingState;*/
+        public override void UpdateManager()
+        {
+            if (state == State.LoadingSceneSave)
+            {
+                loadingSceneOperation.Update(Time.deltaTime);
 
+                if (loadingSceneOperation.Finished)
+                {
+                    state = State.Idle;
+                    loadingSceneOperation = null;
+                    OnLoadingFinished?.Invoke();
+                }
+            }
+        }
 
 #if UNITY_EDITOR
         [Button("ScanSceneForSaveableObjects")]
@@ -172,7 +177,6 @@ namespace Benito.ScriptingFoundations.Saving
             stopwatch.Stop();
 
             GlobalManagers.Get<GlobalSavesManager>().CreateSceneSave(objectsData);
-            //TempCreateSaveFile(objectsData);
 
             OnSavingFinished?.Invoke();
 
@@ -180,72 +184,28 @@ namespace Benito.ScriptingFoundations.Saving
 
         }
 
-        /*public void TempCreateSaveFile(List<SaveableObjectData> objectsToSave)
-        {
-            SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsToSave);
-
-            string contents = save.GetJsonString();
-
-            File.WriteAllText(Path.Combine(Application.persistentDataPath, "Saves/test.json"), contents);
-        }*/
-
         [Button("Load")]
         public async void TempLoadSaveFile()
         {
             stopwatch.Start();
 
-            /*StreamReader reader = new StreamReader(Path.Combine(Application.persistentDataPath, "Saves/test.json"));
-            string fileContent = reader.ReadToEnd();
-            reader.Close();
-
-            stopwatch.Stop();
-            UnityEngine.Debug.Log("stopwatch SaveableObjectsManager.TempLoadSaveFile reader took " + stopwatch.Elapsed.TotalSeconds + " s");
-
-            stopwatch.Reset();
-            stopwatch.Start();
-            System.Threading.Tasks.Task task = SceneSavegame.CreateFromJsonString(fileContent);
-            //task.*/
-            SceneSavegame save = await GlobalManagers.Get<GlobalSavesManager>().ReadSceneSaveFile(Path.Combine(Application.persistentDataPath, "Saves/test.json"));
+            SceneSavegame save = await GlobalManagers.Get<GlobalSavesManager>().ReadSceneSaveFileAsync(Path.Combine(Application.persistentDataPath, "Saves/test.json"));
 
             stopwatch.Stop();
             UnityEngine.Debug.Log("async ReadSceneSaveFile took " + stopwatch.Elapsed.TotalSeconds + " s");
-            //stopwatch.Reset();
-            //stopwatch.Start();
+
             stopwatch.Reset();
 
             stopwatch.Start();
             LoadFromSaveData(save.GetSavedObjectsFromSave());
-
-            //stopwatch.Stop();
-            //UnityEngine.Debug.Log("coroutine LoadFromSaveData took " + stopwatch.Elapsed.TotalSeconds + " s");
 
         }
 
         public void LoadFromSaveData(List<SaveableObjectData> objectsData)
         {
             state = State.LoadingSceneSave;
-            loadingSceneOperation = new LoadingSceneSaveBudgetedOperation(saveableObjects, saveableObjectIds, objectsData, loadingSceneSaveBudgetPerFrame);
+            loadingSceneOperation = new LoadingSceneSaveBudgetedOperation(saveableObjects, saveableObjectIds, objectsData, SavingSettings.GetOrCreateSettings().loadingSceneSaveBudgetPerFrame);
         }
 
-
-        public override void InitialiseManager()
-        {
-
-        }
-
-        public override void UpdateManager()
-        {
-            if(state == State.LoadingSceneSave)
-            {
-                loadingSceneOperation.Update(Time.deltaTime);
-
-                if (loadingSceneOperation.Finished)
-                {
-                    state = State.Idle;
-                    loadingSceneOperation = null;
-                    OnLoadingFinished?.Invoke();
-                }
-            }
-        }
     }
 }

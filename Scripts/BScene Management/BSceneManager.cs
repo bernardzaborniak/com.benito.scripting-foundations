@@ -126,11 +126,11 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         }
 
-        public void LoadSceneSaveThroughTransitionScene(SceneSavegame savegame, string transitionSceneName,
+        public void LoadSceneSaveThroughTransitionScene(string targetScene, string transitionSceneName, string savegamePath,
             GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
             GameObject exitTransitiontSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
-            currentTransition = new BSceneTransitionLoadSceneSave(savegame, transitionSceneName, transform, preloadSceneOperation,
+            currentTransition = new BSceneTransitionLoadSceneSave(targetScene, transitionSceneName, savegamePath, transform, preloadSceneOperation,
             exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab,
                 exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
             currentTransition.StartTransition();

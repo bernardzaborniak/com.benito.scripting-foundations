@@ -4,7 +4,10 @@ using UnityEngine;
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.BSceneManagement;
 using System.IO;
+using System;
 using System.Threading.Tasks;
+using Debug = UnityEngine.Debug;
+using System.Reflection;
 
 using System.Diagnostics;
 
@@ -66,15 +69,19 @@ namespace Benito.ScriptingFoundations.Saving
             UnityEngine.Debug.Log("stopwatch GlobalSavesManager.CreateSceneSave took " + stopwatch.Elapsed.TotalSeconds + " s");
         }
 
-        public async Task<SceneSavegame> ReadSceneSaveFile(string saveFilePath)
+        public async Task<SceneSavegame> ReadSceneSaveFileAsync(string saveFilePath)
         {
-            StreamReader reader = new StreamReader(saveFilePath);
-            var fileContent = await reader.ReadToEndAsync();
-            reader.Close();
+            string fileContent;
+
+            using (StreamReader reader = new StreamReader(saveFilePath))
+            {
+                fileContent = await reader.ReadToEndAsync();
+                reader.Close();
+            }
 
             var result = await Task.Run(() =>
             {
-                return SceneSavegame.CreateFromJsonString(fileContent);
+                return SceneSavegame.CreateSavegameFromJsonString(fileContent);
             });
 
             return result;
@@ -86,10 +93,14 @@ namespace Benito.ScriptingFoundations.Saving
         {
             ManagerState = State.ReadingSceneSaveFile;
 
-            SceneSavegame readSavegame = await ReadSceneSaveFile(saveFilePath);
+            //TODO Read the savefile in the transition, not before
+            Debug.Log("before wait");
+            //SceneSavegame readSavegame = await ReadSceneSaveFile(saveFilePath);
+            Debug.Log("after wait");
+
             BSceneManager sceneManager = GlobalManagers.Get<BSceneManager>();
 
-            sceneManager.LoadSceneSaveThroughTransitionScene(readSavegame, transitionSceneName,
+            sceneManager.LoadSceneSaveThroughTransitionScene(SceneSavegame.GetTargetSceneFromSceneSavegamePath(saveFilePath), transitionSceneName, saveFilePath,
                exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab, exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
 
             sceneManager.OnTransitionFinishes += OnTransitionToSavedSceneFinishes;
@@ -124,5 +135,7 @@ namespace Benito.ScriptingFoundations.Saving
             ManagerState = State.Idle;
             GlobalManagers.Get<BSceneManager>().OnTransitionFinishes -= OnTransitionToSavedSceneFinishes;
         }
+
+        
     }
 }
