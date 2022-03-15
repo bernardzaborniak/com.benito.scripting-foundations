@@ -2,8 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Benito.ScriptingFoundations.Managers;
-using Benito.ScriptingFoundations.Saving;
-using Benito.ScriptingFoundations.InspectorAttributes;
 using UnityEngine.SceneManagement;
 using System;
 
@@ -16,7 +14,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         BSceneTransition currentTransition;
 
         public Action OnPreloadingSceneFinished;
-        public Action OnTransitionFinishes;
+        public Action OnTransitionFinishes; 
 
         public enum Status
         {
@@ -136,40 +134,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             currentTransition.StartTransition();
             status = Status.Transitioning;
         }
-
-       /* public void DisableAllObjectExceptSceneManagers(string targetSceneName)
-        {
-            LocalSceneManagers sceneManagers = null;
-
-
-            foreach (var gameObject in UnityEngine.SceneManagement.SceneManager.GetSceneByName(targetSceneName).GetRootGameObjects())
-            { 
-                gameObject.SetActive(false);
-
-                if(sceneManagers == null)
-                {
-                    sceneManagers = gameObject.GetComponentInChildren<LocalSceneManagers>();
-                    if(sceneManagers != null)
-                    {
-                        sceneManagers.gameObject.SetActive(true);
-                        if(sceneManagers.gameObject.transform.parent != null)
-                        {
-                            Debug.LogError("DisableAllObjectExceptSceneManagers - LocalSceneManagers Should not have a parent!!!");
-                        }
-                    }
-                }
-            }
-
-            
-        }
-
-        public void EnableAllObjects(string targetSceneName)
-        {
-            foreach (var gameObject in UnityEngine.SceneManagement.SceneManager.GetSceneByName(targetSceneName).GetRootGameObjects())
-            {
-                gameObject.SetActive(true);
-            }
-        }*/
 
         #region Inspector Debug methods
 #if UNITY_EDITOR

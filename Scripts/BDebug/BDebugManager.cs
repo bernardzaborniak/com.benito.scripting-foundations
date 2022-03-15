@@ -7,6 +7,7 @@ using UnityEngine;
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.Pools;
 using TMPro;
+using Debug = UnityEngine.Debug;
 
 
 namespace Benito.ScriptingFoundations.BDebug
@@ -69,6 +70,11 @@ namespace Benito.ScriptingFoundations.BDebug
 
         public void LateUpdate()
         {
+            if(Camera.main == null)
+            {
+                Debug.LogWarning("BDebugManager wont render, as there is no camera main present");
+            }
+
             float distanceToCameraSquared = 0;
             float distanceToCamera = 0;
             Transform cameraTransform = Camera.main.transform;

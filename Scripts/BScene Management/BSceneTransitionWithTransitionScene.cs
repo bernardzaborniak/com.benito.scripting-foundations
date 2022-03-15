@@ -6,8 +6,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 {
     public class BSceneTransitionWithTransitionScene : BSceneTransition
     {
-        string targetScene;
+        
 
+        // Fades
         GameObject exitCurrentSceneFadePrefab;
         GameObject enterTransitionSceneFadePrefab;
         GameObject exitTransitionSceneFadePrefab;
@@ -18,8 +19,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         BSceneFade exitTransitionSceneFade;
         BSceneFade enterNextSceneFade;
 
+        // Other 
+        string targetScene;
         AsyncOperation preloadSceneOperation;
-
         Transform sceneManagerTransform;
 
         enum Stage
@@ -52,15 +54,14 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             this.enterNextSceneFadePrefab = enterNextSceneFadePrefab;
         }
 
+        public override void UpdateTransition()
+        {
+
+        }
 
         public override void StartTransition()
         {
             StartExitCurrentSceneFade();
-        }
-
-        public override void UpdateTransition()
-        {
-
         }
 
         /// <summary>
@@ -93,8 +94,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         {
             preloadSceneOperation.allowSceneActivation = true;
             preloadSceneOperation.completed += OnLoadingTransitionSceneComplete;
-
-            //StartEnterTransitionSceneFade();
         }
 
         void OnLoadingTransitionSceneComplete(AsyncOperation asyncOperation)
@@ -178,8 +177,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
                 OnEnterNextSceneFadeFinished();
             }
-
-
         }
 
         void OnEnterNextSceneFadeFinished()

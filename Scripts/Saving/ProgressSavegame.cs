@@ -9,5 +9,7 @@ namespace Benito.ScriptingFoundations.Saving
         public string typeName;
         public string assemblyName;
         // this class is abstract as there will be various progress save classes for various 
+
+        //TODO
     }
 }

@@ -5,9 +5,12 @@ using System;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
 {
+    /// <summary>
+    /// Classes deriving from this class take complete care of scene transitions.
+    /// </summary>
     public abstract class BSceneTransition
     {
-        public Action OnTransitionFinished;
+        public Action OnTransitionFinished; 
         public bool Finished { get; protected set; }
 
         public abstract void StartTransition();
@@ -28,6 +31,5 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         public abstract float GetProgress();
 
         public abstract string GetCurrentStageDebugString();
-
     }
 }

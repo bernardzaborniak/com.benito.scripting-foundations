@@ -27,7 +27,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         Stage stage;
 
-
         public BSceneTransitionDefault(Transform sceneManagerTransform, AsyncOperation preloadSceneOperation, GameObject exitCurrentSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
             Finished = false;

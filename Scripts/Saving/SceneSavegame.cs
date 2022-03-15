@@ -7,19 +7,11 @@ using System.Reflection;
 using Debug = UnityEngine.Debug;
 using System.IO;
 
-using System.Diagnostics;
-
-// how to get unitys newtonsoft?
-//https://stackoverflow.com/questions/63955593/how-do-we-parse-json-in-unity3d
-
 namespace Benito.ScriptingFoundations.Saving
 {
     public class SceneSavegame
     {
-
-
         string sceneName;
-
         List<SaveableObjectData> savedObjects;
 
         public SceneSavegame(string sceneName, List<SaveableObjectData> savedObjects)
@@ -34,8 +26,7 @@ namespace Benito.ScriptingFoundations.Saving
         /// <returns></returns>
         public string GetJsonString()
         {
-            // serializing one by one works :(
-
+            // Workaround, because erializing one by one works, but whole list doesnt :(
             string jsonString = sceneName + "\n";
 
             for (int i = 0; i < savedObjects.Count; i++)
@@ -45,9 +36,6 @@ namespace Benito.ScriptingFoundations.Saving
 
             return jsonString;
         }
-
-        //public static async Task<SceneSavegame> CreateFromJsonString(string saveString)
-
 
         public List<SaveableObjectData> GetSavedObjectsFromSave()
         {
@@ -61,27 +49,9 @@ namespace Benito.ScriptingFoundations.Saving
 
         public static SceneSavegame CreateSavegameFromJsonString(string jsonString)
         {
-            //var result = await Task.Run(() =>
-            //{
-            Stopwatch stopwatch = new Stopwatch();
-
-            stopwatch.Start();
-
-
-            //this makes the performance worse
-            for (int i = 0; i < 500000000; i++)
-            {
-                float f = Mathf.Sqrt(5);
-            }
-
             string[] seperatedString = jsonString.Split("\n");
             string sceneName = seperatedString[0];
 
-            stopwatch.Stop();
-            UnityEngine.Debug.Log("Split string took " + stopwatch.Elapsed.TotalSeconds + " s");
-
-            stopwatch.Reset();
-            stopwatch.Start();
             List<SaveableObjectData> saveableObjects = new List<SaveableObjectData>();
 
             Dictionary<string, Assembly> assemblyDictionary = new Dictionary<string, Assembly>();
@@ -98,36 +68,15 @@ namespace Benito.ScriptingFoundations.Saving
                 saveableObjects.Add((SaveableObjectData)JsonUtility.FromJson(seperatedString[i], saveableDataType));
             }
 
-            stopwatch.Stop();
-            UnityEngine.Debug.Log("read string took" + stopwatch.Elapsed.TotalSeconds + " s");
-
-
-            stopwatch.Reset();
-            stopwatch.Start();
             SceneSavegame newSaveGame = new SceneSavegame(sceneName, saveableObjects);
-            stopwatch.Stop();
-            UnityEngine.Debug.Log("new SceneSavegame tool " + stopwatch.Elapsed.TotalSeconds + " s");
 
             return newSaveGame;
-            //});
-
-            //return result;
         }
 
         public static async Task<SceneSavegame> CreateSavegameFromJsonStringAsync(string jsonString, IProgress<float> progress)
         {
             var result = await Task.Run(() =>
             {
-                //var progress = new Progress<float>();
-
-                //onProgressUpdate.Invoke()
-
-                //this makes the performance worse
-               /* for (int i = 0; i < 500000000; i++)
-                {
-                    float f = Mathf.Sqrt(5);
-                }*/
-
                 string[] seperatedString = jsonString.Split("\n");
                 string sceneName = seperatedString[0];
                 progress?.Report(0.05f);

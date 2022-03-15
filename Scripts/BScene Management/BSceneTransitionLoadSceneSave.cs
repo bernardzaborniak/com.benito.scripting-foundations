@@ -7,17 +7,15 @@ using System.Threading.Tasks;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
 {
-
-    /// <summary>
-    /// The Savefile is being loaded after exit transition scene Fade finishes and before enter nextSceneFade Starts
-    /// </summary>
     public class BSceneTransitionLoadSceneSave : BSceneTransition
     {
+        // Scenes & Savegames
         string targetScene;
         string transitionScene;
         string savegamePath;
         SceneSavegame savegame;
 
+        // Fades
         GameObject exitCurrentSceneFadePrefab;
         GameObject enterTransitionSceneFadePrefab;
         GameObject exitTransitionSceneFadePrefab;
@@ -28,14 +26,16 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         BSceneFade exitTransitionSceneFade;
         BSceneFade enterNextSceneFade;
 
+        // Async operations and Tasks
         AsyncOperation preloadSceneOperation;
         AsyncOperation unloadSceneOperation;
         Task<SceneSavegame> readSceneSaveFileTask;
 
-        Transform sceneManagerTransform;
-
+        // Other
         SaveableObjectsSceneManager saveSceneManager;
         GlobalSavesManager globalSavesManager;
+
+        Transform sceneManagerTransform;
 
         enum Stage
         {
@@ -74,11 +74,10 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             this.enterNextSceneFadePrefab = enterNextSceneFadePrefab;
         }
 
-        public override void StartTransition()
-        {
-            StartExitCurrentSceneFade();
-        }
 
+        /// <summary>
+        /// Call this to allow exiting a transition scene.
+        /// </summary>
         public void OnTransitionSceneAllowsContinuation()
         {
             if (stage == Stage.WaitingForTransitionSceneToAllowExit)
@@ -105,6 +104,11 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
         }
 
+        public override void StartTransition()
+        {
+            StartExitCurrentSceneFade();
+        }
+
         void StartExitCurrentSceneFade()
         {
             if (exitCurrentSceneFadePrefab != null)
@@ -121,7 +125,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             preloadSceneOperation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(transitionScene);
             preloadSceneOperation.allowSceneActivation = false;
-
         }
 
         void OnExitCurrentSceneFadeFinished()
@@ -183,16 +186,13 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         void OnLoadingNextSceneComplete(AsyncOperation asyncOperation)
         {
             preloadSceneOperation.completed -= OnLoadingNextSceneComplete;
-
             globalSavesManager = null;
-
             StartLoadingSavegame();
         }
 
         void StartLoadingSavegame()
         {
             stage = Stage.LoadingSaveFile;
-
             savegame = readSceneSaveFileTask.Result;
 
             saveSceneManager = LocalSceneManagers.Get<SaveableObjectsSceneManager>();
@@ -202,13 +202,10 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void OnLoadingSavegameFinished()
         {
-            //Time.timeScale = 1;
-
             saveSceneManager.OnLoadingFinished -= OnLoadingSavegameFinished;
 
             if (exitTransitionSceneFade)
                 GameObject.Destroy(exitTransitionSceneFade.gameObject);
-
 
             stage = Stage.WaitingForTransitionSceneToAllowExit;
             saveSceneManager = null;
@@ -227,15 +224,10 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             {
                 OnExitTransitionSceneFadeFinished();
             }
-
         }
 
         void OnExitTransitionSceneFadeFinished()
         {
-            //preloadSceneOperation.allowSceneActivation = true;
-            //preloadSceneOperation.completed += OnLoadingNextSceneComplete;
-           
-
             unloadSceneOperation = UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(transitionScene);
             unloadSceneOperation.completed += OnUnloadTransitionSceneCompleted;
         }
@@ -251,14 +243,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             StartEnterNextSceneFade();
         }
        
-
-      
-
         void StartEnterNextSceneFade()
         {
-            //GlobalManagers.Get<BSceneManager>().EnableAllObjects(targetScene);
-
-
             if (enterNextSceneFadePrefab != null)
             {
                 enterNextSceneFade = CreateFade(enterNextSceneFadePrefab, sceneManagerTransform);
@@ -296,7 +282,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             {
                 return 1;
             }
-
 
             return 0;
         }
