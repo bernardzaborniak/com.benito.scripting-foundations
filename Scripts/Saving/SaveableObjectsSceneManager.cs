@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.InspectorAttributes;
+using Benito.ScriptingFoundations.Optimisation;
 using System.IO;
 using System;
 using System.Threading.Tasks;
@@ -25,21 +26,22 @@ namespace Benito.ScriptingFoundations.Saving
         [SerializeField] int[] saveableObjectIds;
 
         public Action OnLoadingFinished;
-        public Action OnSavingFinished;
+        public Action<List<SaveableObjectData>> OnSavingFinished;
 
         public enum State
         {
             Idle,
             LoadingSceneSave,
-            Saving
+            SavingSceneSave
         }
 
         [SerializeField]
-        State state;
+        public State ManagerState { get; private set; }
 
-        public float LoadingProgress { get => loadingSceneOperation.LoadingProgress; }
+        public float LoadingProgress { get => loadingSceneOperation.Progress; }
+        public float SavingProgress { get => savingSceneOperation.Progress; }
 
-        public class LoadingSceneSaveBudgetedOperation
+        public class LoadingSceneSaveBudgetedOperation : BudgetedOperation
         {
             public enum Stage
             {
@@ -49,8 +51,9 @@ namespace Benito.ScriptingFoundations.Saving
             }
 
             public bool Finished { get => stage == Stage.Finished; }
+            public float Progress { get; private set; }
+            public float TimeBudget { get; private set; }
 
-            public float LoadingProgress { get; private set; }
 
             public Stage stage;
             List<SaveableObject> saveableObjects;
@@ -59,7 +62,6 @@ namespace Benito.ScriptingFoundations.Saving
             int creatingDictionaryStoppedAtIndex;
             int callingLoadMethodStoppedAtIndex;
 
-            float timeBudget;
 
             Dictionary<int, SaveableObject> saveableObjectsIdDictionary;
 
@@ -68,7 +70,7 @@ namespace Benito.ScriptingFoundations.Saving
                 this.saveableObjects = saveableObjects;
                 this.saveableObjectIds = saveableObjectIds;
                 this.objectsData = objectsData;
-                this.timeBudget = timeBudget;
+                this.TimeBudget = timeBudget;
 
                 creatingDictionaryStoppedAtIndex = 0;
                 callingLoadMethodStoppedAtIndex = 0;
@@ -87,10 +89,10 @@ namespace Benito.ScriptingFoundations.Saving
                     {
                         saveableObjectsIdDictionary.Add(saveableObjectIds[i], saveableObjects[i]);
                         
-                        if (Time.realtimeSinceStartup - startUpdateTime > timeBudget)
+                        if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                         {
                             creatingDictionaryStoppedAtIndex = i;
-                            LoadingProgress = (1f*i) / (1f * saveableObjects.Count + objectsData.Count);
+                            Progress = (1f*i) / (1f * saveableObjects.Count + objectsData.Count);
                             return;
                         }
                     }
@@ -103,22 +105,75 @@ namespace Benito.ScriptingFoundations.Saving
                     {
                         saveableObjectsIdDictionary[objectsData[i].saveableObjectID].Load(objectsData[i]);
                         
-                        if (Time.realtimeSinceStartup - startUpdateTime > timeBudget)
+                        if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                         {
                             callingLoadMethodStoppedAtIndex = i;
-                            LoadingProgress = (1f * saveableObjects.Count + i) / (1f * saveableObjects.Count + objectsData.Count);
+                            Progress = (1f * saveableObjects.Count + i) / (1f * saveableObjects.Count + objectsData.Count);
                             return;
                         }
                     }
                     stage = Stage.Finished;
                 }
 
-                LoadingProgress = 1;
+                Progress = 1;
             }
 
         }
 
+        public class SavingSceneSaveBudgetedOperation : IBudgetedOperation
+        {
+            public bool Finished  {get; private set;}
+            public float Progress { get; private set; }
+            public float TimeBudget { get; private set; }
+
+
+            List<SaveableObject> saveableObjects;
+
+            public Action<List<SaveableObjectData>> OnSavingFinished;
+
+
+            int lastStoppedIndex;
+
+            public SavingSceneSaveBudgetedOperation(List<SaveableObject> saveableObjects, float timeBudget)
+            {
+                this.saveableObjects = saveableObjects;
+                this.TimeBudget = timeBudget;
+                lastStoppedIndex = 0;
+                Finished = false;
+            }
+
+            public void Update(float deltaTime)
+            {
+                float startUpdateTime = Time.realtimeSinceStartup;
+
+                List<SaveableObjectData> objectsData = new List<SaveableObjectData>();
+
+                for (int i = lastStoppedIndex; i < saveableObjects.Count; i++)
+                {
+                    SaveableObjectData data = saveableObjects[i].Save();
+                    if (data != null)
+                    {
+                        objectsData.Add(data);
+                    }
+
+                    if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
+                    {
+                        lastStoppedIndex = i;
+                        Progress = (1f * i) / (1f * saveableObjects.Count);
+                        return;
+                    }
+                }
+                Progress = 1;
+                Finished = true;
+                Debug.Log("invoke on saving fisnished");
+                OnSavingFinished?.Invoke(objectsData);
+
+                //GlobalManagers.Get<GlobalSavesManager>().CreateSceneSave(objectsData);
+            }
+        }
+
         LoadingSceneSaveBudgetedOperation loadingSceneOperation;
+        SavingSceneSaveBudgetedOperation savingSceneOperation;
 
 
 
@@ -130,15 +185,25 @@ namespace Benito.ScriptingFoundations.Saving
 
         public override void UpdateManager()
         {
-            if (state == State.LoadingSceneSave)
+            if (ManagerState == State.LoadingSceneSave)
             {
                 loadingSceneOperation.Update(Time.deltaTime);
 
                 if (loadingSceneOperation.Finished)
                 {
-                    state = State.Idle;
+                    ManagerState = State.Idle;
                     loadingSceneOperation = null;
                     OnLoadingFinished?.Invoke();
+                }
+            }
+            else if(ManagerState == State.SavingSceneSave)
+            {
+                savingSceneOperation.Update(Time.deltaTime);
+
+                if (savingSceneOperation.Finished)
+                {
+                    ManagerState = State.Idle;
+                    savingSceneOperation = null;
                 }
             }
         }
@@ -155,46 +220,28 @@ namespace Benito.ScriptingFoundations.Saving
                 saveableObjectIds[i] = saveableObjects[i].GetId();
             }
         }
-
-        [Button("Assign IDS")]
-        public void AssignIds()
-        {
-            SaveableObjectsIdAssigner.AssignMissingIdsInCurrentScene();
-        }
-
 #endif
 
         [Button("Save")]
+        public void TempCallSave()
+        {
+            GlobalManagers.Get<GlobalSavesManager>().CreateSceneSaveForCurrentScene();
+        }
+
         public void SaveAllObjects()
         {
-            stopwatch.Start();
+            ManagerState = State.SavingSceneSave;
+            savingSceneOperation = new SavingSceneSaveBudgetedOperation(saveableObjects, SavingSettings.GetOrCreateSettings().savingSceneSaveBudgetPerFrame);
+            savingSceneOperation.OnSavingFinished += OnSavingOperationFinished;
+        }
 
-            List<SaveableObjectData> objectsData = new List<SaveableObjectData>();
-
-            for (int i = 0; i < saveableObjects.Count; i++)
-            {
-                SaveableObjectData data = saveableObjects[i].Save();
-                if(data != null)
-                {
-                    objectsData.Add(data);
-                }
-            }
-
-            stopwatch.Stop();
-            Debug.Log("stopwatch SaveableObjectsManager.SaveAllObjects took " + stopwatch.Elapsed.TotalSeconds + " s");
-
-            stopwatch.Stop();
-
-            GlobalManagers.Get<GlobalSavesManager>().CreateSceneSave(objectsData);
-
-            OnSavingFinished?.Invoke();
-
-           
-
+        void OnSavingOperationFinished(List<SaveableObjectData> objectsDate)
+        {
+            OnSavingFinished?.Invoke(objectsDate);
         }
 
         [Button("Load")]
-        public async void TempLoadSaveFile()
+        public async void LoadSaveFileWithoutSceneTransition()
         {
             stopwatch.Start();
 
@@ -212,7 +259,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         public void LoadFromSaveData(List<SaveableObjectData> objectsData)
         {
-            state = State.LoadingSceneSave;
+            ManagerState = State.LoadingSceneSave;
 
             loadingSceneOperation = new LoadingSceneSaveBudgetedOperation(saveableObjects, saveableObjectIds, objectsData, SavingSettings.GetOrCreateSettings().loadingSceneSaveBudgetPerFrame);
         }

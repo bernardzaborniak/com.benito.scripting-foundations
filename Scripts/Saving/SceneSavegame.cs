@@ -37,6 +37,25 @@ namespace Benito.ScriptingFoundations.Saving
             return jsonString;
         }
 
+        public async Task<string> GetJsonStringAsync(IProgress<float> progress = null)
+        {
+            var result = await Task.Run(() =>
+            {
+                // Workaround, because erializing one by one works, but whole list doesnt :(
+                string jsonString = sceneName + "\n";
+
+                for (int i = 0; i < savedObjects.Count; i++)
+                {
+                    jsonString += JsonUtility.ToJson(savedObjects[i], false) + "\n";
+                    progress?.Report((1.0f* i)/ savedObjects.Count);
+                }
+
+                return jsonString;
+            });
+
+            return result;
+        }
+
         public List<SaveableObjectData> GetSavedObjectsFromSave()
         {
             return savedObjects;
@@ -73,7 +92,7 @@ namespace Benito.ScriptingFoundations.Saving
             return newSaveGame;
         }
 
-        public static async Task<SceneSavegame> CreateSavegameFromJsonStringAsync(string jsonString, IProgress<float> progress)
+        public static async Task<SceneSavegame> CreateSavegameFromJsonStringAsync(string jsonString, IProgress<float> progress = null)
         {
             var result = await Task.Run(() =>
             {

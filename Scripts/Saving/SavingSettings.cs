@@ -16,6 +16,8 @@ namespace Benito.ScriptingFoundations.Saving
         [SerializeField]
         [Tooltip("How many miliseconds does the load system have aviable per frame - higher values will speed up the loading time but introduce stuttering - 1/120 s is pretty good")]
         public float loadingSceneSaveBudgetPerFrame = 0.0083f;
+        
+        public float savingSceneSaveBudgetPerFrame = 0.0083f;
 
 
         public static SavingSettings GetOrCreateSettings()

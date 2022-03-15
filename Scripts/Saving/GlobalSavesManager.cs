@@ -22,11 +22,16 @@ namespace Benito.ScriptingFoundations.Saving
         public enum State
         {
             Idle,
-            ReadingSceneSaveFile,
+            LoadingSceneSave,
+            CreatingSceneSave
         }
 
         public float ReadSceneSaveFileProgress { get; private set;}
+        public float CreateSceneSaveFileProgress { get; private set;}
         public State ManagerState { get; private set; }
+
+        SaveableObjectsSceneManager sceneManagerForSavingScene;
+        float saveCreateSaveStringProgress;
 
 
         public override void InitialiseManager()
@@ -35,16 +40,63 @@ namespace Benito.ScriptingFoundations.Saving
 
         public override void UpdateManager()
         {
-            
+            if(ManagerState == State.CreatingSceneSave)
+            {
+                if(sceneManagerForSavingScene.ManagerState == SaveableObjectsSceneManager.State.SavingSceneSave)
+                {
+                    ReadSceneSaveFileProgress = sceneManagerForSavingScene.SavingProgress * 0.8f;
+                }
+                else
+                {
+                    ReadSceneSaveFileProgress = 0.8f + saveCreateSaveStringProgress * 0.2f;
+                }
+
+                //Debug.Log("ReadSceneSaveFileProgress: " + ReadSceneSaveFileProgress);
+            }
         }
 
-        public void CreateSceneSave(List<SaveableObjectData> objectsData)
+        public void CreateSceneSaveForCurrentScene()
         {
+            if(ManagerState != State.Idle)
+            {
+                Debug.LogError("Cant Create Scene Save, as globals saves manager is doing something else:  " + ManagerState);
+                return;
+            }
+
+            sceneManagerForSavingScene = LocalSceneManagers.Get<SaveableObjectsSceneManager>();
+
+            if(sceneManagerForSavingScene == null)
+            {
+                Debug.LogError("Saving for current only works if LocalSceneManagers with a SaveableObjectsSceneManageris present in the scene");
+                return;
+            }
+
+            sceneManagerForSavingScene.SaveAllObjects();
+            sceneManagerForSavingScene.OnSavingFinished += CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
+
+            ManagerState = State.CreatingSceneSave; 
+        }
+
+        async void CreateSceneSaveForCurrentSceneOnSceneManagerFinished(List<SaveableObjectData> objectsData)
+        {
+            sceneManagerForSavingScene.OnSavingFinished -= CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
+
+            Debug.Log("CreateSceneSaveForCurrentSceneOnSceneManagerFinished");
             SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsData);
-            string contents = save.GetJsonString();
-            File.WriteAllText(Path.Combine(Application.persistentDataPath, "Saves/test.json"), contents);
+
+            var progress = new Progress<float>(OnGetJsonStringAsyncProgressUpdate);
+            string contents = await save.GetJsonStringAsync(progress);
+            
+            await File.WriteAllTextAsync(Path.Combine(Application.persistentDataPath, "Saves/test.json"), contents);
 
             ManagerState = State.Idle;
+            sceneManagerForSavingScene = null;
+            saveCreateSaveStringProgress = 0;
+        }
+
+        void OnGetJsonStringAsyncProgressUpdate(float progress)
+        {
+            saveCreateSaveStringProgress = progress;
         }
 
         void OnReadSceneSaveFileAsyncProgressUpdate (float progress)
@@ -75,7 +127,13 @@ namespace Benito.ScriptingFoundations.Saving
             GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
             GameObject exitTransitiontSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
-            ManagerState = State.ReadingSceneSaveFile;
+            if (ManagerState != State.Idle)
+            {
+                Debug.LogError("Cant Create Scene Save, as globals saves manager is doing something else:  " + ManagerState);
+                return;
+            }
+
+            ManagerState = State.LoadingSceneSave;
 
             BSceneManager sceneManager = GlobalManagers.Get<BSceneManager>();
 
