@@ -177,12 +177,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void OnNextSceneFinishedPreloadingAndSavefileFinishedReading()
         {
-            
-
             preloadSceneOperation.allowSceneActivation = true;
             preloadSceneOperation.completed += OnLoadingNextSceneComplete;
             //TODO hide the new scene somehow
-
         }
 
         void OnLoadingNextSceneComplete(AsyncOperation asyncOperation)

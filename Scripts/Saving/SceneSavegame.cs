@@ -147,10 +147,7 @@ namespace Benito.ScriptingFoundations.Saving
                     Type saveableDataType = assemblyDictionary[genericData.assemblyName].GetType(genericData.typeName);
                     saveableObjects.Add((SaveableObjectData)JsonUtility.FromJson(seperatedString[i], saveableDataType));
 
-                    Debug.Log("set progress: " + progress);
                     progress?.Report( 0.1f + 1f * i / seperatedString.Length);
-                    //progress.ProgressChanged +=
-                    //onProgressUpdate.Invoke();
                 }
 
                 SceneSavegame newSaveGame = new SceneSavegame(sceneName, saveableObjects);
