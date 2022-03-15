@@ -41,7 +41,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         public override void StartTransition()
         {
-             StartExitCurrentSceneFade();
+            StartExitCurrentSceneFade();
         }
 
         public override void UpdateTransition()
@@ -61,12 +61,10 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             {
                 OnExitCurrentSceneFadeFinished();
             }
-           
         }
 
         void OnExitCurrentSceneFadeFinished()
         {
-                 
             preloadSceneOperation.allowSceneActivation = true;
             preloadSceneOperation.completed += OnLoadingNextSceneComplete;
         }
@@ -83,8 +81,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void StartEnterNextSceneFade()
         {
-           if(enterNextSceneFadePrefab != null)
-           {
+            if (enterNextSceneFadePrefab != null)
+            {
                 enterNextSceneFade = CreateFade(enterNextSceneFadePrefab, sceneManagerTransform);
                 enterNextSceneFade.OnTransitionFinished += OnEnterNextSceneFadeFinished;
                 enterNextSceneFade.StartTransition();
@@ -94,7 +92,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             {
                 OnEnterNextSceneFadeFinished();
             }
-          
+
         }
 
         void OnEnterNextSceneFadeFinished()

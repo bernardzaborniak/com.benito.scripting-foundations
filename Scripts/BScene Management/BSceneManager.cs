@@ -137,7 +137,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             status = Status.Transitioning;
         }
 
-        public void DisableAllObjectExceptSceneManagers(string targetSceneName)
+       /* public void DisableAllObjectExceptSceneManagers(string targetSceneName)
         {
             LocalSceneManagers sceneManagers = null;
 
@@ -169,7 +169,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             {
                 gameObject.SetActive(true);
             }
-        }
+        }*/
 
         #region Inspector Debug methods
 #if UNITY_EDITOR
