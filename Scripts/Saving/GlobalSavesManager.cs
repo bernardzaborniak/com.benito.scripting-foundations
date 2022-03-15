@@ -32,6 +32,8 @@ namespace Benito.ScriptingFoundations.Saving
 
         // SceneSavegame currentyLoadingSave;
 
+        public float ReadSceneSaveFileProgress { get; private set;}
+
         public State ManagerState { get; private set; }
 
 
@@ -69,6 +71,11 @@ namespace Benito.ScriptingFoundations.Saving
             UnityEngine.Debug.Log("stopwatch GlobalSavesManager.CreateSceneSave took " + stopwatch.Elapsed.TotalSeconds + " s");
         }
 
+        void OnReadSceneSaveFileAsyncProgressUpdate (float progress)
+        {
+            ReadSceneSaveFileProgress = progress;
+        }
+
         public async Task<SceneSavegame> ReadSceneSaveFileAsync(string saveFilePath)
         {
             string fileContent;
@@ -79,10 +86,8 @@ namespace Benito.ScriptingFoundations.Saving
                 reader.Close();
             }
 
-            var result = await Task.Run(() =>
-            {
-                return SceneSavegame.CreateSavegameFromJsonString(fileContent);
-            });
+            var progress = new Progress<float>(OnReadSceneSaveFileAsyncProgressUpdate);
+            var result = await SceneSavegame.CreateSavegameFromJsonStringAsync(fileContent, progress);
 
             return result;
         }

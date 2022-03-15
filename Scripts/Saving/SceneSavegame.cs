@@ -12,11 +12,11 @@ using System.Diagnostics;
 // how to get unitys newtonsoft?
 //https://stackoverflow.com/questions/63955593/how-do-we-parse-json-in-unity3d
 
-namespace Benito.ScriptingFoundations.Saving 
+namespace Benito.ScriptingFoundations.Saving
 {
-    public class SceneSavegame 
+    public class SceneSavegame
     {
-        
+
 
         string sceneName;
 
@@ -39,15 +39,15 @@ namespace Benito.ScriptingFoundations.Saving
             string jsonString = sceneName + "\n";
 
             for (int i = 0; i < savedObjects.Count; i++)
-            {            
-                jsonString +=  JsonUtility.ToJson(savedObjects[i], false) + "\n";
+            {
+                jsonString += JsonUtility.ToJson(savedObjects[i], false) + "\n";
             }
 
             return jsonString;
         }
 
         //public static async Task<SceneSavegame> CreateFromJsonString(string saveString)
-        
+
 
         public List<SaveableObjectData> GetSavedObjectsFromSave()
         {
@@ -112,6 +112,53 @@ namespace Benito.ScriptingFoundations.Saving
             //});
 
             //return result;
+        }
+
+        public static async Task<SceneSavegame> CreateSavegameFromJsonStringAsync(string jsonString, IProgress<float> progress)
+        {
+            var result = await Task.Run(() =>
+            {
+                //var progress = new Progress<float>();
+
+                //onProgressUpdate.Invoke()
+
+                //this makes the performance worse
+               /* for (int i = 0; i < 500000000; i++)
+                {
+                    float f = Mathf.Sqrt(5);
+                }*/
+
+                string[] seperatedString = jsonString.Split("\n");
+                string sceneName = seperatedString[0];
+                progress?.Report(0.05f);
+                List<SaveableObjectData> saveableObjects = new List<SaveableObjectData>();
+
+                Dictionary<string, Assembly> assemblyDictionary = new Dictionary<string, Assembly>();
+                foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    assemblyDictionary.Add(assembly.GetName().ToString(), assembly);
+                }
+                progress?.Report(0.1f);
+
+                for (int i = 1; i < seperatedString.Length - 1; i++)
+                {
+                    SaveableObjectData genericData = (SaveableObjectData)JsonUtility.FromJson<SaveableObjectData>(seperatedString[i]);
+
+                    Type saveableDataType = assemblyDictionary[genericData.assemblyName].GetType(genericData.typeName);
+                    saveableObjects.Add((SaveableObjectData)JsonUtility.FromJson(seperatedString[i], saveableDataType));
+
+                    Debug.Log("set progress: " + progress);
+                    progress?.Report( 0.1f + 1f * i / seperatedString.Length);
+                    //progress.ProgressChanged +=
+                    //onProgressUpdate.Invoke();
+                }
+
+                SceneSavegame newSaveGame = new SceneSavegame(sceneName, saveableObjects);
+
+                return newSaveGame;
+            });
+
+            return result;
         }
 
         public static string GetTargetSceneFromSceneSavegamePath(string path)

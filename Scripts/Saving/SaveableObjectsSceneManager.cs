@@ -37,6 +37,8 @@ namespace Benito.ScriptingFoundations.Saving
         [SerializeField]
         State state;
 
+        public float LoadingProgress { get => loadingSceneOperation.LoadingProgress; }
+
         public class LoadingSceneSaveBudgetedOperation
         {
             public enum Stage
@@ -47,6 +49,8 @@ namespace Benito.ScriptingFoundations.Saving
             }
 
             public bool Finished { get => stage == Stage.Finished; }
+
+            public float LoadingProgress { get; private set; }
 
             public Stage stage;
             List<SaveableObject> saveableObjects;
@@ -86,6 +90,7 @@ namespace Benito.ScriptingFoundations.Saving
                         if (Time.realtimeSinceStartup - startUpdateTime > timeBudget)
                         {
                             creatingDictionaryStoppedAtIndex = i;
+                            LoadingProgress = (1f*i) / (1f * saveableObjects.Count + objectsData.Count);
                             return;
                         }
                     }
@@ -101,16 +106,20 @@ namespace Benito.ScriptingFoundations.Saving
                         if (Time.realtimeSinceStartup - startUpdateTime > timeBudget)
                         {
                             callingLoadMethodStoppedAtIndex = i;
+                            LoadingProgress = (1f * saveableObjects.Count + i) / (1f * saveableObjects.Count + objectsData.Count);
                             return;
                         }
                     }
                     stage = Stage.Finished;
                 }
+
+                LoadingProgress = 1;
             }
 
         }
 
         LoadingSceneSaveBudgetedOperation loadingSceneOperation;
+
 
 
 

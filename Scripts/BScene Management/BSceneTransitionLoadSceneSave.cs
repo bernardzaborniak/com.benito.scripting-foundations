@@ -34,6 +34,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         Transform sceneManagerTransform;
 
+        SaveableObjectsSceneManager saveSceneManager;
+        GlobalSavesManager globalSavesManager;
+
         enum Stage
         {
             Idle,
@@ -142,7 +145,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             preloadSceneOperation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(targetScene, UnityEngine.SceneManagement.LoadSceneMode.Additive);
             preloadSceneOperation.allowSceneActivation = false;
 
-            readSceneSaveFileTask = GlobalManagers.Get<GlobalSavesManager>().ReadSceneSaveFileAsync(savegamePath);
+            globalSavesManager = GlobalManagers.Get<GlobalSavesManager>();
+            readSceneSaveFileTask = globalSavesManager.ReadSceneSaveFileAsync(savegamePath);
 
             StartEnterTransitionSceneFade();
         }
@@ -173,6 +177,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void OnNextSceneFinishedPreloadingAndSavefileFinishedReading()
         {
+            
+
             preloadSceneOperation.allowSceneActivation = true;
             preloadSceneOperation.completed += OnLoadingNextSceneComplete;
             //TODO hide the new scene somehow
@@ -186,6 +192,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             GlobalManagers.Get<BSceneManager>().DisableAllObjectExceptSceneManagers(targetScene);
 
             //preloadSceneOperation = null;
+            globalSavesManager = null;
+
             StartLoadingSavegame();
         }
 
@@ -193,27 +201,28 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         {
             stage = Stage.LoadingSaveFile;
 
-            Time.timeScale = 0;
+            //Time.timeScale = 0;
 
             savegame = readSceneSaveFileTask.Result;
 
-            SaveableObjectsSceneManager saveManager = LocalSceneManagers.Get<SaveableObjectsSceneManager>();
-            saveManager.OnLoadingFinished += OnLoadingSavegameFinished;
-            saveManager.LoadFromSaveData(savegame.GetSavedObjectsFromSave());
+            saveSceneManager = LocalSceneManagers.Get<SaveableObjectsSceneManager>();
+            saveSceneManager.OnLoadingFinished += OnLoadingSavegameFinished;
+            saveSceneManager.LoadFromSaveData(savegame.GetSavedObjectsFromSave());
 
         }
 
         void OnLoadingSavegameFinished()
         {
-            Time.timeScale = 1;
+            //Time.timeScale = 1;
 
-            LocalSceneManagers.Get<SaveableObjectsSceneManager>().OnLoadingFinished -= OnLoadingSavegameFinished;
+            saveSceneManager.OnLoadingFinished -= OnLoadingSavegameFinished;
 
             if (exitTransitionSceneFade)
                 GameObject.Destroy(exitTransitionSceneFade.gameObject);
 
 
             stage = Stage.WaitingForTransitionSceneToAllowExit;
+            saveSceneManager = null;
         }
 
         void StartExitTransitionSceneFade()
@@ -282,10 +291,20 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         public override float GetProgress()
         {
-            if (stage == Stage.WaitingForTransitionSceneToAllowExit)
+
+            if (stage == Stage.WaitingForNextSceneToPreloadAndSaveToRead)
             {
-                return preloadSceneOperation.progress / 0.9f;
+                return preloadSceneOperation.progress / 0.9f * 0.1f + (globalSavesManager.ReadSceneSaveFileProgress*0.2f);
             }
+            else if (stage == Stage.LoadingSaveFile)
+            {
+                return 0.3f + saveSceneManager.LoadingProgress *0.5f;
+            }
+            else if (stage == Stage.WaitingForTransitionSceneToAllowExit)
+            {
+                return 1;
+            }
+
 
             return 0;
         }
