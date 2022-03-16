@@ -99,6 +99,11 @@ namespace Benito.ScriptingFoundations.Saving
 
                 for (int i = 0; i < savegame.SavedObjects.Count; i++)
                 {
+                    /*jsonString += " wwdwddwwdwdwdwdwd";
+                    for (int j = 0; j < 50000; j++)
+                    {
+                        float y = Mathf.Sqrt(3);
+                    }*/
                     jsonString += JsonUtility.ToJson(savegame.SavedObjects[i], false) + "\n";
                     progress?.Report((1.0f * i) / savegame.SavedObjects.Count);
                 }

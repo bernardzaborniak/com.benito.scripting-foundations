@@ -8,9 +8,6 @@ using System;
 using System.Threading.Tasks;
 using Debug = UnityEngine.Debug;
 
-using System.Diagnostics;
-
-
 
 namespace Benito.ScriptingFoundations.Saving
 {
@@ -20,7 +17,7 @@ namespace Benito.ScriptingFoundations.Saving
     public class GlobalSavesManager : SingletonManagerGlobal
     {
         Task<SceneSavegame> readSceneSaveFileTask;
-
+;
         public enum State
         {
             Idle,
@@ -33,7 +30,6 @@ namespace Benito.ScriptingFoundations.Saving
         public State ManagerState { get; private set; }
 
         SaveableObjectsSceneManager sceneManagerForSavingScene;
-        float saveCreateSaveStringProgress;
 
 
         public override void InitialiseManager()
@@ -46,14 +42,12 @@ namespace Benito.ScriptingFoundations.Saving
             {
                 if(sceneManagerForSavingScene.ManagerState == SaveableObjectsSceneManager.State.SavingSceneSave)
                 {
-                    ReadSceneSaveFileProgress = sceneManagerForSavingScene.SavingProgress * 0.8f;
+                    CreateSceneSaveFileProgress = sceneManagerForSavingScene.SavingProgress * 0.2f;
                 }
                 else
                 {
-                    ReadSceneSaveFileProgress = 0.8f + saveCreateSaveStringProgress * 0.2f;
+                    CreateSceneSaveFileProgress = 0.2f + CreateSceneSaveFileProgress * 0.8f;
                 }
-
-                //Debug.Log("ReadSceneSaveFileProgress: " + ReadSceneSaveFileProgress);
             }
         }
 
@@ -81,38 +75,26 @@ namespace Benito.ScriptingFoundations.Saving
 
         async void CreateSceneSaveForCurrentSceneOnSceneManagerFinished(List<SaveableObjectData> objectsData)
         {
-            Stopwatch stopwatch = new Stopwatch();
-
             sceneManagerForSavingScene.OnSavingFinished -= CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
 
             Debug.Log("CreateSceneSaveForCurrentSceneOnSceneManagerFinished");
             SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsData);
-
-            stopwatch.Start();
 
             var progress = new Progress<float>(OnGetJsonStringAsyncProgressUpdate);
 
             string contents = await SceneSavegameUtility.ConvertSaveGameToJsonStringAsync(save,progress);
             Debug.Log("after save.GetJsonStringAsync");
 
-            stopwatch.Stop();
-            Debug.Log("getting json string took: " + stopwatch.Elapsed.TotalSeconds + " s");
-            
-            stopwatch.Restart();
-
             await File.WriteAllTextAsync(Path.Combine(Application.persistentDataPath, "Saves/test.json"), contents);
-
-            stopwatch.Stop();
-            Debug.Log("File.WriteAllTextAsynctook: " + stopwatch.Elapsed.TotalSeconds + " s");
 
             ManagerState = State.Idle;
             sceneManagerForSavingScene = null;
-            saveCreateSaveStringProgress = 0;
+            CreateSceneSaveFileProgress = 0;
         }
 
         void OnGetJsonStringAsyncProgressUpdate(float progress)
         {
-            saveCreateSaveStringProgress = progress;
+            CreateSceneSaveFileProgress = progress;
         }
 
         void OnReadSceneSaveFileAsyncProgressUpdate (float progress)

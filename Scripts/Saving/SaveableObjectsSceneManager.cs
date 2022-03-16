@@ -208,6 +208,11 @@ namespace Benito.ScriptingFoundations.Saving
                     savingSceneOperation = null;
                 }
             }
+
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                TempCallSave();
+            }
         }
 
 #if UNITY_EDITOR
