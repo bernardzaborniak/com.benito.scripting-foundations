@@ -244,7 +244,7 @@ namespace Benito.ScriptingFoundations.Saving
         [Button("Load")]
         public async void LoadSaveFileWithoutSceneTransition()
         {
-            SceneSavegame save = await GlobalManagers.Get<GlobalSavesManager>().ReadSceneSaveFileAsync(Path.Combine(Application.persistentDataPath, "Saves/test.json"));
+            SceneSavegame save = await GlobalManagers.Get<GlobalSavesManager>().ReadSceneSaveFileAsync("test");
             LoadFromSaveData(save.SavedObjects);
         }
 

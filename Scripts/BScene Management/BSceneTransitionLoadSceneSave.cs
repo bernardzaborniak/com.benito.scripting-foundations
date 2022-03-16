@@ -12,7 +12,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         // Scenes & Savegames
         string targetScene;
         string transitionScene;
-        string savegamePath;
+        string savegamePathInSavesFolder;
         SceneSavegame savegame;
 
         // Fades
@@ -53,7 +53,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         Stage stage;
 
-        public BSceneTransitionLoadSceneSave(string targetScene, string transitionScene, string savegamePath, Transform sceneManagerTransform, AsyncOperation preloadSceneOperation,
+        public BSceneTransitionLoadSceneSave(string targetScene, string transitionScene, string savegamePathInSavesFolder, Transform sceneManagerTransform, AsyncOperation preloadSceneOperation,
             GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
             GameObject exitTransitionSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
@@ -62,7 +62,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             this.targetScene = targetScene;
             this.transitionScene = transitionScene;
-            this.savegamePath = savegamePath;
+            this.savegamePathInSavesFolder = savegamePathInSavesFolder;
 
             this.sceneManagerTransform = sceneManagerTransform;
             this.preloadSceneOperation = preloadSceneOperation;
@@ -149,7 +149,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             preloadSceneOperation.allowSceneActivation = false;
 
             globalSavesManager = GlobalManagers.Get<GlobalSavesManager>();
-            readSceneSaveFileTask = globalSavesManager.ReadSceneSaveFileAsync(savegamePath);
+            readSceneSaveFileTask = globalSavesManager.ReadSceneSaveFileAsync(savegamePathInSavesFolder);
 
             StartEnterTransitionSceneFade();
         }

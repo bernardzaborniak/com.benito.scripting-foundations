@@ -55,6 +55,10 @@ namespace Benito.ScriptingFoundations.Saving
             }
         }
 
+        /// <summary>
+        /// Write pathInSavesFolder without actual save name .
+        /// Write saveName without file extension.
+        /// </summary>
         public void CreateSceneSaveForCurrentScene(string pathInSavesFolder, string saveName)
         {
             if (ManagerState != State.Idle)
@@ -108,11 +112,15 @@ namespace Benito.ScriptingFoundations.Saving
             CreateSceneSaveFileProgress = progress;
         }
 
-        public async Task<SceneSavegame> ReadSceneSaveFileAsync(string saveFilePath)
+        /// <summary>
+        ///  Write saveFilePathInSavesFolder without file extension
+        /// </summary>
+        public async Task<SceneSavegame> ReadSceneSaveFileAsync(string saveFilePathInSavesFolder)
         {
             string fileContent;
+            string path = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInSavesFolder) + ".json";
 
-            using (StreamReader reader = new StreamReader(saveFilePath))
+            using (StreamReader reader = new StreamReader(path))
             {
                 fileContent = await reader.ReadToEndAsync();
                 reader.Close();
@@ -130,12 +138,15 @@ namespace Benito.ScriptingFoundations.Saving
         }
 
         /// <summary>
-        /// Automaticly switches to target scene and loads savegame using BSceneManager
+        /// Automaticly switches to target scene and loads savegame using BSceneManager.
+        /// Write saveFilePathInsideSavesFolder without file extension.
         /// </summary>
-        public void LoadSceneSave(string saveFilePath, string transitionSceneName,
+        public void LoadSceneSave(string saveFilePathInsideSavesFolder, string transitionSceneName,
             GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
             GameObject exitTransitiontSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
+            string fullSaveFilePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInsideSavesFolder) + ".json";
+
             if (ManagerState != State.Idle)
             {
                 Debug.LogError("Cant Create Scene Save, as globals saves manager is doing something else:  " + ManagerState);
@@ -146,7 +157,7 @@ namespace Benito.ScriptingFoundations.Saving
 
             BSceneManager sceneManager = GlobalManagers.Get<BSceneManager>();
 
-            sceneManager.LoadSceneSaveThroughTransitionScene(SceneSavegame.GetTargetSceneFromSceneSavegamePath(saveFilePath), transitionSceneName, saveFilePath,
+            sceneManager.LoadSceneSaveThroughTransitionScene(SceneSavegame.GetTargetSceneFromSceneSavegamePath(fullSaveFilePath), transitionSceneName, saveFilePathInsideSavesFolder,
                exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab, exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
 
             sceneManager.OnTransitionFinishes += OnTransitionToSavedSceneFinishes;
