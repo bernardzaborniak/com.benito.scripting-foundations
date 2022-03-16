@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.BSceneManagement;
+using Benito.ScriptingFoundations.Utilities;
 using System.IO;
 using System;
 using System.Threading.Tasks;
+
 using Debug = UnityEngine.Debug;
 
 
@@ -16,7 +18,6 @@ namespace Benito.ScriptingFoundations.Saving
     /// </summary>
     public class GlobalSavesManager : SingletonManagerGlobal
     {
-        Task<SceneSavegame> readSceneSaveFileTask;
 
         public enum State
         {
@@ -24,12 +25,15 @@ namespace Benito.ScriptingFoundations.Saving
             LoadingSceneSave,
             CreatingSceneSave
         }
-
-        public float ReadSceneSaveFileProgress { get; private set;}
-        public float CreateSceneSaveFileProgress { get; private set;}
         public State ManagerState { get; private set; }
 
+
+        public float ReadSceneSaveFileProgress { get; private set; }
+
+        public float CreateSceneSaveFileProgress { get; private set; }
         SaveableObjectsSceneManager sceneManagerForSavingScene;
+        string createSavePathInSavesFolder;
+        string createSaveName;
 
 
         public override void InitialiseManager()
@@ -38,9 +42,9 @@ namespace Benito.ScriptingFoundations.Saving
 
         public override void UpdateManager()
         {
-            if(ManagerState == State.CreatingSceneSave)
+            if (ManagerState == State.CreatingSceneSave)
             {
-                if(sceneManagerForSavingScene.ManagerState == SaveableObjectsSceneManager.State.SavingSceneSave)
+                if (sceneManagerForSavingScene.ManagerState == SaveableObjectsSceneManager.State.SavingSceneSave)
                 {
                     CreateSceneSaveFileProgress = sceneManagerForSavingScene.SavingProgress * 0.2f;
                 }
@@ -51,9 +55,9 @@ namespace Benito.ScriptingFoundations.Saving
             }
         }
 
-        public void CreateSceneSaveForCurrentScene()
+        public void CreateSceneSaveForCurrentScene(string pathInSavesFolder, string saveName)
         {
-            if(ManagerState != State.Idle)
+            if (ManagerState != State.Idle)
             {
                 Debug.LogError("Cant Create Scene Save, as globals saves manager is doing something else:  " + ManagerState);
                 return;
@@ -61,16 +65,18 @@ namespace Benito.ScriptingFoundations.Saving
 
             sceneManagerForSavingScene = LocalSceneManagers.Get<SaveableObjectsSceneManager>();
 
-            if(sceneManagerForSavingScene == null)
+            if (sceneManagerForSavingScene == null)
             {
                 Debug.LogError("Saving for current only works if LocalSceneManagers with a SaveableObjectsSceneManageris present in the scene");
                 return;
             }
 
             ManagerState = State.CreatingSceneSave;
+            createSavePathInSavesFolder = pathInSavesFolder;
+            createSaveName = saveName;
 
             sceneManagerForSavingScene.SaveAllObjects();
-            sceneManagerForSavingScene.OnSavingFinished += CreateSceneSaveForCurrentSceneOnSceneManagerFinished;          
+            sceneManagerForSavingScene.OnSavingFinished += CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
         }
 
         async void CreateSceneSaveForCurrentSceneOnSceneManagerFinished(List<SaveableObjectData> objectsData)
@@ -82,24 +88,24 @@ namespace Benito.ScriptingFoundations.Saving
 
             var progress = new Progress<float>(OnGetJsonStringAsyncProgressUpdate);
 
-            string contents = await SceneSavegameUtility.ConvertSaveGameToJsonStringAsync(save,progress);
+            string contents = await SceneSavegameUtility.ConvertSaveGameToJsonStringAsync(save, progress);
             Debug.Log("after save.GetJsonStringAsync");
 
-            await File.WriteAllTextAsync(Path.Combine(Application.persistentDataPath, "Saves/test.json"), contents);
+            string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), createSavePathInSavesFolder);
+            IOUtilities.EnsurePathExists(savePath);
+
+            await File.WriteAllTextAsync(Path.Combine(savePath, createSaveName + ".json"), contents);
 
             ManagerState = State.Idle;
             sceneManagerForSavingScene = null;
             CreateSceneSaveFileProgress = 0;
+            createSavePathInSavesFolder = "";
+            createSaveName = "";
         }
 
         void OnGetJsonStringAsyncProgressUpdate(float progress)
         {
             CreateSceneSaveFileProgress = progress;
-        }
-
-        void OnReadSceneSaveFileAsyncProgressUpdate (float progress)
-        {
-            ReadSceneSaveFileProgress = progress;
         }
 
         public async Task<SceneSavegame> ReadSceneSaveFileAsync(string saveFilePath)
@@ -116,6 +122,11 @@ namespace Benito.ScriptingFoundations.Saving
             var result = await SceneSavegameUtility.CreateSavegameFromJsonStringAsync(fileContent, progress);
 
             return result;
+        }
+
+        void OnReadSceneSaveFileAsyncProgressUpdate(float progress)
+        {
+            ReadSceneSaveFileProgress = progress;
         }
 
         /// <summary>
@@ -145,6 +156,6 @@ namespace Benito.ScriptingFoundations.Saving
         {
             ManagerState = State.Idle;
             GlobalManagers.Get<BSceneManager>().OnTransitionFinishes -= OnTransitionToSavedSceneFinishes;
-        }     
+        }
     }
 }

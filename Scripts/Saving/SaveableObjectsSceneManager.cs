@@ -225,7 +225,7 @@ namespace Benito.ScriptingFoundations.Saving
         [Button("Save")]
         public void TempCallSave()
         {
-            GlobalManagers.Get<GlobalSavesManager>().CreateSceneSaveForCurrentScene();
+            GlobalManagers.Get<GlobalSavesManager>().CreateSceneSaveForCurrentScene("", "test");
         }
 
         public void SaveAllObjects()
