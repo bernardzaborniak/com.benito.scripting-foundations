@@ -17,7 +17,7 @@ namespace Benito.ScriptingFoundations.Saving
     public class GlobalSavesManager : SingletonManagerGlobal
     {
         Task<SceneSavegame> readSceneSaveFileTask;
-;
+
         public enum State
         {
             Idle,
