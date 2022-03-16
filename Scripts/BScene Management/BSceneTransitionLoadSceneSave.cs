@@ -197,7 +197,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             saveSceneManager = LocalSceneManagers.Get<SaveableObjectsSceneManager>();
             saveSceneManager.OnLoadingFinished += OnLoadingSavegameFinished;
-            saveSceneManager.LoadFromSaveData(savegame.GetSavedObjectsFromSave());
+            saveSceneManager.LoadFromSaveData(savegame.SavedObjects);
         }
 
         void OnLoadingSavegameFinished()

@@ -8,6 +8,8 @@ using System;
 using System.Threading.Tasks;
 using Debug = UnityEngine.Debug;
 
+using System.Diagnostics;
+
 
 
 namespace Benito.ScriptingFoundations.Saving
@@ -79,15 +81,29 @@ namespace Benito.ScriptingFoundations.Saving
 
         async void CreateSceneSaveForCurrentSceneOnSceneManagerFinished(List<SaveableObjectData> objectsData)
         {
+            Stopwatch stopwatch = new Stopwatch();
+
             sceneManagerForSavingScene.OnSavingFinished -= CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
 
             Debug.Log("CreateSceneSaveForCurrentSceneOnSceneManagerFinished");
             SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsData);
 
+            stopwatch.Start();
+
             var progress = new Progress<float>(OnGetJsonStringAsyncProgressUpdate);
-            string contents = await save.GetJsonStringAsync(progress);
+
+            string contents = await SceneSavegameUtility.ConvertSaveGameToJsonStringAsync(save,progress);
+            Debug.Log("after save.GetJsonStringAsync");
+
+            stopwatch.Stop();
+            Debug.Log("getting json string took: " + stopwatch.Elapsed.TotalSeconds + " s");
             
+            stopwatch.Restart();
+
             await File.WriteAllTextAsync(Path.Combine(Application.persistentDataPath, "Saves/test.json"), contents);
+
+            stopwatch.Stop();
+            Debug.Log("File.WriteAllTextAsynctook: " + stopwatch.Elapsed.TotalSeconds + " s");
 
             ManagerState = State.Idle;
             sceneManagerForSavingScene = null;
@@ -115,7 +131,7 @@ namespace Benito.ScriptingFoundations.Saving
             }
 
             var progress = new Progress<float>(OnReadSceneSaveFileAsyncProgressUpdate);
-            var result = await SceneSavegame.CreateSavegameFromJsonStringAsync(fileContent, progress);
+            var result = await SceneSavegameUtility.CreateSavegameFromJsonStringAsync(fileContent, progress);
 
             return result;
         }

@@ -41,6 +41,8 @@ namespace Benito.ScriptingFoundations.Saving
         public float LoadingProgress { get => loadingSceneOperation.Progress; }
         public float SavingProgress { get => savingSceneOperation.Progress; }
 
+        #region Budgeted Operations 
+
         public class LoadingSceneSaveBudgetedOperation : BudgetedOperation
         {
             public enum Stage
@@ -172,10 +174,10 @@ namespace Benito.ScriptingFoundations.Saving
             }
         }
 
+        #endregion
+
         LoadingSceneSaveBudgetedOperation loadingSceneOperation;
         SavingSceneSaveBudgetedOperation savingSceneOperation;
-
-
 
 
         public override void InitialiseManager()
@@ -221,7 +223,6 @@ namespace Benito.ScriptingFoundations.Saving
             }
         }
 #endif
-
         [Button("Save")]
         public void TempCallSave()
         {
@@ -230,6 +231,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         public void SaveAllObjects()
         {
+            Debug.Log("save all objecs called");
             ManagerState = State.SavingSceneSave;
             savingSceneOperation = new SavingSceneSaveBudgetedOperation(saveableObjects, SavingSettings.GetOrCreateSettings().savingSceneSaveBudgetPerFrame);
             savingSceneOperation.OnSavingFinished += OnSavingOperationFinished;
@@ -243,18 +245,8 @@ namespace Benito.ScriptingFoundations.Saving
         [Button("Load")]
         public async void LoadSaveFileWithoutSceneTransition()
         {
-            stopwatch.Start();
-
             SceneSavegame save = await GlobalManagers.Get<GlobalSavesManager>().ReadSceneSaveFileAsync(Path.Combine(Application.persistentDataPath, "Saves/test.json"));
-
-            stopwatch.Stop();
-            UnityEngine.Debug.Log("async ReadSceneSaveFile took " + stopwatch.Elapsed.TotalSeconds + " s");
-
-            stopwatch.Reset();
-
-            stopwatch.Start();
-            LoadFromSaveData(save.GetSavedObjectsFromSave());
-
+            LoadFromSaveData(save.SavedObjects);
         }
 
         public void LoadFromSaveData(List<SaveableObjectData> objectsData)
