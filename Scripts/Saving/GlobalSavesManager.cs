@@ -67,10 +67,10 @@ namespace Benito.ScriptingFoundations.Saving
                 return;
             }
 
-            sceneManagerForSavingScene.SaveAllObjects();
-            sceneManagerForSavingScene.OnSavingFinished += CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
+            ManagerState = State.CreatingSceneSave;
 
-            ManagerState = State.CreatingSceneSave; 
+            sceneManagerForSavingScene.SaveAllObjects();
+            sceneManagerForSavingScene.OnSavingFinished += CreateSceneSaveForCurrentSceneOnSceneManagerFinished;          
         }
 
         async void CreateSceneSaveForCurrentSceneOnSceneManagerFinished(List<SaveableObjectData> objectsData)

@@ -9,8 +9,6 @@ using System;
 using System.Threading.Tasks;
 using Debug = UnityEngine.Debug;
 
-using System.Diagnostics;
-
 
 namespace Benito.ScriptingFoundations.Saving
 {
@@ -19,9 +17,6 @@ namespace Benito.ScriptingFoundations.Saving
     /// </summary>
     public class SaveableObjectsSceneManager : SingletonManagerLocalScene
     {
-        Stopwatch stopwatch = new Stopwatch();
-
-
         [SerializeField] List<SaveableObject> saveableObjects;
         [SerializeField] int[] saveableObjectIds;
 
@@ -35,7 +30,6 @@ namespace Benito.ScriptingFoundations.Saving
             SavingSceneSave
         }
 
-        [SerializeField]
         public State ManagerState { get; private set; }
 
         public float LoadingProgress { get => loadingSceneOperation.Progress; }
@@ -43,7 +37,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         #region Budgeted Operations 
 
-        public class LoadingSceneSaveBudgetedOperation : BudgetedOperation
+        public class LoadingSceneSaveBudgetedOperation : IBudgetedOperation
         {
             public enum Stage
             {
