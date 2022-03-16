@@ -18,7 +18,6 @@ namespace Benito.ScriptingFoundations.Saving
     /// </summary>
     public class GlobalSavesManager : SingletonManagerGlobal
     {
-
         public enum State
         {
             Idle,
@@ -27,14 +26,12 @@ namespace Benito.ScriptingFoundations.Saving
         }
         public State ManagerState { get; private set; }
 
-
         public float ReadSceneSaveFileProgress { get; private set; }
 
         public float CreateSceneSaveFileProgress { get; private set; }
         SaveableObjectsSceneManager sceneManagerForSavingScene;
         string createSavePathInSavesFolder;
         string createSaveName;
-
 
         public override void InitialiseManager()
         {
@@ -54,6 +51,8 @@ namespace Benito.ScriptingFoundations.Saving
                 }
             }
         }
+
+        #region Scene Saves
 
         /// <summary>
         /// Write pathInSavesFolder without actual save name .
@@ -87,17 +86,12 @@ namespace Benito.ScriptingFoundations.Saving
         {
             sceneManagerForSavingScene.OnSavingFinished -= CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
 
-            Debug.Log("CreateSceneSaveForCurrentSceneOnSceneManagerFinished");
             SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsData);
 
             var progress = new Progress<float>(OnGetJsonStringAsyncProgressUpdate);
-
             string contents = await SceneSavegameUtility.ConvertSaveGameToJsonStringAsync(save, progress);
-            Debug.Log("after save.GetJsonStringAsync");
-
             string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), createSavePathInSavesFolder);
             IOUtilities.EnsurePathExists(savePath);
-
             await File.WriteAllTextAsync(Path.Combine(savePath, createSaveName + ".json"), contents);
 
             ManagerState = State.Idle;
@@ -168,5 +162,35 @@ namespace Benito.ScriptingFoundations.Saving
             ManagerState = State.Idle;
             GlobalManagers.Get<BSceneManager>().OnTransitionFinishes -= OnTransitionToSavedSceneFinishes;
         }
+
+        #endregion
+
+        #region Progress Saves
+
+        public async void CreateProgressSave<T>(T save, string pathInSavesFolder, string saveName) where T: IProgressSave
+        {
+            string fileString = JsonUtility.ToJson(save);
+            string folderPath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), pathInSavesFolder);
+            IOUtilities.EnsurePathExists(folderPath);
+            await File.WriteAllTextAsync(Path.Combine(folderPath, saveName + ".json"), fileString);
+            Debug.Log("writing finished");
+        }
+
+        public T ReadProgressSave<T>(string saveFilePathInsideSavesFolder) where T: IProgressSave
+        {
+            string fileContent;
+            string path = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInsideSavesFolder) + ".json";
+
+            using (StreamReader reader = new StreamReader(path))
+            {
+                fileContent =  reader.ReadToEnd();
+                reader.Close();
+            }
+
+            return JsonUtility.FromJson<T>(fileContent);
+        }
+
+
+        #endregion
     }
 }
