@@ -11,7 +11,7 @@ namespace Benito.ScriptingFoundations.Utilities
     {
         public static T GetOrCreateSettingAsset<T>(string defaultSettingsPathInRessourceFolder) where T : ScriptableObject
         {
-            T settings = Resources.Load<T>(defaultSettingsPathInRessourceFolder);
+            T settings = Resources.Load<T>(Path.Combine(defaultSettingsPathInRessourceFolder,typeof(T).Name));
 
             if (settings == null)
             {

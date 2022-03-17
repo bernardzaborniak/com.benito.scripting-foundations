@@ -8,7 +8,7 @@ namespace Benito.ScriptingFoundations.LayerMaskOrganiser.Editor
 {
     public class LayerMaskOrganiser : ScriptableObject
     {
-        const string DefaultSettingsPathInResourcesFolder = "Settings/LayerMask Organiser";
+        const string DefaultSettingsPathInResourcesFolder = "Settings";
 
         public static LayerMaskOrganiser GetOrCreateSettings()
         {
