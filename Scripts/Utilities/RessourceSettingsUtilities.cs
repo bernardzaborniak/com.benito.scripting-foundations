@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 // https://docs.unity3d.com/2019.1/Documentation/ScriptReference/SettingsProvider.html
 
@@ -14,18 +15,8 @@ namespace Benito.ScriptingFoundations.Utilities
 
             if (settings == null)
             {
-                //Debug.Log($"Create {typeof(T)} Asset");
 #if UNITY_EDITOR
-                // Create Folder if none is present
-                if (!UnityEditor.AssetDatabase.IsValidFolder("Assets/Resources"))
-                {
-                    UnityEditor.AssetDatabase.CreateFolder("Assets", "Resources");
-                }
-
-                if (!UnityEditor.AssetDatabase.IsValidFolder("Assets/Resources/Settings"))
-                {
-                    UnityEditor.AssetDatabase.CreateFolder("Assets/Resources", "Settings");
-                }
+                IOUtilities.EnsurePathExists(Path.Combine(Application.dataPath,"Resources", defaultSettingsPathInRessourceFolder));
 
                 // Create Asset
                 settings = ScriptableObject.CreateInstance<T>();
