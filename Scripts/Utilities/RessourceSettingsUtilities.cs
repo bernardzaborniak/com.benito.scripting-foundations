@@ -20,7 +20,7 @@ namespace Benito.ScriptingFoundations.Utilities
 
                 // Create Asset
                 settings = ScriptableObject.CreateInstance<T>();
-                UnityEditor.AssetDatabase.CreateAsset(settings, "Assets/Resources/" + defaultSettingsPathInRessourceFolder + ".asset");
+                UnityEditor.AssetDatabase.CreateAsset(settings, "Assets/Resources/" + defaultSettingsPathInRessourceFolder + typeof(T) +".asset");
                 UnityEditor.AssetDatabase.SaveAssets();
 #else
                 throw new System.Exception("No {typeof(T)} aviable in Ressources Folder, make sure it was created in the editor by just opening up Project Settings/Global Managers once");

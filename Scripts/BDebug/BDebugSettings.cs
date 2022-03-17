@@ -9,7 +9,7 @@ namespace Benito.ScriptingFoundations.BDebug
 {
     public class BDebugSettings : ScriptableObject
     {
-        const string DefaultSettingsPathInResourcesFolder = "Settings/BDebug Settings";
+        const string DefaultSettingsPathInResourcesFolder = "Settings";
         const string DebugMaterialsFolderLocation = "Packages/com.benito.scripting-foundations/Materials/BDebug URP";
 
         [Space(10)]
