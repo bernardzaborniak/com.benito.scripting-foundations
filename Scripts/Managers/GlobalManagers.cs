@@ -39,5 +39,10 @@ namespace Benito.ScriptingFoundations.Managers
 
             return (T)Instance.singletonDictionary[typeof(T)];
         }
+
+        public static bool HasInstance()
+        {
+            return Instance != null;
+        }
     }
 }

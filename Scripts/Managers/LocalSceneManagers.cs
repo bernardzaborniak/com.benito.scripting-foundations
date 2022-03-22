@@ -38,5 +38,10 @@ namespace Benito.ScriptingFoundations.Managers
 
             return (T)Instance.managersDictionary[typeof(T)];
         }
+
+        public static bool HasInstance()
+        {
+            return Instance != null;
+        }
     }
 }
