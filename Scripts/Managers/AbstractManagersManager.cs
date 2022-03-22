@@ -25,6 +25,14 @@ namespace Benito.ScriptingFoundations.Managers
             }
         }
 
+        void LateUpdate()
+        {
+            for (int i = 0; i < managers.Count; i++)
+            {
+                managers[i].LateUpdateManager();
+            }
+        }
+
         #region Validation 
 
         void OnValidate()

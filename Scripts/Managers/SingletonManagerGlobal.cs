@@ -9,5 +9,11 @@ namespace Benito.ScriptingFoundations.Managers
         public abstract void InitialiseManager();
 
         public abstract void UpdateManager();
+
+        public virtual void LateUpdateManager()
+        {
+
+        }
+
     }
 }
