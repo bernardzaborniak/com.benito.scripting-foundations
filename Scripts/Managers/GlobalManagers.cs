@@ -5,6 +5,7 @@ using System;
 
 namespace Benito.ScriptingFoundations.Managers
 {
+    [DefaultExecutionOrder(-6)]
     public class GlobalManagers : AbstractManagersManager<SingletonManagerGlobal>
     {
         public static GlobalManagers Instance;

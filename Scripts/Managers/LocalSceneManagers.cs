@@ -5,6 +5,7 @@ using System;
 
 namespace Benito.ScriptingFoundations.Managers
 {
+    [DefaultExecutionOrder(-5)]
     public class LocalSceneManagers : AbstractManagersManager<SingletonManagerLocalScene>
     {
         public static LocalSceneManagers Instance;
