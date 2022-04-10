@@ -5,7 +5,6 @@ using Benito.ScriptingFoundations.Utilities;
 
 namespace Benito.ScriptingFoundations.Saving
 {
-    [CreateAssetMenu(menuName = "My Assets/SavingSettings")]
     public class SavingSettings : ScriptableObject
     {
         const string DefaultSettingsPathInResourcesFolder = "Settings/Saving Settings";

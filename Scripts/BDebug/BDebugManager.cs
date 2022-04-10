@@ -179,7 +179,15 @@ namespace Benito.ScriptingFoundations.BDebug
                 textMesh.enabled = true;
                 textMesh.transform.position = command.position;
                 textMesh.text = command.text;
-                textMesh.fontSize = command.size * (distanceToCamera*command.scaleWithDistanceRatio);
+                if (command.scaleWithDistanceRatio > 0)
+                {
+                    textMesh.fontSize = command.size * (distanceToCamera * command.scaleWithDistanceRatio);
+                }
+                else
+                {
+                    textMesh.fontSize = command.size;
+                }
+               
                 textMesh.color = command.color;
                 textMesh.transform.forward = cameraTransform.forward;
 

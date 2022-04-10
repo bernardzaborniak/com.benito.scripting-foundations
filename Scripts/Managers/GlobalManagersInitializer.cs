@@ -8,7 +8,6 @@ namespace Benito.ScriptingFoundations.Managers
     /// <summary>
     /// Makes sure a DontDestroyOnLoad Collection with Global Managers is present in every Scene
     /// </summary>
-
     public class GlobalManagersInitializer
     {
         static GameObject Instance = null;
@@ -19,7 +18,6 @@ namespace Benito.ScriptingFoundations.Managers
             if(Instance == null)
             {
                 //GameObject dontDestroyWrapper = new GameObject("Dont Destroy On Load Wrapper", typeof(DontDestroyOnLoadWrapper));
-               //GameObject.Instantiate(GlobalManagersSettings.GetOrCreateSettings().globalManagersPrefab, dontDestroyWrapper.transform);
                GameObject globalManagers = GameObject.Instantiate(GlobalManagersSettings.GetOrCreateSettings().globalManagersPrefab);
                
                 Instance = globalManagers;
