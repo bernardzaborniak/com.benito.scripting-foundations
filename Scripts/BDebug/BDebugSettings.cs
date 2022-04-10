@@ -12,7 +12,7 @@ namespace Benito.ScriptingFoundations.BDebug
         const string DefaultSettingsPathInResourcesFolder = "Settings/BDebug Settings";
         const string DebugMaterialsFolderLocation = "Packages/com.benito.scripting-foundations/Materials/BDebug URP";
 
-        [Space(10)]
+        [Header("Materials")]
         [Validate("cant be null")]
         public Material debugMeshMaterial;
         [Validate("cant be null")]
@@ -26,8 +26,14 @@ namespace Benito.ScriptingFoundations.BDebug
         [Validate("cant be null")]
         public Material overlayTextMeshMaterial;
 
+        [Header("Text")]
         public int maxDebugTextsOnScreen = 50;
-
+        public enum OrientTextMode
+        {
+            AlongCameraForward,
+            TowardsCamera
+        }
+        public OrientTextMode orientTextMode  = OrientTextMode.AlongCameraForward;
 
         [Space(10)]
         [SerializeField] bool[] drawingLayers = new bool[24] { true, true , true , true , true , true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true };

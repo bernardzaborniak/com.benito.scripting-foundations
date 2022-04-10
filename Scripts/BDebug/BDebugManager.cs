@@ -31,12 +31,13 @@ namespace Benito.ScriptingFoundations.BDebug
 
         Mesh lineMesh;
 
+        BDebugSettings settings;
+
 
         public override void InitialiseManager()
         {
-
+            settings = BDebugSettings.GetOrCreateSettings();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            BDebugSettings settings = BDebugSettings.GetOrCreateSettings();
             debugMaterial = settings.debugMeshMaterial;
             debugTransparentMaterial = settings.debugMeshTransparentMaterial;
             debugWireframeMaterial = settings.debugMeshWireframeMaterial;
@@ -189,7 +190,15 @@ namespace Benito.ScriptingFoundations.BDebug
                 }
                
                 textMesh.color = command.color;
-                textMesh.transform.forward = cameraTransform.forward;
+
+                if(settings.orientTextMode == BDebugSettings.OrientTextMode.AlongCameraForward)
+                {
+                    textMesh.transform.forward = cameraTransform.forward;
+                }
+                else if(settings.orientTextMode == BDebugSettings.OrientTextMode.TowardsCamera)
+                {
+                    textMesh.transform.forward = cameraTransform.position = command.position;
+                }
 
                 if (command.overlay)
                 {
