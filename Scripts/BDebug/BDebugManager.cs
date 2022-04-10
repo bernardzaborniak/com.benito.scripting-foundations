@@ -197,7 +197,7 @@ namespace Benito.ScriptingFoundations.BDebug
                 }
                 else if(settings.orientTextMode == BDebugSettings.OrientTextMode.TowardsCamera)
                 {
-                    textMesh.transform.forward = cameraTransform.position = command.position;
+                    textMesh.transform.rotation = Quaternion.LookRotation(command.position - cameraTransform.position, cameraTransform.up);
                 }
 
                 if (command.overlay)
