@@ -63,10 +63,12 @@ namespace Benito.ScriptingFoundations.Managers
         }
 
 
-//#if UNITY_ENGINE
+#if UNITY_EDITOR
         [Button("Scan Children for Managers")]
         protected void ScanChildrenForManagers()
         {
+            UnityEditor.Undo.RecordObject(this, "Scan Children for managers");
+
             managers.Clear();
             foreach (ISingletonManager manager in GetComponentsInChildren<ISingletonManager>())
             {
@@ -74,7 +76,7 @@ namespace Benito.ScriptingFoundations.Managers
             }
         }
 
-//#endif
+#endif
 
 
         #endregion
