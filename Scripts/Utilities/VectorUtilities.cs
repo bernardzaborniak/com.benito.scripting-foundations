@@ -159,13 +159,15 @@ namespace Benito.ScriptingFoundations.Utilities
             return Mathf.Atan2(Vector3.Dot(to, right), Vector3.Dot(to, from)) * Mathf.Rad2Deg;
         }
 
-
-        public static Vector3 RotateAlongAxis(this Vector3 currentVector, Vector3 axis, float degrees)
+        /// <summary>
+        /// The Return Vector is normalized, the input vector doesnt have to be
+        /// </summary>
+        public static Vector3 RotateAlongAxisNormalized(this Vector3 currentVector, Vector3 axis, float degrees)
         {
             return Quaternion.LookRotation(currentVector, axis).RotateAlongAxis(axis, degrees) * Vector3.forward;
         }
 
-        public static Vector3 RotateTowardsAlongAxis(this Vector3 currentVector, Vector3 targetVector, Vector3 axis, float degrees)
+        public static Vector3 RotateTowardsAlongAxisNormalized(this Vector3 currentVector, Vector3 targetVector, Vector3 axis, float degrees)
         {
             float differenceAngle = VectorUtilities.AngleOffAroundAxis(currentVector, targetVector, axis);
             differenceAngle = Mathf.Clamp(differenceAngle, -degrees, degrees);
@@ -173,7 +175,7 @@ namespace Benito.ScriptingFoundations.Utilities
             return Quaternion.LookRotation(currentVector, axis).RotateAlongAxis(axis, differenceAngle) * Vector3.forward;
         }
 
-        public static Vector3 RotateTowardsAlongAxisWithAccel(this Vector3 currentVector, Vector3 targetVector, Vector3 axis, float maxSpeed,float maxAcceleration, ref float currentVelocity, float deltaTime)
+        public static Vector3 RotateTowardsAlongAxisWithAccelNormalized(this Vector3 currentVector, Vector3 targetVector, Vector3 axis, float maxSpeed,float maxAcceleration, ref float currentVelocity, float deltaTime)
         {
             float angleErrorTolerance = 0.001f; // AngleOffAroundAxis will never return exactly 0;
 
@@ -189,7 +191,7 @@ namespace Benito.ScriptingFoundations.Utilities
             return Quaternion.LookRotation(currentVector, axis).RotateAlongAxis(axis, blendedAngle) * Vector3.forward;
         }
 
-        public static Vector3 RotateTowardsAlongAxisWithAccelAndDecel(this Vector3 currentVector, Vector3 targetVector, Vector3 axis, float maxSpeed, float maxAcceleration, ref float currentVelocity, bool overshoot, float deltaTime)
+        public static Vector3 RotateTowardsAlongAxisWithAccelAndDecelNormalized(this Vector3 currentVector, Vector3 targetVector, Vector3 axis, float maxSpeed, float maxAcceleration, ref float currentVelocity, bool overshoot, float deltaTime)
         {
             float angleErrorTolerance = 0.001f; // AngleOffAroundAxis will never return exactly 0;
 
