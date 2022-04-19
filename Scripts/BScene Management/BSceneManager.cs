@@ -39,17 +39,14 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         public override void UpdateManager()
         {
-            if(status != Status.Idle) Debug.Log("2: switch status: " + status);
             switch (status)
             {  
                 case Status.PreloadingScene:
                     {
                         if(preloadSceneOperation.progress >= 0.9f)
                         {
-                            Debug.Log("2: switched status to IdleWithPreloadedScene");
                             status = Status.IdleWithPreloadedScene;
                             OnPreloadingSceneFinished?.Invoke();
-
                         }
                             
                         break;
@@ -58,16 +55,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                     {
                         currentTransition.UpdateTransition();
 
-                        Debug.Log("2: transitioning current trans: " + currentTransition );
-
-                        if (currentTransition is BSceneTransitionWithTransitionScene)
-                        {
-                            Debug.Log("2: trans stage string: " + (currentTransition as BSceneTransitionWithTransitionScene).GetCurrentStageDebugString());
-                        }
-
                         if (currentTransition.IsFinished())
                         {
-                            Debug.Log("2: manager, is finished");
                             currentTransition = null;
                             status = Status.Idle;
                             OnTransitionFinishes?.Invoke();
@@ -86,7 +75,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         public AsyncOperation PreloadScene(string sceneName)
         {
-            Debug.Log("2: preload scene called on manager");
             status = Status.PreloadingScene;
             preloadSceneOperation =  SceneManager.LoadSceneAsync(sceneName);
             preloadSceneOperation.allowSceneActivation = false;
@@ -122,8 +110,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             currentTransition = new BSceneTransitionDefault(transform, preloadSceneOperation, exitCurrentSceneFadePrefab, enterNextSceneFadePrefab);
             currentTransition.StartTransition();
             status = Status.Transitioning;
-
-            Debug.Log("2: switched status to transitioning");
         }
 
         public void SwitchThroughPreloadedTransitionScene(string targetScene,
@@ -135,8 +121,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
             currentTransition.StartTransition();
             status = Status.Transitioning;
-            Debug.Log("2: switched status to transitioning");
-
         }
 
         public void LoadSceneSaveThroughTransitionScene(string targetScene, string transitionSceneName, string savegamePathInSavesFolder,
@@ -148,8 +132,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
             currentTransition.StartTransition();
             status = Status.Transitioning;
-            Debug.Log("2: switched status to transitioning");
-
         }
 
         #region Inspector Debug methods
