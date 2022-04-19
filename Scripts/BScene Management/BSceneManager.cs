@@ -55,6 +55,13 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                     {
                         currentTransition.UpdateTransition();
 
+                        Debug.Log("2: transitioning current trans: " + currentTransition );
+
+                        if (currentTransition is BSceneTransitionWithTransitionScene)
+                        {
+                            Debug.Log("trans stage string: " + (currentTransition as BSceneTransitionWithTransitionScene).GetCurrentStageDebugString());
+                        }
+
                         if (currentTransition.IsFinished())
                         {
                             Debug.Log("2: manager, is finished");
