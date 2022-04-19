@@ -39,8 +39,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         public override void UpdateManager()
         {
+            if(status != Status.Idle) Debug.Log("2: switch status: " + status);
             switch (status)
-            {
+            {  
                 case Status.PreloadingScene:
                     {
                         if(preloadSceneOperation.progress >= 0.9f)
