@@ -7,8 +7,6 @@ namespace Benito.ScriptingFoundations.InGameSettings
     [System.Serializable]
     public class InGameSettings
     {
-        public string tempString;
-
         [HideInInspector]
         [SerializeField]
         public string settingsTypeName;

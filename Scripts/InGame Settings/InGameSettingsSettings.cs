@@ -4,22 +4,25 @@ using UnityEngine;
 using Benito.ScriptingFoundations.Utilities;
 using System.IO;
 
-public class InGameSettingsSettings : ScriptableObject
+namespace Benito.ScriptingFoundations.InGameSettings
 {
-    const string DefaultSettingsPathInResourcesFolder = "Settings/InGame Settings Settings";
-
-    [SerializeField]
-    IOUtilities.AssigneableGameDataPath inGameSettingsPath = new IOUtilities.AssigneableGameDataPath(IOUtilities.AssigneableGameDataPath.PathPrefix.PersistendData,"InGameSettings");
-
-
-    public static InGameSettingsSettings GetOrCreateSettings()
+    public class InGameSettingsSettings : ScriptableObject
     {
-        return RessourceSettingsUtilities.GetOrCreateSettingAsset<InGameSettingsSettings>(DefaultSettingsPathInResourcesFolder);
-    }
-    public string GetInGameSettingsFolderPath()
-    {
-        string path = inGameSettingsPath.GetPath();
-        IOUtilities.EnsurePathExists(path);
-        return path;
+        const string DefaultSettingsPathInResourcesFolder = "Settings/InGame Settings Settings";
+
+        [SerializeField]
+        IOUtilities.AssigneableGameDataPath inGameSettingsPath = new IOUtilities.AssigneableGameDataPath(IOUtilities.AssigneableGameDataPath.PathPrefix.PersistendData, "InGameSettings");
+
+
+        public static InGameSettingsSettings GetOrCreateSettings()
+        {
+            return RessourceSettingsUtilities.GetOrCreateSettingAsset<InGameSettingsSettings>(DefaultSettingsPathInResourcesFolder);
+        }
+        public string GetInGameSettingsFolderPath()
+        {
+            string path = inGameSettingsPath.GetPath();
+            IOUtilities.EnsurePathExists(path);
+            return path;
+        }
     }
 }
