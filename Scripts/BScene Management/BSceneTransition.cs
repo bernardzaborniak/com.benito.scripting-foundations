@@ -9,10 +9,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
     /// Classes deriving from this class take complete care of scene transitions.
     /// </summary>
     public abstract class BSceneTransition
-    {
-        public Action OnTransitionFinished; 
-        public bool Finished { get; protected set; }
-
+    {        
         public abstract void StartTransition();
 
         public abstract void UpdateTransition();
@@ -27,6 +24,10 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
             return fade;
         }
+
+        public abstract bool IsFinished();
+
+
 
         public abstract float GetProgress();
 

@@ -55,10 +55,11 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                     {
                         currentTransition.UpdateTransition();
 
-                        if (currentTransition.Finished)
+                        if (currentTransition.IsFinished())
                         {
-                            currentTransition = null;
+                            Debug.Log("2: manager, is finished");
                             OnTransitionFinishes?.Invoke();
+                            currentTransition = null;
                             status = Status.Idle;
                         }
                             

@@ -57,7 +57,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
             GameObject exitTransitionSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
-            Finished = false;
             stage = Stage.Idle;
 
             this.targetScene = targetScene;
@@ -264,8 +263,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 GameObject.Destroy(enterNextSceneFade.gameObject);
 
             stage = Stage.Finished;
-            OnTransitionFinished?.Invoke();
-            Finished = true;
         }
 
         public override float GetProgress()
@@ -289,6 +286,10 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         public override string GetCurrentStageDebugString()
         {
             return stage.ToString();
+        }
+        public override bool IsFinished()
+        {
+            return stage == Stage.Finished;
         }
     }
 }

@@ -29,7 +29,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         public BSceneTransitionDefault(Transform sceneManagerTransform, AsyncOperation preloadSceneOperation, GameObject exitCurrentSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
-            Finished = false;
             stage = Stage.Idle;
 
             this.sceneManagerTransform = sceneManagerTransform;
@@ -100,8 +99,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 GameObject.Destroy(enterNextSceneFade.gameObject);
 
             stage = Stage.Finished;
-            Finished = true;
-            OnTransitionFinished?.Invoke();
         }
 
         public override float GetProgress()
@@ -112,6 +109,11 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         public override string GetCurrentStageDebugString()
         {
             return stage.ToString();
+        }
+
+        public override bool IsFinished()
+        {
+            return stage == Stage.Finished;
         }
     }
 }
