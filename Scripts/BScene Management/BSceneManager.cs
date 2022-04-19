@@ -46,10 +46,10 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                     {
                         if(preloadSceneOperation.progress >= 0.9f)
                         {
-                            OnPreloadingSceneFinished?.Invoke();
                             Debug.Log("2: switched status to IdleWithPreloadedScene");
-
                             status = Status.IdleWithPreloadedScene;
+                            OnPreloadingSceneFinished?.Invoke();
+
                         }
                             
                         break;
@@ -68,9 +68,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                         if (currentTransition.IsFinished())
                         {
                             Debug.Log("2: manager, is finished");
-                            OnTransitionFinishes?.Invoke();
                             currentTransition = null;
                             status = Status.Idle;
+                            OnTransitionFinishes?.Invoke();
                         }
                             
                         break;
