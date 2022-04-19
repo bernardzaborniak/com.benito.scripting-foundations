@@ -59,7 +59,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
                         if (currentTransition is BSceneTransitionWithTransitionScene)
                         {
-                            Debug.Log("trans stage string: " + (currentTransition as BSceneTransitionWithTransitionScene).GetCurrentStageDebugString());
+                            Debug.Log("2: trans stage string: " + (currentTransition as BSceneTransitionWithTransitionScene).GetCurrentStageDebugString());
                         }
 
                         if (currentTransition.IsFinished())
@@ -83,6 +83,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         public AsyncOperation PreloadScene(string sceneName)
         {
+            Debug.Log("2: preload scene called on manager");
             status = Status.PreloadingScene;
             preloadSceneOperation =  SceneManager.LoadSceneAsync(sceneName);
             preloadSceneOperation.allowSceneActivation = false;
@@ -118,6 +119,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             currentTransition = new BSceneTransitionDefault(transform, preloadSceneOperation, exitCurrentSceneFadePrefab, enterNextSceneFadePrefab);
             currentTransition.StartTransition();
             status = Status.Transitioning;
+
+            Debug.Log("2: switched status to transitioning");
         }
 
         public void SwitchThroughPreloadedTransitionScene(string targetScene,
@@ -129,6 +132,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
             currentTransition.StartTransition();
             status = Status.Transitioning;
+            Debug.Log("2: switched status to transitioning");
 
         }
 
@@ -141,6 +145,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
             currentTransition.StartTransition();
             status = Status.Transitioning;
+            Debug.Log("2: switched status to transitioning");
+
         }
 
         #region Inspector Debug methods
