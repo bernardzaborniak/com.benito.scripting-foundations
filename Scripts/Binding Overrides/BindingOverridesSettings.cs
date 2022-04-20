@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Benito.ScriptingFoundations.Utilities;
+using System.IO;
 
 namespace Benito.ScriptingFoundations.BindingOverrides
 {
@@ -23,6 +24,31 @@ namespace Benito.ScriptingFoundations.BindingOverrides
             string path = overridesPath.GetPath();
             IOUtilities.EnsurePathExists(path);
             return path;
+        }
+
+        public string GetBindingOverridesJson(string overridesName)
+        {
+            string fileContent = string.Empty;
+
+            string path = Path.Combine(GetOverridesFolderPath(), overridesName + "json");
+            if (File.Exists(path))
+            {
+                using (StreamReader reader = new StreamReader(path))
+                {
+                    fileContent = reader.ReadToEnd();
+                    reader.Close();
+                }
+            }
+
+            return fileContent;
+        }
+
+        public void SaveBindingOverridesJson(string overridesName, string fileContentInJson)
+        {
+            string savePath = Path.Combine(GetOverridesFolderPath(), overridesName + "json");
+            IOUtilities.EnsurePathExists(savePath);
+            File.WriteAllText(Path.Combine(savePath, overridesName + ".json"), fileContentInJson);
+
         }
     }
 }
