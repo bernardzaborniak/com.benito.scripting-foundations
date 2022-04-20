@@ -30,7 +30,7 @@ namespace Benito.ScriptingFoundations.BindingOverrides
         {
             string fileContent = string.Empty;
 
-            string path = Path.Combine(GetOverridesFolderPath(), overridesName + "json");
+            string path = Path.Combine(GetOverridesFolderPath(), overridesName + ".json");
             if (File.Exists(path))
             {
                 using (StreamReader reader = new StreamReader(path))
@@ -45,9 +45,7 @@ namespace Benito.ScriptingFoundations.BindingOverrides
 
         public void SaveBindingOverridesJson(string overridesName, string fileContentInJson)
         {
-            string savePath = Path.Combine(GetOverridesFolderPath(), overridesName + "json");
-            IOUtilities.EnsurePathExists(savePath);
-            File.WriteAllText(Path.Combine(savePath, overridesName + ".json"), fileContentInJson);
+            File.WriteAllText(Path.Combine(GetOverridesFolderPath(), overridesName + ".json"), fileContentInJson);
 
         }
     }
