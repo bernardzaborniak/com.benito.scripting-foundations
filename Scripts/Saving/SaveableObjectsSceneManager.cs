@@ -202,11 +202,6 @@ namespace Benito.ScriptingFoundations.Saving
                     savingSceneOperation = null;
                 }
             }
-
-            if (Input.GetKeyDown(KeyCode.C))
-            {
-                TempCallSave();
-            }
         }
 
 #if UNITY_EDITOR
@@ -222,11 +217,18 @@ namespace Benito.ScriptingFoundations.Saving
             }
         }
 #endif
-        [Button("Save")]
+        /*[Button("Save")]
         public void TempCallSave()
         {
             GlobalManagers.Get<GlobalSavesManager>().CreateSceneSaveForCurrentScene("", "test");
-        }
+        }*/
+
+        /*[Button("Load")]
+       public async void LoadSaveFileWithoutSceneTransition()
+       {
+           SceneSavegame save = await GlobalManagers.Get<GlobalSavesManager>().ReadSceneSaveFileAsync("test");
+           LoadFromSaveData(save.SavedObjects);
+       }*/
 
         public void SaveAllObjects()
         {
@@ -241,12 +243,7 @@ namespace Benito.ScriptingFoundations.Saving
             OnSavingFinished?.Invoke(objectsDate);
         }
 
-        [Button("Load")]
-        public async void LoadSaveFileWithoutSceneTransition()
-        {
-            SceneSavegame save = await GlobalManagers.Get<GlobalSavesManager>().ReadSceneSaveFileAsync("test");
-            LoadFromSaveData(save.SavedObjects);
-        }
+       
 
         public void LoadFromSaveData(List<SaveableObjectData> objectsData)
         {
