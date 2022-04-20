@@ -14,6 +14,7 @@ namespace Benito.ScriptingFoundations.Saving
 {
     /// <summary>
     /// Manages all saveable objects inside a scene.
+    /// You Dont need to call any Methods from this class, just place it in the scene and call GlobalSavesManager.Sace/Load
     /// </summary>
     public class SaveableObjectsSceneManager : SingletonManagerLocalScene
     {
