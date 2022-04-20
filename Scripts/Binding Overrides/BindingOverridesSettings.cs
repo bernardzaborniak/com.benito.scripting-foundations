@@ -26,7 +26,7 @@ namespace Benito.ScriptingFoundations.BindingOverrides
             return path;
         }
 
-        public string GetBindingOverridesJson(string overridesName)
+        public string LoadBindingOverridesJson(string overridesName)
         {
             string fileContent = string.Empty;
 
