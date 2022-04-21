@@ -5,13 +5,13 @@ using UnityEngine;
 
 namespace Benito.ScriptingFoundations.Saving
 {
-    public static class SaveableObjectsIdAssigner
+    public static class SaveableSceneObjectsIdAssigner
     {
         public static void AssignMissingIdsInCurrentScene()
         {
-            List<SaveableObject> saveableObjects  = new List<SaveableObject>(GameObject.FindObjectsOfType<SaveableObject>(true));
+            List<SaveableSceneObject> saveableObjects  = new List<SaveableSceneObject>(GameObject.FindObjectsOfType<SaveableSceneObject>(true));
             HashSet<int> usedIds = new HashSet<int>();
-            foreach (SaveableObject item in saveableObjects)
+            foreach (SaveableSceneObject item in saveableObjects)
             {
                 if (item.HasId())
                 {
@@ -34,9 +34,9 @@ namespace Benito.ScriptingFoundations.Saving
 
         public static void ReassignAllIdsInCurrentScene()
         {
-            List<SaveableObject> saveableObjects = new List<SaveableObject>(GameObject.FindObjectsOfType<SaveableObject>(true));
+            List<SaveableSceneObject> saveableObjects = new List<SaveableSceneObject>(GameObject.FindObjectsOfType<SaveableSceneObject>(true));
             HashSet<int> usedIds = new HashSet<int>();
-            foreach (SaveableObject item in saveableObjects)
+            foreach (SaveableSceneObject item in saveableObjects)
             {                
                 int newID = CreateNewId(usedIds);
                 item.SetId(newID);

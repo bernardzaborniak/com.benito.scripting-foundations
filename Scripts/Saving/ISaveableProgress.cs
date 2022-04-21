@@ -9,11 +9,9 @@ namespace Benito.ScriptingFoundations.Saving
     /// For saving various stuff that wasnt saved inside a "SceneSave";
     /// No Async Capabilities for now.
     /// </summary>
-    public interface IProgressSave
+    public interface ISaveableProgress
     {
-       // public IProgressSave CreateSaveFromJsonString();
 
-        //public string CreateJsonString();
     }
 }
 

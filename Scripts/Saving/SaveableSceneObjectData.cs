@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Benito.ScriptingFoundations.Saving
 {
-    public class SaveableObjectData 
+    public class SaveableSceneObjectData 
     {
         public string typeName;
         public string assemblyName;

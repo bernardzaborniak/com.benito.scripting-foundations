@@ -5,7 +5,7 @@ using Benito.ScriptingFoundations.InspectorAttributes;
 
 namespace Benito.ScriptingFoundations.Saving
 {
-    public abstract class SaveableObject : MonoBehaviour
+    public abstract class SaveableSceneObject : MonoBehaviour
     {
         [ReadOnly]
         [SerializeField] protected int saveID;
@@ -16,7 +16,7 @@ namespace Benito.ScriptingFoundations.Saving
         }
        
         /// <summary>
-        /// Should be called by the editor before entering playmode and before build. Also have a button for this on the SceneSaveManager?
+        /// Should be called by the editor before entering playmode and before build. 
         /// </summary>
         public void SetId(int saveID)
         {
@@ -31,8 +31,8 @@ namespace Benito.ScriptingFoundations.Saving
         /// <summary>
         /// May also return null in order to optimise, when saving something is only necessary during a certain stage
         /// </summary>
-        public abstract SaveableObjectData Save();
+        public abstract SaveableSceneObjectData Save();
 
-        public abstract void Load(SaveableObjectData dataToLoad);
+        public abstract void Load(SaveableSceneObjectData dataToLoad);
     }
 }

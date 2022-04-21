@@ -17,7 +17,7 @@ namespace Benito.ScriptingFoundations.Saving.Editor
                 if(path == SceneManager.GetActiveScene().path)
                 {
                     //Debug.Log("AssignMissingIdsInCurrentScene on scene Save");
-                    SaveableObjectsIdAssigner.AssignMissingIdsInCurrentScene();
+                    SaveableSceneObjectsIdAssigner.AssignMissingIdsInCurrentScene();
 
                     SaveableObjectsSceneManager manager = GameObject.FindObjectOfType<SaveableObjectsSceneManager>();
 

@@ -14,7 +14,7 @@ namespace Benito.ScriptingFoundations.Saving
             string[] seperatedString = jsonString.Split("\n");
             string sceneName = seperatedString[0];
 
-            List<SaveableObjectData> saveableObjects = new List<SaveableObjectData>();
+            List<SaveableSceneObjectData> saveableObjects = new List<SaveableSceneObjectData>();
 
             Dictionary<string, Assembly> assemblyDictionary = new Dictionary<string, Assembly>();
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -24,10 +24,10 @@ namespace Benito.ScriptingFoundations.Saving
 ;
             for (int i = 1; i < seperatedString.Length - 1; i++)
             {
-                SaveableObjectData genericData = (SaveableObjectData)JsonUtility.FromJson<SaveableObjectData>(seperatedString[i]);
+                SaveableSceneObjectData genericData = (SaveableSceneObjectData)JsonUtility.FromJson<SaveableSceneObjectData>(seperatedString[i]);
 
                 Type saveableDataType = assemblyDictionary[genericData.assemblyName].GetType(genericData.typeName);
-                saveableObjects.Add((SaveableObjectData)JsonUtility.FromJson(seperatedString[i], saveableDataType));
+                saveableObjects.Add((SaveableSceneObjectData)JsonUtility.FromJson(seperatedString[i], saveableDataType));
             }
 
             SceneSavegame newSaveGame = new SceneSavegame(sceneName, saveableObjects);
@@ -42,7 +42,7 @@ namespace Benito.ScriptingFoundations.Saving
                 string[] seperatedString = jsonString.Split("\n");
                 string sceneName = seperatedString[0];
                 progress?.Report(0.05f);
-                List<SaveableObjectData> saveableObjects = new List<SaveableObjectData>();
+                List<SaveableSceneObjectData> saveableObjects = new List<SaveableSceneObjectData>();
 
                 Dictionary<string, Assembly> assemblyDictionary = new Dictionary<string, Assembly>();
                 foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -53,10 +53,10 @@ namespace Benito.ScriptingFoundations.Saving
 
                 for (int i = 1; i < seperatedString.Length - 1; i++)
                 {
-                    SaveableObjectData genericData = (SaveableObjectData)JsonUtility.FromJson<SaveableObjectData>(seperatedString[i]);
+                    SaveableSceneObjectData genericData = (SaveableSceneObjectData)JsonUtility.FromJson<SaveableSceneObjectData>(seperatedString[i]);
 
                     Type saveableDataType = assemblyDictionary[genericData.assemblyName].GetType(genericData.typeName);
-                    saveableObjects.Add((SaveableObjectData)JsonUtility.FromJson(seperatedString[i], saveableDataType));
+                    saveableObjects.Add((SaveableSceneObjectData)JsonUtility.FromJson(seperatedString[i], saveableDataType));
 
                     progress?.Report(0.1f + 1f * i / seperatedString.Length);
                 }

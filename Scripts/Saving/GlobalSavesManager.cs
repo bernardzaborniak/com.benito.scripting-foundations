@@ -13,12 +13,12 @@ using Debug = UnityEngine.Debug;
 
 namespace Benito.ScriptingFoundations.Saving
 {
-    /// <summary>
-    /// Takes care of loading and saving different savegames to files.
-    /// </summary>
+    // Takes care of loading and saving different savegames to files.
     public class GlobalSavesManager : SingletonManagerGlobal
     {
         #region Fields
+
+        //State
         public enum State
         {
             Idle,
@@ -27,15 +27,19 @@ namespace Benito.ScriptingFoundations.Saving
         }
         public State ManagerState { get; private set; }
 
+        // Progress
         public float ReadSceneSaveFileProgress { get; private set; }
         public float CreateSceneSaveFileProgress { get; private set; }
 
+        // References for creating Save
         SaveableObjectsSceneManager sceneManagerForSavingScene;
-        string createSavePathInSavesFolder;
-        string createSaveName;
+        string createSceneSavePathInSavesFolder;
+        SceneSavegameInfo createSceneSaveInfo;
+        Texture2D createSavePreviewImage;
 
+        // OnFinished Callbacks
         public Action OnCreatingSceneSaveFileFinished;
-        public Action OnCreatingProgressSaveFileFinished;
+        public Action OnCreatingProgressSaveFileFinished; 
 
         #endregion
 
@@ -60,11 +64,17 @@ namespace Benito.ScriptingFoundations.Saving
 
         #region Scene Saves
 
+        /*public List<SceneSavegame> GetAvailableSceneSavegames()
+        {
+            return availableSceneSavegames;
+        }*/
+        #region Create Scene Save
+
         /// <summary>
         /// Write pathInSavesFolder without actual save name .
         /// Write saveName without file extension.
         /// </summary>
-        public void CreateSceneSaveForCurrentScene(string pathInSavesFolder, string saveName)
+        public void CreateSceneSaveForCurrentScene(string pathInSavesFolder, SceneSavegameInfo savegameInfo, Texture2D savegamePreviewImage = null)
         {
             if (ManagerState != State.Idle)
             {
@@ -81,30 +91,47 @@ namespace Benito.ScriptingFoundations.Saving
             }
 
             ManagerState = State.CreatingSceneSave;
-            createSavePathInSavesFolder = pathInSavesFolder;
-            createSaveName = saveName;
+            createSceneSavePathInSavesFolder = pathInSavesFolder;
+            createSceneSaveInfo = savegameInfo;
+            createSavePreviewImage = savegamePreviewImage;
 
             sceneManagerForSavingScene.OnSavingFinished += CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
             sceneManagerForSavingScene.SaveAllObjects();
         }
 
-        async void CreateSceneSaveForCurrentSceneOnSceneManagerFinished(List<SaveableObjectData> objectsData)
+        async void CreateSceneSaveForCurrentSceneOnSceneManagerFinished(List<SaveableSceneObjectData> objectsData)
         {
             sceneManagerForSavingScene.OnSavingFinished -= CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
 
             SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsData);
 
+            // 1. Create actual Savefile
             var progress = new Progress<float>(OnGetJsonStringAsyncProgressUpdate);
             string contents = await SceneSavegameUtility.ConvertSaveGameToJsonStringAsync(save, progress);
-            string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), createSavePathInSavesFolder);
+            string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), createSceneSavePathInSavesFolder);
             IOUtilities.EnsurePathExists(savePath);
-            await File.WriteAllTextAsync(Path.Combine(savePath, createSaveName + ".json"), contents);
+            await File.WriteAllTextAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".bsave"), contents);
 
+            // 2. Create Saveinfo and 
+            string saveInfoContanets = JsonUtility.ToJson(createSceneSaveInfo);
+            await File.WriteAllTextAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".json"), saveInfoContanets);
+            
+            // 3. Create optional preview Image
+            if(createSavePreviewImage != null)
+            {
+                byte[] bytes = createSavePreviewImage.EncodeToPNG();
+                await File.WriteAllBytesAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".png"), bytes);
+            }
+
+            // 4. Reset Values after completing Save
             ManagerState = State.Idle;
             sceneManagerForSavingScene = null;
             CreateSceneSaveFileProgress = 0;
-            createSavePathInSavesFolder = "";
-            createSaveName = "";
+            createSceneSavePathInSavesFolder = "";
+            createSceneSaveInfo = null;
+            createSavePreviewImage = null;
+
+            // 5. Call callbacks
             OnCreatingSceneSaveFileFinished?.Invoke();
         }
 
@@ -113,13 +140,68 @@ namespace Benito.ScriptingFoundations.Saving
             CreateSceneSaveFileProgress = progress;
         }
 
+        #endregion
+
+        #region Load Scene Save
+
+        public List<(SceneSavegameInfo info, Texture2D image)> GetSceneSavegameInfosInsideFolder(string folderPathInSavesFolder)
+        {
+            List<(SceneSavegameInfo info, Texture2D image)> infoList = new List<(SceneSavegameInfo info, Texture2D image)>();
+
+            DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), folderPathInSavesFolder));
+
+            foreach (FileInfo info in directoryInfo.GetFiles())
+            {
+                if(info.Extension == ".json")
+                {
+                    infoList.Add(GetSceneSavegameInfoAtPath(Path.Combine(folderPathInSavesFolder, info.Name)));
+                }
+            }
+
+            return infoList;
+        }
+
         /// <summary>
-        ///  Write saveFilePathInSavesFolder without file extension
+        /// Write file path without extension.
+        /// </summary>
+        public (SceneSavegameInfo info, Texture2D image) GetSceneSavegameInfoAtPath(string filePathInSavesFolder)
+        {
+            (SceneSavegameInfo info, Texture2D image) infoTouple = (null,null);
+            string savesFolderPath = SavingSettings.GetOrCreateSettings().GetSavesFolderPath();
+
+            // Read info file
+            string infoFileContent;
+            string saveInfoPath = Path.Combine(savesFolderPath, filePathInSavesFolder) + ".json";
+
+            using (StreamReader reader = new StreamReader(saveInfoPath))
+            {
+                infoFileContent = reader.ReadToEnd();
+                reader.Close();
+            }
+
+            infoTouple.info = JsonUtility.FromJson<SceneSavegameInfo>(infoFileContent);
+
+            // read image, if available
+            string previewImagePath = Path.Combine(savesFolderPath, filePathInSavesFolder) + ".png";
+            if (File.Exists(previewImagePath))
+            {
+                //  Texture size does not matter, since LoadImage will replace with with incoming image size.
+                infoTouple.image = new Texture2D(2, 2);
+                byte[] imageBytes = File.ReadAllBytes(previewImagePath);
+                infoTouple.image.LoadImage(imageBytes);
+            }
+
+
+            return infoTouple;
+        }
+
+        /// <summary>
+        ///  Write saveFilePathInSavesFolder without file extension. Called by save game scene transition.
         /// </summary>
         public async Task<SceneSavegame> ReadSceneSaveFileAsync(string saveFilePathInSavesFolder)
         {
             string fileContent;
-            string path = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInSavesFolder) + ".json";
+            string path = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInSavesFolder) + ".bsave";
 
             using (StreamReader reader = new StreamReader(path))
             {
@@ -146,11 +228,11 @@ namespace Benito.ScriptingFoundations.Saving
             GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
             GameObject exitTransitiontSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
-            string fullSaveFilePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInsideSavesFolder) + ".json";
+            string fullSaveFilePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInsideSavesFolder) + ".bsave";
 
             if (ManagerState != State.Idle)
             {
-                Debug.LogError("Cant Create Scene Save, as globals saves manager is doing something else:  " + ManagerState);
+                Debug.LogError("Cant Load Scene Save, as globals saves manager is doing something else:  " + ManagerState);
                 return;
             }
 
@@ -172,9 +254,12 @@ namespace Benito.ScriptingFoundations.Saving
 
         #endregion
 
+
+        #endregion
+
         #region Progress Saves
 
-        public async void CreateProgressSave<T>(T save, string pathInSavesFolder, string saveName) where T: IProgressSave
+        public async void CreateProgressSave<T>(T save, string pathInSavesFolder, string saveName) where T: ISaveableProgress
         {
             string fileString = JsonUtility.ToJson(save);
             string folderPath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), pathInSavesFolder);
@@ -183,7 +268,7 @@ namespace Benito.ScriptingFoundations.Saving
             OnCreatingProgressSaveFileFinished?.Invoke();
         }
 
-        public T ReadProgressSave<T>(string saveFilePathInsideSavesFolder) where T: IProgressSave
+        public T ReadProgressSave<T>(string saveFilePathInsideSavesFolder) where T: ISaveableProgress
         {
             string fileContent;
             string path = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInsideSavesFolder) + ".json";
