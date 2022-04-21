@@ -297,7 +297,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         }
         public override bool IsFinished()
         {
-            return stage == Stage.Finished;
+            return stage == Stage.Finished || stage == Stage.PlayingEnterNextSceneFade;
         }
     }
 }
