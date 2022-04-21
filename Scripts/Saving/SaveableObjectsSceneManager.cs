@@ -148,7 +148,7 @@ namespace Benito.ScriptingFoundations.Saving
                     //Debug.Log("budgeted operation get save data: " + data + " at " + i);
                     if (data != null)
                     {
-                        //Debug.Log("budgeted operation add save data: " + data + " at " + i);
+                        Debug.Log("budgeted operation add save data: " + data + " at " + i);
 
                         objectsData.Add(data);
                     }
