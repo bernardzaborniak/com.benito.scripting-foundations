@@ -33,6 +33,9 @@ namespace Benito.ScriptingFoundations.Saving
         string createSavePathInSavesFolder;
         string createSaveName;
 
+        public Action OnCreatingSceneSaveFileFinished;
+        public Action OnCreatingProgressSaveFileFinished;
+
         public override void InitialiseManager()
         {
         }
@@ -99,6 +102,7 @@ namespace Benito.ScriptingFoundations.Saving
             CreateSceneSaveFileProgress = 0;
             createSavePathInSavesFolder = "";
             createSaveName = "";
+            OnCreatingSceneSaveFileFinished?.Invoke();
         }
 
         void OnGetJsonStringAsyncProgressUpdate(float progress)
@@ -173,7 +177,7 @@ namespace Benito.ScriptingFoundations.Saving
             string folderPath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), pathInSavesFolder);
             IOUtilities.EnsurePathExists(folderPath);
             await File.WriteAllTextAsync(Path.Combine(folderPath, saveName + ".json"), fileString);
-            Debug.Log("writing finished");
+            OnCreatingProgressSaveFileFinished?.Invoke();
         }
 
         public T ReadProgressSave<T>(string saveFilePathInsideSavesFolder) where T: IProgressSave
