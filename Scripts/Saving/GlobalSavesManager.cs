@@ -18,6 +18,7 @@ namespace Benito.ScriptingFoundations.Saving
     /// </summary>
     public class GlobalSavesManager : SingletonManagerGlobal
     {
+        #region Fields
         public enum State
         {
             Idle,
@@ -27,14 +28,16 @@ namespace Benito.ScriptingFoundations.Saving
         public State ManagerState { get; private set; }
 
         public float ReadSceneSaveFileProgress { get; private set; }
-
         public float CreateSceneSaveFileProgress { get; private set; }
+
         SaveableObjectsSceneManager sceneManagerForSavingScene;
         string createSavePathInSavesFolder;
         string createSaveName;
 
         public Action OnCreatingSceneSaveFileFinished;
         public Action OnCreatingProgressSaveFileFinished;
+
+        #endregion
 
         public override void InitialiseManager()
         {
@@ -73,7 +76,7 @@ namespace Benito.ScriptingFoundations.Saving
 
             if (sceneManagerForSavingScene == null)
             {
-                Debug.LogError("Saving for current only works if LocalSceneManagers with a SaveableObjectsSceneManageris present in the scene");
+                Debug.LogError("Saving for current only works if an LocalSceneManager with a SaveableObjectsSceneManager is present in the scene");
                 return;
             }
 
@@ -81,12 +84,14 @@ namespace Benito.ScriptingFoundations.Saving
             createSavePathInSavesFolder = pathInSavesFolder;
             createSaveName = saveName;
 
-            sceneManagerForSavingScene.SaveAllObjects();
             sceneManagerForSavingScene.OnSavingFinished += CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
+            sceneManagerForSavingScene.SaveAllObjects();
         }
 
         async void CreateSceneSaveForCurrentSceneOnSceneManagerFinished(List<SaveableObjectData> objectsData)
         {
+            Debug.Log("GlobalSavesManager.CreateSceneSaveForCurrentSceneOnSceneManagerFinished called, data length: "+ objectsData.Count);
+
             sceneManagerForSavingScene.OnSavingFinished -= CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
 
             SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsData);

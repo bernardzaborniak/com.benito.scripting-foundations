@@ -233,15 +233,17 @@ namespace Benito.ScriptingFoundations.Saving
 
         public void SaveAllObjects()
         {
-            Debug.Log("save all objecs called");
+            Debug.Log("SaveableObjectsSceneManager.SaveAllObjects called");
             ManagerState = State.SavingSceneSave;
             savingSceneOperation = new SavingSceneSaveBudgetedOperation(saveableObjects, SavingSettings.GetOrCreateSettings().savingSceneSaveBudgetPerFrame);
             savingSceneOperation.OnSavingFinished += OnSavingOperationFinished;
         }
 
-        void OnSavingOperationFinished(List<SaveableObjectData> objectsDate)
+        void OnSavingOperationFinished(List<SaveableObjectData> objectsData)
         {
-            OnSavingFinished?.Invoke(objectsDate);
+            Debug.Log("SaveableObjectsSceneManager.OnSavingOperationFinished called, data length: " + objectsData.Count);
+
+            OnSavingFinished?.Invoke(objectsData);
         }
 
        
