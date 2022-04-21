@@ -123,12 +123,8 @@ namespace Benito.ScriptingFoundations.Saving
             public float Progress { get; private set; }
             public float TimeBudget { get; private set; }
 
-
             List<SaveableObject> saveableObjects;
-
             public Action<List<SaveableObjectData>> OnSavingFinished;
-
-
             int lastStoppedIndex;
 
             public SavingSceneSaveBudgetedOperation(List<SaveableObject> saveableObjects, float timeBudget)
@@ -148,6 +144,7 @@ namespace Benito.ScriptingFoundations.Saving
                 for (int i = lastStoppedIndex; i < saveableObjects.Count; i++)
                 {
                     SaveableObjectData data = saveableObjects[i].Save();
+                    Debug.Log("budgeted operation get save data: " + data + " at " + i);
                     if (data != null)
                     {
                         objectsData.Add(data);
@@ -233,7 +230,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         public void SaveAllObjects()
         {
-            Debug.Log("SaveableObjectsSceneManager.SaveAllObjects called");
+            Debug.Log("SaveableObjectsSceneManager.SaveAllObjects called, saveable objects size: " + saveableObjects.Count);
             ManagerState = State.SavingSceneSave;
             savingSceneOperation = new SavingSceneSaveBudgetedOperation(saveableObjects, SavingSettings.GetOrCreateSettings().savingSceneSaveBudgetPerFrame);
             savingSceneOperation.OnSavingFinished += OnSavingOperationFinished;
