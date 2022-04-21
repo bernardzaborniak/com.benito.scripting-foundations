@@ -64,10 +64,6 @@ namespace Benito.ScriptingFoundations.Saving
 
         #region Scene Saves
 
-        /*public List<SceneSavegame> GetAvailableSceneSavegames()
-        {
-            return availableSceneSavegames;
-        }*/
         #region Create Scene Save
 
         /// <summary>
@@ -142,7 +138,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         #endregion
 
-        #region Load Scene Save
+        #region Load Scene Save Infos
 
         public List<(SceneSavegameInfo info, Texture2D image)> GetSceneSavegameInfosInsideFolder(string folderPathInSavesFolder)
         {
@@ -154,7 +150,7 @@ namespace Benito.ScriptingFoundations.Saving
             {
                 if(info.Extension == ".json")
                 {
-                    infoList.Add(GetSceneSavegameInfoAtPath(Path.Combine(folderPathInSavesFolder, info.Name)));
+                    infoList.Add(GetSceneSavegameInfoAtPath(Path.Combine(folderPathInSavesFolder, Path.GetFileNameWithoutExtension(info.FullName))));
                 }
             }
 
@@ -194,6 +190,10 @@ namespace Benito.ScriptingFoundations.Saving
 
             return infoTouple;
         }
+
+        #endregion
+
+        #region Load Scene Save
 
         /// <summary>
         ///  Write saveFilePathInSavesFolder without file extension. Called by save game scene transition.
