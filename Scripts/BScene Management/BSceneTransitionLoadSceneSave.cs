@@ -227,7 +227,12 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void OnExitTransitionSceneFadeFinished()
         {
+            if (exitTransitionSceneFade)
+                GameObject.Destroy(exitTransitionSceneFade.gameObject);
+
+            Debug.Log("null check 1: " + transitionScene);
             unloadSceneOperation = UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(transitionScene);
+            Debug.Log("null check 2 unloadSceneOperation: " + unloadSceneOperation);
             unloadSceneOperation.completed += OnUnloadTransitionSceneCompleted;
         }
 
