@@ -57,7 +57,7 @@ namespace Benito.ScriptingFoundations.Saving
             int[] saveableObjectIds;
             List<SaveableObjectData> objectsData;
             int creatingDictionaryStoppedAtIndex;
-            int callingLoadMethodStoppedAtIndex;
+            int lastStoppedIndex;
 
 
             Dictionary<int, SaveableObject> saveableObjectsIdDictionary;
@@ -70,7 +70,7 @@ namespace Benito.ScriptingFoundations.Saving
                 this.TimeBudget = timeBudget;
 
                 creatingDictionaryStoppedAtIndex = 0;
-                callingLoadMethodStoppedAtIndex = 0;
+                lastStoppedIndex = 0;
                 stage = Stage.CreatingDictionary;
 
                 saveableObjectsIdDictionary = new Dictionary<int, SaveableObject>();
@@ -98,13 +98,13 @@ namespace Benito.ScriptingFoundations.Saving
                 }
                 else if(stage == Stage.CallingLoadMethod)
                 {
-                    for (int i = callingLoadMethodStoppedAtIndex; i < objectsData.Count; i++)
+                    for (int i = lastStoppedIndex; i < objectsData.Count; i++)
                     {
                         saveableObjectsIdDictionary[objectsData[i].saveableObjectID].Load(objectsData[i]);
                         
                         if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                         {
-                            callingLoadMethodStoppedAtIndex = i;
+                            lastStoppedIndex = i+1;
                             Progress = (1f * saveableObjects.Count + i) / (1f * saveableObjects.Count + objectsData.Count);
                             return;
                         }
@@ -155,7 +155,7 @@ namespace Benito.ScriptingFoundations.Saving
 
                     if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                     {
-                        lastStoppedIndex = i;
+                        lastStoppedIndex = i+1;
                         Progress = (1f * i) / (1f * saveableObjects.Count);
                         return;
                     }
