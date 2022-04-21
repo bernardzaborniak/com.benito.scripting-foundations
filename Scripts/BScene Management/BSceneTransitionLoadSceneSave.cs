@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Benito.ScriptingFoundations.Saving;
 using Benito.ScriptingFoundations.Managers;
+//using UnityEngine.SceneManagement;
+using UnitysSceneManager = UnityEngine.SceneManagement.SceneManager;
 using System.Threading.Tasks;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
@@ -144,7 +146,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             if (exitCurrentSceneFade)
                 GameObject.Destroy(exitCurrentSceneFade.gameObject);
 
-            preloadSceneOperation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(targetScene, UnityEngine.SceneManagement.LoadSceneMode.Additive);
+            preloadSceneOperation = UnitysSceneManager.LoadSceneAsync(targetScene, UnityEngine.SceneManagement.LoadSceneMode.Additive);
             preloadSceneOperation.allowSceneActivation = false;
 
             globalSavesManager = GlobalManagers.Get<GlobalSavesManager>();
@@ -184,6 +186,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void OnLoadingNextSceneComplete(AsyncOperation asyncOperation)
         {
+            UnitysSceneManager.SetActiveScene(UnitysSceneManager.GetSceneByName(targetScene));
             preloadSceneOperation.completed -= OnLoadingNextSceneComplete;
             globalSavesManager = null;
             StartLoadingSavegame();
@@ -231,7 +234,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 GameObject.Destroy(exitTransitionSceneFade.gameObject);
 
             Debug.Log("null check 1: " + transitionScene);
-            unloadSceneOperation = UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(transitionScene);
+            unloadSceneOperation = UnitysSceneManager.UnloadSceneAsync(transitionScene);
             Debug.Log("null check 2 unloadSceneOperation: " + unloadSceneOperation);
             unloadSceneOperation.completed += OnUnloadTransitionSceneCompleted;
         }
