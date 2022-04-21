@@ -41,6 +41,10 @@ namespace Benito.ScriptingFoundations.Saving
         public Action OnCreatingSceneSaveFileFinished;
         public Action OnCreatingProgressSaveFileFinished; 
 
+        public Action OnLoadingSceneSaveFileCompleted; 
+
+
+
         #endregion
 
         public override void InitialiseManager()
@@ -250,6 +254,7 @@ namespace Benito.ScriptingFoundations.Saving
         {
             ManagerState = State.Idle;
             GlobalManagers.Get<BSceneManager>().OnTransitionFinishes -= OnTransitionToSavedSceneFinishes;
+            OnLoadingSceneSaveFileCompleted.Invoke();
         }
 
         #endregion
