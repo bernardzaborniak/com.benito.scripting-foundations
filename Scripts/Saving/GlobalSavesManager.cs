@@ -90,8 +90,6 @@ namespace Benito.ScriptingFoundations.Saving
 
         async void CreateSceneSaveForCurrentSceneOnSceneManagerFinished(List<SaveableObjectData> objectsData)
         {
-            Debug.Log("GlobalSavesManager.CreateSceneSaveForCurrentSceneOnSceneManagerFinished called, data length: "+ objectsData.Count);
-
             sceneManagerForSavingScene.OnSavingFinished -= CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
 
             SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsData);

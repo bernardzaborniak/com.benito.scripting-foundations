@@ -145,11 +145,8 @@ namespace Benito.ScriptingFoundations.Saving
                 for (int i = lastStoppedIndex; i < saveableObjects.Count; i++)
                 {
                     SaveableObjectData data = saveableObjects[i].Save();
-                    //Debug.Log("budgeted operation get save data: " + data + " at " + i);
                     if (data != null)
                     {
-                        Debug.Log("budgeted operation add save data: " + data + " at " + i);
-
                         objectsData.Add(data);
                     }
 
@@ -164,8 +161,6 @@ namespace Benito.ScriptingFoundations.Saving
                 Finished = true;
                 Debug.Log("invoke on saving fisnished");
                 OnSavingFinished?.Invoke(objectsData);
-
-                //GlobalManagers.Get<GlobalSavesManager>().CreateSceneSave(objectsData);
             }
         }
 
@@ -233,7 +228,6 @@ namespace Benito.ScriptingFoundations.Saving
 
         public void SaveAllObjects()
         {
-            Debug.Log("SaveableObjectsSceneManager.SaveAllObjects called, saveable objects size: " + saveableObjects.Count);
             ManagerState = State.SavingSceneSave;
             savingSceneOperation = new SavingSceneSaveBudgetedOperation(saveableObjects, SavingSettings.GetOrCreateSettings().savingSceneSaveBudgetPerFrame);
             savingSceneOperation.OnSavingFinished += OnSavingOperationFinished;
@@ -241,9 +235,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         void OnSavingOperationFinished(List<SaveableObjectData> objectsData)
         {
-            Debug.Log("SaveableObjectsSceneManager.OnSavingOperationFinished called, data length: " + objectsData.Count);
             savingSceneOperation.OnSavingFinished -= OnSavingOperationFinished;
-
             OnSavingFinished?.Invoke(objectsData);
         }
 
