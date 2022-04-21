@@ -76,17 +76,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         }
 
 
-        /// <summary>
-        /// Call this to allow exiting a transition scene.
-        /// </summary>
-        public void OnTransitionSceneAllowsContinuation()
-        {
-            if (stage == Stage.WaitingForTransitionSceneToAllowExit)
-            {
-                StartExitTransitionSceneFade();
-            }
-        }
-
         public override void UpdateTransition()
         {
             if(stage == Stage.WaitingForTransitionSceneToPreload)
@@ -211,6 +200,18 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             stage = Stage.WaitingForTransitionSceneToAllowExit;
             saveSceneManager = null;
+        }
+
+        /// <summary>
+        /// Call this to allow exiting a transition scene.
+        /// </summary>
+        public void OnTransitionSceneAllowsContinuation()
+        {
+            Debug.Log("OnTransitionSceneAllowsContinuation called");
+            if (stage == Stage.WaitingForTransitionSceneToAllowExit)
+            {
+                StartExitTransitionSceneFade();
+            }
         }
 
         void StartExitTransitionSceneFade()
