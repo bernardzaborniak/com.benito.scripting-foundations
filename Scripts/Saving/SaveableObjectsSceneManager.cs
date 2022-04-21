@@ -124,6 +124,7 @@ namespace Benito.ScriptingFoundations.Saving
             public float TimeBudget { get; private set; }
 
             List<SaveableObject> saveableObjects;
+            List<SaveableObjectData> objectsData
             public Action<List<SaveableObjectData>> OnSavingFinished;
             int lastStoppedIndex;
 
@@ -133,13 +134,13 @@ namespace Benito.ScriptingFoundations.Saving
                 this.TimeBudget = timeBudget;
                 lastStoppedIndex = 0;
                 Finished = false;
+                objectsData = new List<SaveableObjectData>();
+
             }
 
             public void Update(float deltaTime)
             {
                 float startUpdateTime = Time.realtimeSinceStartup;
-
-                List<SaveableObjectData> objectsData = new List<SaveableObjectData>();
 
                 for (int i = lastStoppedIndex; i < saveableObjects.Count; i++)
                 {
@@ -147,6 +148,8 @@ namespace Benito.ScriptingFoundations.Saving
                     Debug.Log("budgeted operation get save data: " + data + " at " + i);
                     if (data != null)
                     {
+                        Debug.Log("budgeted operation add save data: " + data + " at " + i);
+
                         objectsData.Add(data);
                     }
 
@@ -239,6 +242,7 @@ namespace Benito.ScriptingFoundations.Saving
         void OnSavingOperationFinished(List<SaveableObjectData> objectsData)
         {
             Debug.Log("SaveableObjectsSceneManager.OnSavingOperationFinished called, data length: " + objectsData.Count);
+            savingSceneOperation.OnSavingFinished -= OnSavingOperationFinished;
 
             OnSavingFinished?.Invoke(objectsData);
         }
