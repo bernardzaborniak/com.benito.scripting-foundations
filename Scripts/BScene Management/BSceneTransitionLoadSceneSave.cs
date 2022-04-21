@@ -235,6 +235,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             Debug.Log("null check 1: " + transitionScene);
             unloadSceneOperation = UnitysSceneManager.UnloadSceneAsync(transitionScene);
+            Debug.Log("null check 2 active scene: " + UnitysSceneManager.GetActiveScene().name);
             Debug.Log("null check 2 unloadSceneOperation: " + unloadSceneOperation);
             unloadSceneOperation.completed += OnUnloadTransitionSceneCompleted;
         }
