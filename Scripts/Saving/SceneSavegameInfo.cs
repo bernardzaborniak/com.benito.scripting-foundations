@@ -14,17 +14,15 @@ namespace Benito.ScriptingFoundations.Saving
         public SceneSavegameType savegameType;
         public string unitySceneName;
         public string missionName;
-        public string dateCreated;
-        public string timeCreated;
+        public string dateTimeCreated;
 
-        public SceneSavegameInfo(string savegameName, SceneSavegameType savegameType, string unitySceneName, string missionName, string dateCreated)
+        public SceneSavegameInfo(string savegameName, SceneSavegameType savegameType, string unitySceneName, string missionName)
         {
             this.savegameName = savegameName;
             this.savegameType = savegameType;
             this.unitySceneName = unitySceneName;
             this.missionName = missionName;
-            this.dateCreated = dateCreated;
-            this.timeCreated = System.DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss");
+            this.dateTimeCreated = System.DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss");
         }
     }
 }
