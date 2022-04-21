@@ -49,6 +49,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             LoadingSaveFile,
             WaitingForTransitionSceneToAllowExit,
             PlayingExitTransitionSceneFade,
+            WaitingForTransitionSceneToUnload,
             PlayingEnterNextSceneFade,
             Finished
         }
@@ -207,7 +208,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         /// </summary>
         public void OnTransitionSceneAllowsContinuation()
         {
-            Debug.Log("OnTransitionSceneAllowsContinuation called");
             if (stage == Stage.WaitingForTransitionSceneToAllowExit)
             {
                 StartExitTransitionSceneFade();
@@ -234,10 +234,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             if (exitTransitionSceneFade)
                 GameObject.Destroy(exitTransitionSceneFade.gameObject);
 
-            Debug.Log("null check 1: " + transitionScene);
+            stage = Stage.WaitingForTransitionSceneToUnload;
             unloadSceneOperation = UnitysSceneManager.UnloadSceneAsync(transitionScene);
-            Debug.Log("null check 2 active scene: " + UnitysSceneManager.GetActiveScene().name);
-            Debug.Log("null check 2 unloadSceneOperation: " + unloadSceneOperation);
             unloadSceneOperation.completed += OnUnloadTransitionSceneCompleted;
         }
 
