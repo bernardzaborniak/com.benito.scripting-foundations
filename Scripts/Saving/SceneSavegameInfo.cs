@@ -22,7 +22,7 @@ namespace Benito.ScriptingFoundations.Saving
             this.savegameType = savegameType;
             this.unitySceneName = unitySceneName;
             this.missionName = missionName;
-            this.dateTimeCreated = System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+            this.dateTimeCreated = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
         }
     }
 }
