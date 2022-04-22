@@ -277,14 +277,23 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         {
             if (stage == Stage.WaitingForNextSceneToPreloadAndSaveToRead)
             {
+                Debug.Log("GetProgress: stage " + stage);
+                Debug.Log("GetProgress: value " + (preloadSceneOperation.progress / 0.9f * 0.1f + (globalSavesManager.ReadSceneSaveFileProgress * 0.2f)));
+
                 return preloadSceneOperation.progress / 0.9f * 0.1f + (globalSavesManager.ReadSceneSaveFileProgress*0.2f);
             }
             else if (stage == Stage.LoadingSaveFile)
             {
+                Debug.Log("GetProgress: stage " + stage);
+                Debug.Log("GetProgress: value " + (0.3f + saveSceneManager.LoadingProgress * 0.5f));
+
                 return 0.3f + saveSceneManager.LoadingProgress *0.5f;
             }
             else if (stage == Stage.WaitingForTransitionSceneToAllowExit)
             {
+                Debug.Log("GetProgress: stage " + stage);
+                Debug.Log("GetProgress: value " + 1);
+
                 return 1;
             }
 
