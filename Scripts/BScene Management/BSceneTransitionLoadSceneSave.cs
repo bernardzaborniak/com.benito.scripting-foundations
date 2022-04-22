@@ -178,8 +178,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void OnLoadingNextSceneComplete(AsyncOperation asyncOperation)
         {
-            Debug.LogError("null check: preloadSceneOperation is null " + (preloadSceneOperation == null));
-            Debug.LogError("null check: UnitysSceneManager.GetSceneByName(targetScene) " + UnitysSceneManager.GetSceneByName(targetScene));
             preloadSceneOperation.completed -= OnLoadingNextSceneComplete;
             UnitysSceneManager.SetActiveScene(UnitysSceneManager.GetSceneByName(targetScene));
             globalSavesManager = null;
