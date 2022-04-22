@@ -176,8 +176,10 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void OnLoadingNextSceneComplete(AsyncOperation asyncOperation)
         {
-            UnitysSceneManager.SetActiveScene(UnitysSceneManager.GetSceneByName(targetScene));
+            Debug.LogError("null check: preloadSceneOperation is null" + (preloadSceneOperation == null));
+            Debug.LogError("null check: UnitysSceneManager.GetSceneByName(targetScene)" + UnitysSceneManager.GetSceneByName(targetScene));
             preloadSceneOperation.completed -= OnLoadingNextSceneComplete;
+            UnitysSceneManager.SetActiveScene(UnitysSceneManager.GetSceneByName(targetScene));
             globalSavesManager = null;
             StartLoadingSavegame();
         }
@@ -195,9 +197,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         void OnLoadingSavegameFinished()
         {
             saveSceneManager.OnLoadingFinished -= OnLoadingSavegameFinished;
-
-            if (exitTransitionSceneFade)
-                GameObject.Destroy(exitTransitionSceneFade.gameObject);
 
             stage = Stage.WaitingForTransitionSceneToAllowExit;
             saveSceneManager = null;
