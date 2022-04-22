@@ -46,6 +46,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             WaitingForTransitionSceneToPreload,
             PlayingEnterTransitionSceneFade,
             WaitingForNextSceneToPreloadAndSaveToRead,
+            WaitingForNextSceneToFullyLoad,
             LoadingSaveFile,
             WaitingForTransitionSceneToAllowExit,
             PlayingExitTransitionSceneFade,
@@ -170,14 +171,15 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void OnNextSceneFinishedPreloadingAndSavefileFinishedReading()
         {
+            stage = Stage.WaitingForNextSceneToFullyLoad;
             preloadSceneOperation.allowSceneActivation = true;
             preloadSceneOperation.completed += OnLoadingNextSceneComplete;
         }
 
         void OnLoadingNextSceneComplete(AsyncOperation asyncOperation)
         {
-            Debug.LogError("null check: preloadSceneOperation is null" + (preloadSceneOperation == null));
-            Debug.LogError("null check: UnitysSceneManager.GetSceneByName(targetScene)" + UnitysSceneManager.GetSceneByName(targetScene));
+            Debug.LogError("null check: preloadSceneOperation is null " + (preloadSceneOperation == null));
+            Debug.LogError("null check: UnitysSceneManager.GetSceneByName(targetScene) " + UnitysSceneManager.GetSceneByName(targetScene));
             preloadSceneOperation.completed -= OnLoadingNextSceneComplete;
             UnitysSceneManager.SetActiveScene(UnitysSceneManager.GetSceneByName(targetScene));
             globalSavesManager = null;
