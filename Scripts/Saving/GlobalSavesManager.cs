@@ -107,7 +107,8 @@ namespace Benito.ScriptingFoundations.Saving
 
             // 1. Create actual Savefile
             var progress = new Progress<float>(OnGetJsonStringAsyncProgressUpdate);
-            string contents = await SceneSavegameUtility.ConvertSaveGameToJsonStringAsync(save, progress);
+            //string contents = await SceneSavegameUtility.ConvertSaveGameToJsonStringAsync(save, progress);
+            string contents = "";
             string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), createSceneSavePathInSavesFolder);
             IOUtilities.EnsurePathExists(savePath);
             //await File.WriteAllTextAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".bsave"), contents);
