@@ -226,7 +226,7 @@ namespace Benito.ScriptingFoundations.Saving
         public void SaveAllObjects()
         {
             ManagerState = State.SavingSceneSave;
-            savingSceneOperation = new SavingSceneSaveBudgetedOperation(saveableObjects, SavingSettings.GetOrCreateSettings().savingSceneSaveBudgetPerFrame);
+            savingSceneOperation = new SavingSceneSaveBudgetedOperation(saveableObjects, SavingSettings.GetOrCreateSettings().savingSceneSaveMsBudgetPerFrame /1000);
             savingSceneOperation.OnSavingFinished += OnSavingOperationFinished;
         }
 
@@ -242,7 +242,7 @@ namespace Benito.ScriptingFoundations.Saving
         {
             ManagerState = State.LoadingSceneSave;
 
-            loadingSceneOperation = new LoadingSceneSaveBudgetedOperation(saveableObjects, saveableObjectIds, objectsData, SavingSettings.GetOrCreateSettings().loadingSceneSaveBudgetPerFrame);
+            loadingSceneOperation = new LoadingSceneSaveBudgetedOperation(saveableObjects, saveableObjectIds, objectsData, SavingSettings.GetOrCreateSettings().loadingSceneSaveMsBudgetPerFrame/1000);
         }
     }
 }
