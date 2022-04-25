@@ -1,4 +1,3 @@
-//#define ENABLE_LOGS
 
 using System.Diagnostics;
 using System.Collections;
@@ -8,6 +7,7 @@ using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.Pools;
 using TMPro;
 using Debug = UnityEngine.Debug;
+using UnityEngine.Profiling;
 
 
 namespace Benito.ScriptingFoundations.BDebug
@@ -71,7 +71,9 @@ namespace Benito.ScriptingFoundations.BDebug
 
         public void LateUpdate()
         {
-            if(Camera.main == null)
+            Profiler.BeginSample("BDebug. Late Update");
+
+            if (Camera.main == null)
             {
                 Debug.LogWarning("BDebugManager wont render, as there is no camera main present");
             }
@@ -216,6 +218,9 @@ namespace Benito.ScriptingFoundations.BDebug
             drawMeshCommands.Clear();
             drawTextCommands.Clear();
             drawLinesCommands.Clear();
+
+            Profiler.EndSample();
+
         }
 
         public void AddDrawMeshCommand(BDebugDrawMeshCommand command)
