@@ -114,7 +114,8 @@ namespace Benito.ScriptingFoundations.Saving
 
             // 2. Create Saveinfo and 
             string saveInfoContanets = JsonUtility.ToJson(createSceneSaveInfo);
-            await File.WriteAllTextAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".json"), saveInfoContanets);
+            Debug.Log("I SHOULD BE WRITING HERE");
+            //await File.WriteAllTextAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".json"), saveInfoContanets);
             
             // 3. Create optional preview Image
             if(createSavePreviewImage != null)
