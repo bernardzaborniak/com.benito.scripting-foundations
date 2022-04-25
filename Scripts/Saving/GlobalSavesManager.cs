@@ -95,7 +95,7 @@ namespace Benito.ScriptingFoundations.Saving
             createSceneSaveInfo = savegameInfo;
             createSavePreviewImage = savegamePreviewImage;
 
-            //sceneManagerForSavingScene.OnSavingFinished += CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
+            sceneManagerForSavingScene.OnSavingFinished += CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
             sceneManagerForSavingScene.SaveAllObjects();
         }
 
