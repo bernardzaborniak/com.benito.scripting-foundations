@@ -70,10 +70,11 @@ namespace Benito.ScriptingFoundations.Saving
 
             SceneSavegame savegame;
             int lastStoppedIndex;
-
             StringBuilder stringBuilder;
 
             public Action<string> OnCreatingJsonStringFinished;
+
+            bool waitedOneFrameBeforeInvokingOnFinished;
 
             public CreateSceneSaveJsonStringBudgetedOperation(SceneSavegame savegame, float timeBudget)
             {
@@ -81,6 +82,7 @@ namespace Benito.ScriptingFoundations.Saving
                 this.TimeBudget = timeBudget;
                 lastStoppedIndex = 0;
                 Finished = false;
+                waitedOneFrameBeforeInvokingOnFinished = false;
 
                 stringBuilder = new StringBuilder(savegame.SceneName + "\n", savegame.SavedObjects.Count * 200);
             }
@@ -108,12 +110,23 @@ namespace Benito.ScriptingFoundations.Saving
                         return;
                     }
                 }
-                Progress = 1;
-                Finished = true;
-                //Debug.Log("invoke on saving fisnished");
-                OnCreatingJsonStringFinished?.Invoke(stringBuilder.ToString());
-                Profiler.EndSample();
 
+                lastStoppedIndex = savegame.SavedObjects.Count;
+                Progress = 1;
+
+                if (waitedOneFrameBeforeInvokingOnFinished)
+                {
+                    Finished = true;
+                    //Debug.Log("invoke on saving fisnished");
+                    OnCreatingJsonStringFinished?.Invoke(stringBuilder.ToString());
+
+                }
+                else
+                {
+                    waitedOneFrameBeforeInvokingOnFinished = true;
+                }
+
+                Profiler.EndSample();
 
             }
         }
