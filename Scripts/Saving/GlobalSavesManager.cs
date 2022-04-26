@@ -209,11 +209,13 @@ namespace Benito.ScriptingFoundations.Saving
 
             string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), createSceneSavePathInSavesFolder);
             IOUtilities.EnsurePathExists(savePath);
-            await File.WriteAllTextAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".bsave"), jsonString);
+            //await File.WriteAllTextAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".bsave"), jsonString);
+            File.WriteAllText(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".bsave"), jsonString);
 
             // 2. Create Saveinfo and 
             string saveInfoContent = JsonUtility.ToJson(createSceneSaveInfo);
-            await File.WriteAllTextAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".json"), saveInfoContent);
+            //await File.WriteAllTextAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".json"), saveInfoContent);
+            File.WriteAllText(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".json"), saveInfoContent);
 
             // 3. Create optional preview Image
             if (createSavePreviewImage != null)
