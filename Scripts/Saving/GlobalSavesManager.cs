@@ -8,6 +8,7 @@ using Benito.ScriptingFoundations.Utilities;
 using Benito.ScriptingFoundations.Optimisation;
 using System.IO;
 using System;
+using System.Text;
 using System.Threading.Tasks;
 
 using Debug = UnityEngine.Debug;
@@ -68,8 +69,9 @@ namespace Benito.ScriptingFoundations.Saving
             public float TimeBudget { get; private set; }
 
             SceneSavegame savegame;
-            string jsonString;
             int lastStoppedIndex;
+
+            StringBuilder stringBuilder;
 
             public Action<string> OnCreatingJsonStringFinished;
 
@@ -80,7 +82,7 @@ namespace Benito.ScriptingFoundations.Saving
                 lastStoppedIndex = 0;
                 Finished = false;
 
-                jsonString = savegame.SceneName + "\n";
+                stringBuilder = new StringBuilder(savegame.SceneName + "\n", savegame.SavedObjects.Count * 200);
             }
 
             public void Update(float deltaTime)
@@ -92,7 +94,7 @@ namespace Benito.ScriptingFoundations.Saving
 
                 for (int i = lastStoppedIndex; i < savegame.SavedObjects.Count; i++)
                 {
-                    jsonString += JsonUtility.ToJson(savegame.SavedObjects[i], false) + "\n";
+                    stringBuilder.AppendLine(JsonUtility.ToJson(savegame.SavedObjects[i], false);// + "\n";
 
                     //Debug.Log("check CreateSceneSaveJsonStringBudgetedOperation: Time.realtimeSinceStartup" + Time.realtimeSinceStartup + " Time.realtimeSinceStartup - startUpdateTime " + ((Time.realtimeSinceStartup - startUpdateTime)*1000).ToString("F2"));
                     if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
@@ -109,7 +111,7 @@ namespace Benito.ScriptingFoundations.Saving
                 Progress = 1;
                 Finished = true;
                 //Debug.Log("invoke on saving fisnished");
-                OnCreatingJsonStringFinished?.Invoke(jsonString);
+                OnCreatingJsonStringFinished?.Invoke(stringBuilder.ToString());
                 Profiler.EndSample();
 
 
