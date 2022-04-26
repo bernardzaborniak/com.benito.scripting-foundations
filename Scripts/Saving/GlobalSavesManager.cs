@@ -114,19 +114,20 @@ namespace Benito.ScriptingFoundations.Saving
                 lastStoppedIndex = savegame.SavedObjects.Count;
                 Progress = 1;
 
+                Profiler.EndSample();
+
                 if (waitedOneFrameBeforeInvokingOnFinished)
                 {
                     Finished = true;
                     //Debug.Log("invoke on saving fisnished");
                     OnCreatingJsonStringFinished?.Invoke(stringBuilder.ToString());
-
                 }
                 else
                 {
                     waitedOneFrameBeforeInvokingOnFinished = true;
                 }
 
-                Profiler.EndSample();
+              
 
             }
         }
