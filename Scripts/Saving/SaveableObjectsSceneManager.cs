@@ -149,7 +149,6 @@ namespace Benito.ScriptingFoundations.Saving
 
                     if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                     {
-                        Debug.Log("stopped budgeted save operation after : " + ((Time.realtimeSinceStartup - startUpdateTime) / 1000) + " ms");
                         lastStoppedIndex = i+1;
                         Progress = (1f * i) / (1f * saveableObjects.Count);
                         return;
@@ -157,7 +156,6 @@ namespace Benito.ScriptingFoundations.Saving
                 }
                 Progress = 1;
                 Finished = true;
-                Debug.Log("invoke on saving fisnished");
                 OnSavingFinished?.Invoke(objectsData);
             }
         }

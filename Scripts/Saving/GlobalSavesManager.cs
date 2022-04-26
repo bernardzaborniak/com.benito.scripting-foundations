@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.BSceneManagement;
 using Benito.ScriptingFoundations.Utilities;
@@ -88,6 +89,8 @@ namespace Benito.ScriptingFoundations.Saving
 
             public void Update(float deltaTime)
             {
+                Profiler.BeginSample("GlobalSavesManager.CreateSceneSaveJsonStringBudgetedOperation.Update");
+
                 float startUpdateTime = Time.realtimeSinceStartup;
 
                 for (int i = lastStoppedIndex; i < savegame.SavedObjects.Count; i++)
@@ -99,12 +102,14 @@ namespace Benito.ScriptingFoundations.Saving
                         lastStoppedIndex = i + 1;
                         Progress = (1.0f * i) / savegame.SavedObjects.Count;
 
+                        Profiler.EndSample();
                         return;
                     }
                 }
 
                 lastStoppedIndex = savegame.SavedObjects.Count;
                 Progress = 1;
+                Profiler.EndSample();
 
                 if (waitedOneFrameBeforeInvokingOnFinished)
                 {
@@ -197,6 +202,8 @@ namespace Benito.ScriptingFoundations.Saving
 
         void OnCreatingSceneSaveJsonStringFinished(string jsonString)
         {
+            Profiler.BeginSample("GlobalSavesManager.OnCreatingSceneSaveJsonStringFinished");
+
             createSceneSaveJsonStringBudgetedOperation.OnCreatingJsonStringFinished -= OnCreatingSceneSaveJsonStringFinished;
 
             CreatingSceneSaveState = SceneSavingState.WritingToFile;
@@ -227,6 +234,8 @@ namespace Benito.ScriptingFoundations.Saving
 
             // 5. Call callbacks
             OnCreatingSceneSaveFileFinished?.Invoke();
+
+            Profiler.EndSample();
         }
 
         void OnGetJsonStringAsyncProgressUpdate(float progress)
