@@ -28,6 +28,17 @@ namespace Benito.ScriptingFoundations.Saving
         }
         public State ManagerState { get; private set; }
 
+        public enum SceneSavingState 
+        { 
+            Idle,
+            SceneManagerIsSavingObjects,
+            CreatingJsonString,
+            WritingToFile
+        }
+
+        public SceneSavingState CreatingSceneSaveState { get; private set; }
+
+
         // Progress
         public float ReadSceneSaveFileProgress { get; private set; }
         public float CreateSceneSaveFileProgress { get; private set; }
@@ -99,6 +110,8 @@ namespace Benito.ScriptingFoundations.Saving
 
         public override void InitialiseManager()
         {
+            ManagerState = State.Idle;
+            CreatingSceneSaveState = SceneSavingState.Idle;
         }
 
         public override void UpdateManager()
@@ -112,6 +125,11 @@ namespace Benito.ScriptingFoundations.Saving
                 else
                 {
                     CreateSceneSaveFileProgress = 0.2f + CreateSceneSaveFileProgress * 0.8f;
+                }
+
+                if(CreatingSceneSaveState == SceneSavingState.CreatingJsonString)
+                {
+                    createSceneSaveJsonStringBudgetedOperation.Update(Time.deltaTime);
                 }
             }
         }
@@ -141,6 +159,8 @@ namespace Benito.ScriptingFoundations.Saving
             }
 
             ManagerState = State.CreatingSceneSave;
+            CreatingSceneSaveState = SceneSavingState.SceneManagerIsSavingObjects;
+
             createSceneSavePathInSavesFolder = pathInSavesFolder;
             createSceneSaveInfo = savegameInfo;
             createSavePreviewImage = savegamePreviewImage;
@@ -159,13 +179,17 @@ namespace Benito.ScriptingFoundations.Saving
             //var progress = new Progress<float>(OnGetJsonStringAsyncProgressUpdate);
             //string contents = await SceneSavegameUtility.ConvertSaveGameToJsonStringAsync(save, progress);
             //string contents = "";
-            createSceneSaveJsonStringBudgetedOperation.OnCreatingJsonStringFinished += OnCreatingSceneSaveJsonStringFinished;
             createSceneSaveJsonStringBudgetedOperation = new CreateSceneSaveJsonStringBudgetedOperation(save, SavingSettings.GetOrCreateSettings().savingSceneSaveMsBudgetPerFrame / 1000);
+            createSceneSaveJsonStringBudgetedOperation.OnCreatingJsonStringFinished += OnCreatingSceneSaveJsonStringFinished;
+            CreatingSceneSaveState = SceneSavingState.CreatingJsonString;
+
         }
 
         async void OnCreatingSceneSaveJsonStringFinished(string jsonString)
         {
             createSceneSaveJsonStringBudgetedOperation.OnCreatingJsonStringFinished -= OnCreatingSceneSaveJsonStringFinished;
+
+            CreatingSceneSaveState = SceneSavingState.WritingToFile;
 
             string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), createSceneSavePathInSavesFolder);
             IOUtilities.EnsurePathExists(savePath);
@@ -184,6 +208,7 @@ namespace Benito.ScriptingFoundations.Saving
 
             // 4. Reset Values after completing Save
             ManagerState = State.Idle;
+            CreatingSceneSaveState = SceneSavingState.Idle;
             sceneManagerForSavingScene = null;
             CreateSceneSaveFileProgress = 0;
             createSceneSavePathInSavesFolder = "";
