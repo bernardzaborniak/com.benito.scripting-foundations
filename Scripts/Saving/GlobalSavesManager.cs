@@ -4,6 +4,7 @@ using UnityEngine;
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.BSceneManagement;
 using Benito.ScriptingFoundations.Utilities;
+using Benito.ScriptingFoundations.Optimisation;
 using System.IO;
 using System;
 using System.Threading.Tasks;
@@ -41,9 +42,57 @@ namespace Benito.ScriptingFoundations.Saving
         public Action OnCreatingSceneSaveFileFinished;
         public Action OnCreatingProgressSaveFileFinished; 
 
-        public Action OnLoadingSceneSaveFileCompleted; 
+        public Action OnLoadingSceneSaveFileCompleted;
 
 
+        #region Budgeted Operation
+
+        public class CreateSceneSaveJsonStringBudgetedOperation : IBudgetedOperation
+        {
+            public bool Finished { get; private set; }
+            public float Progress { get; private set; }
+            public float TimeBudget { get; private set; }
+
+            SceneSavegame savegame;
+            string jsonString;
+            int lastStoppedIndex;
+
+            public Action<string> OnCreatingJsonStringFinished;
+
+            public CreateSceneSaveJsonStringBudgetedOperation(SceneSavegame savegame, float timeBudget)
+            {
+                this.savegame = savegame;
+                this.TimeBudget = timeBudget;
+                lastStoppedIndex = 0;
+                Finished = false;
+
+                jsonString = savegame.SceneName + "\n";
+            }
+
+            public void Update(float deltaTime)
+            {
+                float startUpdateTime = Time.realtimeSinceStartup;
+
+                for (int i = lastStoppedIndex; i < savegame.SavedObjects.Count; i++)
+                {
+                    jsonString += JsonUtility.ToJson(savegame.SavedObjects[i], false) + "\n";
+                   
+                    if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
+                    {
+                        Debug.Log("stopped budgeted save operation after : " + ((Time.realtimeSinceStartup - startUpdateTime) / 1000) + " ms");
+                        lastStoppedIndex = i + 1;
+                        Progress = (1.0f * i) / savegame.SavedObjects.Count;
+                        return;
+                    }
+                }
+                Progress = 1;
+                Finished = true;
+                Debug.Log("invoke on saving fisnished");
+                OnCreatingJsonStringFinished?.Invoke(jsonString);
+            }
+        }
+
+        CreateSceneSaveJsonStringBudgetedOperation createSceneSaveJsonStringBudgetedOperation;
 
         #endregion
 
@@ -99,29 +148,37 @@ namespace Benito.ScriptingFoundations.Saving
             sceneManagerForSavingScene.SaveAllObjects();
         }
 
-        async void CreateSceneSaveForCurrentSceneOnSceneManagerFinished(List<SaveableSceneObjectData> objectsData)
+        void CreateSceneSaveForCurrentSceneOnSceneManagerFinished(List<SaveableSceneObjectData> objectsData)
         {
             sceneManagerForSavingScene.OnSavingFinished -= CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
 
             SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsData);
 
             // 1. Create actual Savefile
-            var progress = new Progress<float>(OnGetJsonStringAsyncProgressUpdate);
+            //var progress = new Progress<float>(OnGetJsonStringAsyncProgressUpdate);
             //string contents = await SceneSavegameUtility.ConvertSaveGameToJsonStringAsync(save, progress);
-            string contents = "";
+            //string contents = "";
+            createSceneSaveJsonStringBudgetedOperation.OnCreatingJsonStringFinished += OnCreatingSceneSaveJsonStringFinished;
+            createSceneSaveJsonStringBudgetedOperation = new CreateSceneSaveJsonStringBudgetedOperation(save, SavingSettings.GetOrCreateSettings().savingSceneSaveMsBudgetPerFrame / 1000);
+        }
+
+        async void OnCreatingSceneSaveJsonStringFinished(string jsonString)
+        {
+            createSceneSaveJsonStringBudgetedOperation.OnCreatingJsonStringFinished -= OnCreatingSceneSaveJsonStringFinished;
+
             string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), createSceneSavePathInSavesFolder);
             IOUtilities.EnsurePathExists(savePath);
-            await File.WriteAllTextAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".bsave"), contents);
+            await File.WriteAllTextAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".bsave"), jsonString);
 
             // 2. Create Saveinfo and 
-            string saveInfoContanets = JsonUtility.ToJson(createSceneSaveInfo);
-            await File.WriteAllTextAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".json"), saveInfoContanets);
-            
+            string saveInfoContent = JsonUtility.ToJson(createSceneSaveInfo);
+            await File.WriteAllTextAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".json"), saveInfoContent);
+
             // 3. Create optional preview Image
-            if(createSavePreviewImage != null)
+            if (createSavePreviewImage != null)
             {
-                byte[] bytes = createSavePreviewImage.EncodeToPNG();
-                await File.WriteAllBytesAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".png"), bytes);
+                byte[] imageBytes = createSavePreviewImage.EncodeToPNG();
+                await File.WriteAllBytesAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".png"), imageBytes);
             }
 
             // 4. Reset Values after completing Save

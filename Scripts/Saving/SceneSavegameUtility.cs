@@ -87,6 +87,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         /// <summary>
         /// This ist actually Json but a kind of custom format
+        /// WARNING: This method does not seem to work in other threads - JSON Utulity does not seem to be trhead safe :(
         /// </summary>
         public static async Task<string> ConvertSaveGameToJsonStringAsync(SceneSavegame savegame, IProgress<float> progress = null)
         {
