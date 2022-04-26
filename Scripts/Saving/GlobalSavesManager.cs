@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.BSceneManagement;
 using Benito.ScriptingFoundations.Utilities;
@@ -61,6 +62,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         public class CreateSceneSaveJsonStringBudgetedOperation : IBudgetedOperation
         {
+
             public bool Finished { get; private set; }
             public float Progress { get; private set; }
             public float TimeBudget { get; private set; }
@@ -83,17 +85,24 @@ namespace Benito.ScriptingFoundations.Saving
 
             public void Update(float deltaTime)
             {
+                Profiler.BeginSample("Create JSON Budgeted");
+
+
                 float startUpdateTime = Time.realtimeSinceStartup;
 
                 for (int i = lastStoppedIndex; i < savegame.SavedObjects.Count; i++)
                 {
                     jsonString += JsonUtility.ToJson(savegame.SavedObjects[i], false) + "\n";
-                   
+
+                    Debug.Log("check CreateSceneSaveJsonStringBudgetedOperation: Time.realtimeSinceStartup" + Time.realtimeSinceStartup + " Time.realtimeSinceStartup - startUpdateTime" + (Time.realtimeSinceStartup - startUpdateTime));
                     if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                     {
                         Debug.Log("stopped CreateSceneSaveJsonStringBudgetedOperation  operation after : " + ((Time.realtimeSinceStartup - startUpdateTime) / 1000) + " ms");
                         lastStoppedIndex = i + 1;
                         Progress = (1.0f * i) / savegame.SavedObjects.Count;
+
+                        Profiler.EndSample();
+
                         return;
                     }
                 }
@@ -101,6 +110,9 @@ namespace Benito.ScriptingFoundations.Saving
                 Finished = true;
                 Debug.Log("invoke on saving fisnished");
                 OnCreatingJsonStringFinished?.Invoke(jsonString);
+                Profiler.EndSample();
+
+
             }
         }
 
