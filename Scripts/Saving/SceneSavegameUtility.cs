@@ -83,38 +83,6 @@ namespace Benito.ScriptingFoundations.Saving
             }
 
             return jsonString;
-        }
-
-        /// <summary>
-        /// This ist actually Json but a kind of custom format
-        /// WARNING: This method does not seem to work in other threads - JSON Utulity does not seem to be trhead safe :(
-        /// </summary>
-        public static async Task<string> ConvertSaveGameToJsonStringAsync(SceneSavegame savegame, IProgress<float> progress = null)
-        {
-            //List<SaveableObjectData> savedObjectsUsed = new List<SaveableObjectData>(savedObjects);
-
-            var result = await Task.Run(() =>
-            {
-                // Workaround, because erializing one by one works, but whole list doesnt :(
-                string jsonString = savegame.SceneName + "\n";
-
-                for (int i = 0; i < savegame.SavedObjects.Count; i++)
-                {
-                    /*jsonString += " wwdwddwwdwdwdwdwd";
-                    for (int j = 0; j < 50000; j++)
-                    {
-                        float y = Mathf.Sqrt(3);
-                    }*/
-                    jsonString += JsonUtility.ToJson(savegame.SavedObjects[i], false) + "\n";
-                    progress?.Report((1.0f * i) / savegame.SavedObjects.Count);
-                }
-
-                return jsonString;
-            });
-
-            //savedObjects = savedObjectsUsed;
-
-            return result;
-        }
+        }   
     }
 }

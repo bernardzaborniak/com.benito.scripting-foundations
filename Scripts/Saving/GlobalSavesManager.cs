@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Profiling;
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.BSceneManagement;
 using Benito.ScriptingFoundations.Utilities;
@@ -89,23 +88,16 @@ namespace Benito.ScriptingFoundations.Saving
 
             public void Update(float deltaTime)
             {
-                Profiler.BeginSample("Create JSON Budgeted");
-
-
                 float startUpdateTime = Time.realtimeSinceStartup;
 
                 for (int i = lastStoppedIndex; i < savegame.SavedObjects.Count; i++)
                 {
-                    stringBuilder.AppendLine(JsonUtility.ToJson(savegame.SavedObjects[i], false));// + "\n";
+                    stringBuilder.AppendLine(JsonUtility.ToJson(savegame.SavedObjects[i], false));
 
-                    //Debug.Log("check CreateSceneSaveJsonStringBudgetedOperation: Time.realtimeSinceStartup" + Time.realtimeSinceStartup + " Time.realtimeSinceStartup - startUpdateTime " + ((Time.realtimeSinceStartup - startUpdateTime)*1000).ToString("F2"));
                     if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                     {
-                        //Debug.Log("stopped CreateSceneSaveJsonStringBudgetedOperation  operation after : " + ((Time.realtimeSinceStartup - startUpdateTime) * 1000).ToString("F2") + " ms");
                         lastStoppedIndex = i + 1;
                         Progress = (1.0f * i) / savegame.SavedObjects.Count;
-
-                        Profiler.EndSample();
 
                         return;
                     }
@@ -114,21 +106,15 @@ namespace Benito.ScriptingFoundations.Saving
                 lastStoppedIndex = savegame.SavedObjects.Count;
                 Progress = 1;
 
-                Profiler.EndSample();
-
                 if (waitedOneFrameBeforeInvokingOnFinished)
                 {
                     Finished = true;
-                    //Debug.Log("invoke on saving fisnished");
                     OnCreatingJsonStringFinished?.Invoke(stringBuilder.ToString());
                 }
                 else
                 {
                     waitedOneFrameBeforeInvokingOnFinished = true;
-                }
-
-              
-
+                }           
             }
         }
 
@@ -203,10 +189,6 @@ namespace Benito.ScriptingFoundations.Saving
 
             SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsData);
 
-            // 1. Create actual Savefile
-            //var progress = new Progress<float>(OnGetJsonStringAsyncProgressUpdate);
-            //string contents = await SceneSavegameUtility.ConvertSaveGameToJsonStringAsync(save, progress);
-            //string contents = "";
             createSceneSaveJsonStringBudgetedOperation = new CreateSceneSaveJsonStringBudgetedOperation(save, SavingSettings.GetOrCreateSettings().savingSceneSaveMsBudgetPerFrame / 1000);
             createSceneSaveJsonStringBudgetedOperation.OnCreatingJsonStringFinished += OnCreatingSceneSaveJsonStringFinished;
             CreatingSceneSaveState = SceneSavingState.CreatingJsonString;
@@ -215,22 +197,16 @@ namespace Benito.ScriptingFoundations.Saving
 
         void OnCreatingSceneSaveJsonStringFinished(string jsonString)
         {
-            Profiler.BeginSample("Write Files");
-
-            float timeAtStart = Time.realtimeSinceStartup;
-
             createSceneSaveJsonStringBudgetedOperation.OnCreatingJsonStringFinished -= OnCreatingSceneSaveJsonStringFinished;
 
             CreatingSceneSaveState = SceneSavingState.WritingToFile;
 
             string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), createSceneSavePathInSavesFolder);
             IOUtilities.EnsurePathExists(savePath);
-            //await File.WriteAllTextAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".bsave"), jsonString);
             File.WriteAllText(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".bsave"), jsonString);
 
             // 2. Create Saveinfo and 
             string saveInfoContent = JsonUtility.ToJson(createSceneSaveInfo);
-            //await File.WriteAllTextAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".json"), saveInfoContent);
             File.WriteAllText(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".json"), saveInfoContent);
 
             // 3. Create optional preview Image
@@ -251,9 +227,6 @@ namespace Benito.ScriptingFoundations.Saving
 
             // 5. Call callbacks
             OnCreatingSceneSaveFileFinished?.Invoke();
-
-            Profiler.EndSample();
-            Debug.Log("OnCreatingSceneSaveJsonStringFinished took " + (Time.realtimeSinceStartup-timeAtStart));
         }
 
         void OnGetJsonStringAsyncProgressUpdate(float progress)
