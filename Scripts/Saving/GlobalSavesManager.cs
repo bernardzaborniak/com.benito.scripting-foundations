@@ -44,6 +44,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         public Action OnLoadingSceneSaveFileCompleted;
 
+        #endregion
 
         #region Budgeted Operation
 
