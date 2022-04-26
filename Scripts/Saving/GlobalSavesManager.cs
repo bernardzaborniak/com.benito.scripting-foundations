@@ -79,7 +79,7 @@ namespace Benito.ScriptingFoundations.Saving
                    
                     if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                     {
-                        Debug.Log("stopped budgeted save operation after : " + ((Time.realtimeSinceStartup - startUpdateTime) / 1000) + " ms");
+                        Debug.Log("stopped CreateSceneSaveJsonStringBudgetedOperation  operation after : " + ((Time.realtimeSinceStartup - startUpdateTime) / 1000) + " ms");
                         lastStoppedIndex = i + 1;
                         Progress = (1.0f * i) / savegame.SavedObjects.Count;
                         return;
