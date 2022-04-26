@@ -94,10 +94,10 @@ namespace Benito.ScriptingFoundations.Saving
                 {
                     jsonString += JsonUtility.ToJson(savegame.SavedObjects[i], false) + "\n";
 
-                    Debug.Log("check CreateSceneSaveJsonStringBudgetedOperation: Time.realtimeSinceStartup" + Time.realtimeSinceStartup + " Time.realtimeSinceStartup - startUpdateTime " + ((Time.realtimeSinceStartup - startUpdateTime)*1000).ToString("F2"));
+                    //Debug.Log("check CreateSceneSaveJsonStringBudgetedOperation: Time.realtimeSinceStartup" + Time.realtimeSinceStartup + " Time.realtimeSinceStartup - startUpdateTime " + ((Time.realtimeSinceStartup - startUpdateTime)*1000).ToString("F2"));
                     if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                     {
-                        Debug.Log("stopped CreateSceneSaveJsonStringBudgetedOperation  operation after : " + ((Time.realtimeSinceStartup - startUpdateTime) * 1000).ToString("F2") + " ms");
+                        //Debug.Log("stopped CreateSceneSaveJsonStringBudgetedOperation  operation after : " + ((Time.realtimeSinceStartup - startUpdateTime) * 1000).ToString("F2") + " ms");
                         lastStoppedIndex = i + 1;
                         Progress = (1.0f * i) / savegame.SavedObjects.Count;
 
@@ -108,7 +108,7 @@ namespace Benito.ScriptingFoundations.Saving
                 }
                 Progress = 1;
                 Finished = true;
-                Debug.Log("invoke on saving fisnished");
+                //Debug.Log("invoke on saving fisnished");
                 OnCreatingJsonStringFinished?.Invoke(jsonString);
                 Profiler.EndSample();
 
