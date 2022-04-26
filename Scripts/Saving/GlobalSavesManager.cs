@@ -199,8 +199,10 @@ namespace Benito.ScriptingFoundations.Saving
 
         }
 
-        async void OnCreatingSceneSaveJsonStringFinished(string jsonString)
+        void OnCreatingSceneSaveJsonStringFinished(string jsonString)
         {
+            Profiler.BeginSample("Write Files");
+
             float timeAtStart = Time.realtimeSinceStartup;
 
             createSceneSaveJsonStringBudgetedOperation.OnCreatingJsonStringFinished -= OnCreatingSceneSaveJsonStringFinished;
@@ -221,7 +223,7 @@ namespace Benito.ScriptingFoundations.Saving
             if (createSavePreviewImage != null)
             {
                 byte[] imageBytes = createSavePreviewImage.EncodeToPNG();
-                await File.WriteAllBytesAsync(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".png"), imageBytes);
+                File.WriteAllBytes(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".png"), imageBytes);
             }
 
             // 4. Reset Values after completing Save
@@ -236,6 +238,7 @@ namespace Benito.ScriptingFoundations.Saving
             // 5. Call callbacks
             OnCreatingSceneSaveFileFinished?.Invoke();
 
+            Profiler.EndSample();
             Debug.Log("OnCreatingSceneSaveJsonStringFinished took " + (Time.realtimeSinceStartup-timeAtStart));
         }
 
