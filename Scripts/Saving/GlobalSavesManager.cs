@@ -201,6 +201,8 @@ namespace Benito.ScriptingFoundations.Saving
 
         async void OnCreatingSceneSaveJsonStringFinished(string jsonString)
         {
+            Profiler.BeginSample("OnCreatingSceneSaveJsonStringFinished");
+
             createSceneSaveJsonStringBudgetedOperation.OnCreatingJsonStringFinished -= OnCreatingSceneSaveJsonStringFinished;
 
             CreatingSceneSaveState = SceneSavingState.WritingToFile;
@@ -231,6 +233,8 @@ namespace Benito.ScriptingFoundations.Saving
 
             // 5. Call callbacks
             OnCreatingSceneSaveFileFinished?.Invoke();
+
+            Profiler.EndSample();
         }
 
         void OnGetJsonStringAsyncProgressUpdate(float progress)
