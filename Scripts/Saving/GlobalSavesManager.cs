@@ -94,7 +94,7 @@ namespace Benito.ScriptingFoundations.Saving
 
                 for (int i = lastStoppedIndex; i < savegame.SavedObjects.Count; i++)
                 {
-                    stringBuilder.AppendLine(JsonUtility.ToJson(savegame.SavedObjects[i], false);// + "\n";
+                    stringBuilder.AppendLine(JsonUtility.ToJson(savegame.SavedObjects[i], false));// + "\n";
 
                     //Debug.Log("check CreateSceneSaveJsonStringBudgetedOperation: Time.realtimeSinceStartup" + Time.realtimeSinceStartup + " Time.realtimeSinceStartup - startUpdateTime " + ((Time.realtimeSinceStartup - startUpdateTime)*1000).ToString("F2"));
                     if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
