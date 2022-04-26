@@ -94,7 +94,7 @@ namespace Benito.ScriptingFoundations.Saving
                 {
                     jsonString += JsonUtility.ToJson(savegame.SavedObjects[i], false) + "\n";
 
-                    Debug.Log("check CreateSceneSaveJsonStringBudgetedOperation: Time.realtimeSinceStartup" + Time.realtimeSinceStartup + " Time.realtimeSinceStartup - startUpdateTime" + (Time.realtimeSinceStartup - startUpdateTime));
+                    Debug.Log("check CreateSceneSaveJsonStringBudgetedOperation: Time.realtimeSinceStartup" + Time.realtimeSinceStartup + " Time.realtimeSinceStartup - startUpdateTime " + ((Time.realtimeSinceStartup - startUpdateTime)/1000));
                     if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                     {
                         Debug.Log("stopped CreateSceneSaveJsonStringBudgetedOperation  operation after : " + ((Time.realtimeSinceStartup - startUpdateTime) / 1000) + " ms");
