@@ -74,6 +74,8 @@ namespace Benito.ScriptingFoundations.Managers
             {
                 managers.Add((T)manager);
             }
+
+            UnityEditor.EditorUtility.SetDirty(this);
         }
 
 #endif
