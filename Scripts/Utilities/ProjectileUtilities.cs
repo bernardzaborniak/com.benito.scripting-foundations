@@ -41,16 +41,26 @@ namespace Benito.ScriptingFoundations.Utilities
             return (theta * (180 / Mathf.PI));  //change into degrees
         }
 
+        /// <summary>
+        /// Returns what the maximum range of such a projectile would be if the launch and landing points have the same y value.
+        /// </summary>
+        public static float GetMaximumRangeForEvenGround(float projectileLaunchVelocity, float launchAngleInDegrees, float gravity = 9.71f)
+        {
+            return Mathf.Pow(projectileLaunchVelocity,2)*Mathf.Sin(2 * launchAngleInDegrees * (Mathf.PI / 180)) / gravity;
+        }
+
         public static float CalculateTimeOfFlightOfProjectileLaunchedAtAnAngle(float projectileLaunchVelocity, float launchAngleInDegrees, Vector3 projectileLaunchPosition, Vector3 targetPosition, float gravity = 9.71f)
         {
+            // I dont exactly understand how it works, but it works.
+
             float timeInAir;
-            float vY = projectileLaunchVelocity * Mathf.Sin(launchAngleInDegrees * (Mathf.PI / 180));
 
             float startH = projectileLaunchPosition.y;
             float finalH = targetPosition.y;
 
-            if (finalH < startH)
+            if (finalH < startH) // if the projectile is going down
             {
+                float vY = projectileLaunchVelocity * Mathf.Sin(launchAngleInDegrees * (Mathf.PI / 180));
                 timeInAir = (vY + Mathf.Sqrt((float)(Mathf.Pow(vY, 2) - 4 * (0.5 * gravity) * (-(startH - finalH))))) / gravity;
             }
             else
@@ -72,7 +82,7 @@ namespace Benito.ScriptingFoundations.Utilities
             // a = 1, b varies
 
             float unitSphereRadius = Mathf.Tan(bloomAngle * Mathf.Deg2Rad);
-            // To make the points appear more often in the middle of the circle, we add a random scaler.
+            // To make the points appear more often in the middle of the circle, we add a random scaler 90f,1f).
             Vector2 insideUnitCircle = Random.insideUnitCircle * unitSphereRadius * Random.Range(0f, 1f);
             Matrix4x4 matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.LookRotation(vector), Vector3.one);
 
