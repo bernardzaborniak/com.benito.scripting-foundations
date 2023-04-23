@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using Benito.ScriptingFoundations.InspectorAttributes;
+using Benito.ScriptingFoundations.NaughtyAttributes;
 
 namespace Benito.ScriptingFoundations.Managers
 {

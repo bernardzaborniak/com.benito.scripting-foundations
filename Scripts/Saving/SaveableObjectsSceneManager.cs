@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Benito.ScriptingFoundations.Managers;
-using Benito.ScriptingFoundations.InspectorAttributes;
+using Benito.ScriptingFoundations.NaughtyAttributes;
 using Benito.ScriptingFoundations.Optimisation;
 using System;
 using Debug = UnityEngine.Debug;
