@@ -76,6 +76,7 @@ namespace Benito.ScriptingFoundations.BDebug
             if (Camera.main == null)
             {
                 Debug.LogWarning("BDebugManager wont render, as there is no camera main present");
+                return;
             }
 
             float distanceToCameraSquared = 0;
