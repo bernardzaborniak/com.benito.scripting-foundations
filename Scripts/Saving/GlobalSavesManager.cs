@@ -253,6 +253,8 @@ namespace Benito.ScriptingFoundations.Saving
 
             DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), folderPathInSavesFolder));
 
+            IOUtilities.EnsurePathExists(directoryInfo.FullName);
+
             foreach (FileInfo info in directoryInfo.GetFiles())
             {
                 if(info.Extension == ".json")
