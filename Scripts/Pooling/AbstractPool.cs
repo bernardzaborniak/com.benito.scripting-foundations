@@ -9,11 +9,14 @@ namespace Benito.ScriptingFoundations.Pools
     {
         [SerializeField] protected int defaultSize;
         [Space]
+        [Tooltip("Should the pool expand its size when more Items are requested than inside the pool?")]
         [SerializeField] protected bool expandSize;
+        [Tooltip("The pool will be increased by this size, when more items are needed")]
         [SerializeField] protected int expandSizeInterval;
+        [Tooltip("The maximum size the pool can have after expanding")]
         [SerializeField] protected int maxExpandedSize;
         [Space]
-        [Tooltip("Only working if expand Size is true. Controls weather to go back to normal size in expandSizeIntervals when less than 70% of the current size is used")]
+        [Tooltip("Only working if expandSize is true. Controls weather to go back to normal size in expandSizeIntervals when less than 70% (reduceSizeThreshold) of the current size is used")]
         [SerializeField] protected bool reduceSize;
         [Range(0.1f, 0.9f)]
         [SerializeField] protected float reduceSizeThreshold = 0.7f;
