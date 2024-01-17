@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Benito.ScriptingFoundations.NaughtyAttributes;
+using System.ComponentModel;
 
 namespace Benito.ScriptingFoundations.Pools
 {
@@ -22,8 +24,8 @@ namespace Benito.ScriptingFoundations.Pools
         [SerializeField] protected float reduceSizeThreshold = 0.7f;
         [Space]
         //Readonly
-        [SerializeField] protected int currentSize;
-        [SerializeField] protected float percentageUsed;
+        [SerializeField][NaughtyAttributes.ReadOnly] protected int currentSize;
+        [SerializeField][NaughtyAttributes.ReadOnly] protected float percentageUsed;
 
         protected Queue<T> unusedObjectQueue;
         protected HashSet<T> usedObjects;
