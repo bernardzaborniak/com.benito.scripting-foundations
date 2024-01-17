@@ -22,10 +22,12 @@ namespace Benito.ScriptingFoundations.Pools
         [SerializeField] protected bool reduceSize;
         [Range(0.1f, 0.9f)]
         [SerializeField] protected float reduceSizeThreshold = 0.7f;
-        [Space]
+        //[Space]
         //Readonly
-        [SerializeField][NaughtyAttributes.ReadOnly] protected int currentSize;
-        [SerializeField][NaughtyAttributes.ReadOnly] protected float percentageUsed;
+        [NaughtyAttributes.ReadOnly][SerializeField][AllowNesting]
+        protected int currentSize;
+        [NaughtyAttributes.ReadOnly][SerializeField][AllowNesting]
+        protected float percentageUsed;
 
         protected Queue<T> unusedObjectQueue;
         protected HashSet<T> usedObjects;
