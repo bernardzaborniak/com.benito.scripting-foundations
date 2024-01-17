@@ -34,5 +34,10 @@ namespace Benito.ScriptingFoundations.Pools
         {
             GameObject.Destroy(objectToDestroy.gameObject);
         }
+
+        public GameObject GetPoolPrefabComponent()
+        {
+            return prefabWithComponent;
+        }
     }
 }

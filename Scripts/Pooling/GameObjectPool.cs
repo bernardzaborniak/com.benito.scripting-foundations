@@ -26,6 +26,11 @@ namespace Benito.ScriptingFoundations.Pools
         protected override void DestroyPoolObject(GameObject objectToDestroy)
         {
             GameObject.Destroy(objectToDestroy.gameObject);
-        }     
+        }
+
+        public GameObject GetPoolGameObject()
+        {
+            return prefab;
+        }
     }
 }
