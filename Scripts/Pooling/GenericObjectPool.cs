@@ -17,9 +17,5 @@ namespace Benito.ScriptingFoundations.Pools
             //We cant destroy normal objects in C#
         }
 
-        public System.Type GetPoolObjectType()
-        {
-            return typeof(T);
-        }
     }
 }

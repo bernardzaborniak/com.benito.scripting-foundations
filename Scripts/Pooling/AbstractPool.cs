@@ -160,5 +160,10 @@ namespace Benito.ScriptingFoundations.Pools
                 DestroyPoolObject(removedObject);
             }
         }
+
+        public System.Type GetPoolObjectType()
+        {
+            return typeof(T);
+        }
     }
 }
