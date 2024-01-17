@@ -37,8 +37,8 @@ namespace Benito.ScriptingFoundations.Pools
         public Action<T> OnAddObjectToPool;
         public Action<T> OnRemoveObjectFromPool;
 
-        public Action<T> OnCreatePoolObject;
-        public Action<T> OnBeforeDestroyPoolObject;
+        public Action<AbstractPool<T>,T> OnCreatePoolObject;
+        public Action<AbstractPool<T>,T> OnBeforeDestroyPoolObject;
 
 
         public virtual void Initialize()
@@ -50,7 +50,7 @@ namespace Benito.ScriptingFoundations.Pools
             for (int i = 0; i < defaultSize; i++)
             {
                 T obj = CreatePoolObject();
-                OnCreatePoolObject?.Invoke(obj);
+                OnCreatePoolObject?.Invoke(this, obj);
                 unusedObjectQueue.Enqueue(obj);
                 OnAddObjectToPool?.Invoke(obj);
             }
@@ -75,7 +75,7 @@ namespace Benito.ScriptingFoundations.Pools
             for (int i = 0; i < defaultSize; i++)
             {
                 T obj = CreatePoolObject();
-                OnCreatePoolObject?.Invoke(obj);
+                OnCreatePoolObject?.Invoke(this, obj);
                 unusedObjectQueue.Enqueue(obj);
                 OnAddObjectToPool?.Invoke(obj);
             }
@@ -148,7 +148,7 @@ namespace Benito.ScriptingFoundations.Pools
             for (int i = 0; i < sizeToExpand; i++)
             {
                 T obj = CreatePoolObject();
-                OnCreatePoolObject?.Invoke(obj);
+                OnCreatePoolObject?.Invoke(this, obj);
                 unusedObjectQueue.Enqueue(obj);
                 OnAddObjectToPool?.Invoke(obj);
             }
@@ -167,7 +167,7 @@ namespace Benito.ScriptingFoundations.Pools
             {
                 T removedObject = unusedObjectQueue.Dequeue();
                 OnRemoveObjectFromPool?.Invoke(removedObject);
-                OnBeforeDestroyPoolObject?.Invoke(removedObject);
+                OnBeforeDestroyPoolObject?.Invoke(this, removedObject);
                 DestroyPoolObject(removedObject);
             }
         }
