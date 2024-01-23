@@ -8,8 +8,6 @@ namespace Benito.ScriptingFoundations.States
     {
         public void OnStateEnter();
 
-        public void UpdateState();
-
         public void OnStateExit();
     }
 }

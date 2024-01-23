@@ -4,10 +4,8 @@ using UnityEngine;
 
 namespace Benito.ScriptingFoundations.States
 {
-    public interface IStateMachine<T> where T : IState
+    public interface IStateUpdatable: IState
     {
-        public T CurrentState { get; }
-
-        public void SetState(T newState);
+        public void UpdateState();
     }
 }

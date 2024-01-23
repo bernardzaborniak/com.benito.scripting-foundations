@@ -5,7 +5,7 @@ using System;
 
 namespace Benito.ScriptingFoundations.States
 {
-    public class SimpleStatemachine<T> : IStatemachine<T> where T : class, IState
+    public class SimpleStateMachine<T> : IStateMachine<T> where T : class, IStateUpdatable
     {
         public T CurrentState { get; protected set; }
 
