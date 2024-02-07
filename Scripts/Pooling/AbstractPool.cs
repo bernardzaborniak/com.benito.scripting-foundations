@@ -111,6 +111,7 @@ namespace Benito.ScriptingFoundations.Pools
             if (!usedObjects.Contains(objectToReturn))
             {
                 Debug.LogWarning($"Object is not part of the pool you are trying to return it to");
+
                 if(unusedObjectQueue.Contains(objectToReturn))
                     Debug.LogWarning($"unusedObjectQueue already has this object, it was returned before");
 
