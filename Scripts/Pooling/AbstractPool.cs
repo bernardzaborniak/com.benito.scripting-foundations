@@ -99,9 +99,9 @@ namespace Benito.ScriptingFoundations.Pools
             }
 
             T dequeuedObject = unusedObjectQueue.Dequeue();
-            OnRemoveObjectFromPool?.Invoke(dequeuedObject);
             usedObjects.Add(dequeuedObject);
             UpdatePoolStats();
+            OnRemoveObjectFromPool?.Invoke(dequeuedObject);
             return dequeuedObject;
         }
 
@@ -114,7 +114,6 @@ namespace Benito.ScriptingFoundations.Pools
             }
 
             usedObjects.Remove(objectToReturn);
-            OnAddObjectToPool?.Invoke(objectToReturn);
             unusedObjectQueue.Enqueue(objectToReturn);
             UpdatePoolStats();
 
@@ -123,6 +122,8 @@ namespace Benito.ScriptingFoundations.Pools
                 ReducePoolSize();
                 UpdatePoolStats();
             }
+            
+            OnAddObjectToPool?.Invoke(objectToReturn);
         }
 
         protected abstract T CreatePoolObject();
