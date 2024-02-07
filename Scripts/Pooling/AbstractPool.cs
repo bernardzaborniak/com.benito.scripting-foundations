@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using Benito.ScriptingFoundations.NaughtyAttributes;
 using System.ComponentModel;
+using static UnityEditor.Progress;
 
 namespace Benito.ScriptingFoundations.Pools
 {
@@ -110,7 +111,7 @@ namespace Benito.ScriptingFoundations.Pools
             if (!usedObjects.Contains(objectToReturn))
             {
                 Debug.Log(" ---usedObjects--- ");
-                Debug.Log("objectToReturn " + objectToReturn);
+                Debug.Log("objectToReturn " + objectToReturn, (objectToReturn as UnityEngine.Object));
                 foreach (var item in usedObjects)
                 {
                     Debug.Log(" item " + item, (item as UnityEngine.Object));
