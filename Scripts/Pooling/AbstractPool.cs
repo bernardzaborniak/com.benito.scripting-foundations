@@ -109,7 +109,14 @@ namespace Benito.ScriptingFoundations.Pools
         {
             if (!usedObjects.Contains(objectToReturn))
             {
+                Debug.Log(" ---usedObjects--- ");
+                Debug.Log("objectToReturn " + objectToReturn);
+                foreach (var item in usedObjects)
+                {
+                    Debug.Log(" item " + item, (item as UnityEngine.Object));
+                }
                 Debug.LogError($"Object is not part of the pool you are trying to return it to");
+                
                 return;
             }
 
