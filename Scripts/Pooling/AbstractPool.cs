@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using Benito.ScriptingFoundations.NaughtyAttributes;
-using System.ComponentModel;
-using static UnityEditor.Progress;
 
 namespace Benito.ScriptingFoundations.Pools
 {
