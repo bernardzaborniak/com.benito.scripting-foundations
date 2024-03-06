@@ -51,7 +51,7 @@ namespace Benito.ScriptingFoundations.Optimisation
 
             Finished = false;
             stoppedAtIndex = 0;
-            this.listToUpdate = listToUpdate;
+            this.listToUpdate = new List<T>(listToUpdate);
             listToUpdateCount = listToUpdate.Count;
         }
     }
