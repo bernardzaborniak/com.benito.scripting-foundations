@@ -6,7 +6,7 @@ namespace Benito.ScriptingFoundations.Optimisation
 {
     public interface IBudgetedUpdatableNoTimeDelta
     {
-        public bool LastUpdateTime { get; }
+        public float LastUpdateTime { get; }
 
         public void UpdateObject();
 
