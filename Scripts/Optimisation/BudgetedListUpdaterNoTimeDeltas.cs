@@ -54,6 +54,11 @@ namespace Benito.ScriptingFoundations.Optimisation
             Finished = false;
             stoppedAtIndex = 0;
             this.listToUpdate = new List<T>(listToUpdate);
+            Debug.Log("[BudgetedOperation] Reset");
+            Debug.Log("list input as parameter: " + listToUpdate);
+            Debug.Log("list input as parameter.count: " + listToUpdate.Count);
+            Debug.Log("list copied: " + this.listToUpdate);
+            Debug.Log("list copied.count: " + this.listToUpdate.Count);
             listToUpdateCount = listToUpdate.Count;
         }
     }
