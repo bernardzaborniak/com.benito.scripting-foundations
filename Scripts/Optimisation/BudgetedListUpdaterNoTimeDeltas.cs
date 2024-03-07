@@ -43,7 +43,7 @@ namespace Benito.ScriptingFoundations.Optimisation
 
                 if (i>0 && Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                 {
-                    Debug.Log("B stoppedAtIndex: " + stoppedAtIndex + " time: " + (Time.realtimeSinceStartup - startUpdateTime + " budget: " + TimeBudget));
+                    Debug.Log("B stoppedAtIndex: " + stoppedAtIndex + " time: " + (Time.realtimeSinceStartup - startUpdateTime + " budget: " + TimeBudget) + " listToUpdateCount: " + listToUpdateCount);
                     stoppedAtIndex = i;
                     Progress = (1f * i) / (1f * listToUpdateCount);
                     return;
