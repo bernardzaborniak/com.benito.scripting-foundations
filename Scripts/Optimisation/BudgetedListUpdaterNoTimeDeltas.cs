@@ -38,7 +38,7 @@ namespace Benito.ScriptingFoundations.Optimisation
             for (int i = stoppedAtIndex; i < listToUpdateCount; i++)
             {
                 // this delta time is not the correct one? sensing itself should know the delta time? does it actually need it though?
-                Debug.Log("A index: " + i);
+                //Debug.Log("A index: " + i);
                 listToUpdate[i]?.UpdateObject();
 
                 if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
