@@ -27,13 +27,13 @@ namespace Benito.ScriptingFoundations.Optimisation
 
         public void Update(float deltaTime)
         {
-            Debug.Log("update budgeted operation");
             float startUpdateTime = Time.realtimeSinceStartup;
+            /*Debug.Log("update budgeted operation");
             Debug.Log("startUpdateTime: " + startUpdateTime);
             Debug.Log("stoppedAtIndex: " + stoppedAtIndex);
             Debug.Log("listToUpdateCount: " + listToUpdateCount);
             Debug.Log("listToUpdate: " + listToUpdate);
-            Debug.Log("listToUpdate.Count: " + listToUpdate.Count);
+            Debug.Log("listToUpdate.Count: " + listToUpdate.Count);*/
 
             for (int i = stoppedAtIndex; i < listToUpdateCount; i++)
             {
@@ -43,15 +43,15 @@ namespace Benito.ScriptingFoundations.Optimisation
 
                 if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                 {
-                    Debug.Log("B stoppedAtIndex: " + stoppedAtIndex);
+                    Debug.Log("B stoppedAtIndex: " + stoppedAtIndex + " time: " + (Time.realtimeSinceStartup - startUpdateTime + " budget: " + TimeBudget));
                     stoppedAtIndex = i;
                     Progress = (1f * i) / (1f * listToUpdateCount);
                     return;
                 }
             }
-            Debug.Log("C arrived at finishing with index at : " + stoppedAtIndex);
+            /*Debug.Log("C arrived at finishing with index at : " + stoppedAtIndex);
             Debug.Log(" list count: " + listToUpdateCount);
-            Debug.Log(" listToUpdate.Count: " + listToUpdate.Count);
+            Debug.Log(" listToUpdate.Count: " + listToUpdate.Count);*/
             Finished = true;
         }
 
