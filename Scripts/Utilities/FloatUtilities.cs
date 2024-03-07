@@ -230,6 +230,39 @@ namespace Benito.ScriptingFoundations.Utilities
             currentValue = Mathf.Clamp(currentValue ,- maxValue, maxValue);
             return currentValue;
         }
+
+        
+        public static float[] EnsureValidPercentages(float[] percentages, int commaValues)
+        {
+            float combined = 0;
+            float[] newValues = new float[percentages.Length];
+
+            for (int i = 0; i < percentages.Length; i++)
+            {
+                combined += percentages[i];
+                newValues[i] = percentages[i];
+            }
+
+            if (combined == 0)
+            {
+                for (int i = 0; i < percentages.Length; i++)
+                {
+                    percentages[i] = (1f / percentages.Length);
+                }
+            }
+
+            if (combined > 1 || combined < 1)
+            {
+                for (int i = 0; i < percentages.Length; i++)
+                {
+                    newValues[i] = (percentages[i] / combined) * 1;
+                    newValues[i] = (float)System.Math.Round(newValues[i], commaValues);
+                }
+
+            }
+
+            return newValues;
+        }
     }
 
 }
