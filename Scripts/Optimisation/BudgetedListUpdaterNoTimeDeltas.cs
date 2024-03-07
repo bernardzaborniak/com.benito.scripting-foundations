@@ -41,10 +41,11 @@ namespace Benito.ScriptingFoundations.Optimisation
                 //Debug.Log("A index: " + i);
                 listToUpdate[i]?.UpdateObject();
 
-                if (i>0 && Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
+                // we check if i>0 to make sure that at least one script gets updated every frame
+                if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                 {
-                    Debug.Log("B stoppedAtIndex: " + stoppedAtIndex + " time: " + (Time.realtimeSinceStartup - startUpdateTime + " budget: " + TimeBudget) + " listToUpdateCount: " + listToUpdateCount);
-                    stoppedAtIndex = i;
+                   // Debug.Log("B stoppedAtIndex: " + stoppedAtIndex + " time: " + (Time.realtimeSinceStartup - startUpdateTime + " budget: " + TimeBudget) + " listToUpdateCount: " + listToUpdateCount);
+                    stoppedAtIndex = i+1;
                     Progress = (1f * i) / (1f * listToUpdateCount);
                     return;
                 }
@@ -64,12 +65,12 @@ namespace Benito.ScriptingFoundations.Optimisation
             listToUpdate = new List<T>(listToUpdateInput);
             listToUpdateCount = listToUpdate.Count;
 
-            Debug.Log("[BudgetedOperation] Reset");
+           /* Debug.Log("[BudgetedOperation] Reset");
             Debug.Log("list input as parameter: " + listToUpdateInput);
             Debug.Log("list input as parameter.count: " + listToUpdateInput.Count);
             Debug.Log("list copied: " + listToUpdate);
             Debug.Log("list copied.count: " + listToUpdate.Count);
-            Debug.Log("listToUpdateCount: " + listToUpdateCount);
+            Debug.Log("listToUpdateCount: " + listToUpdateCount);*/
         }
     }
 
