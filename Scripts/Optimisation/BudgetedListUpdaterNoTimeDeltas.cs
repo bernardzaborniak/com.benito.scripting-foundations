@@ -55,19 +55,21 @@ namespace Benito.ScriptingFoundations.Optimisation
             Finished = true;
         }
 
-        public void Reset(List<T> listToUpdate, float timeBudgetInMs)
+        public void Reset(List<T> listToUpdateInput, float timeBudgetInMs)
         {
             TimeBudget = timeBudgetInMs / 1000;
 
             Finished = false;
             stoppedAtIndex = 0;
-            this.listToUpdate = new List<T>(listToUpdate);
-            Debug.Log("[BudgetedOperation] Reset");
-            Debug.Log("list input as parameter: " + listToUpdate);
-            Debug.Log("list input as parameter.count: " + listToUpdate.Count);
-            Debug.Log("list copied: " + this.listToUpdate);
-            Debug.Log("list copied.count: " + this.listToUpdate.Count);
+            listToUpdate = new List<T>(listToUpdateInput);
             listToUpdateCount = listToUpdate.Count;
+
+            Debug.Log("[BudgetedOperation] Reset");
+            Debug.Log("list input as parameter: " + listToUpdateInput);
+            Debug.Log("list input as parameter.count: " + listToUpdateInput.Count);
+            Debug.Log("list copied: " + listToUpdate);
+            Debug.Log("list copied.count: " + listToUpdate.Count);
+            Debug.Log("listToUpdateCount: " + listToUpdateCount);
         }
     }
 
