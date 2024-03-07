@@ -43,7 +43,7 @@ namespace Benito.ScriptingFoundations.Optimisation
                     return;
                 }
             }
-            Debug.Log("C arrived at finishing with index at : " + stoppedAtIndex);
+            Debug.Log("C arrived at finishing with index at : " + stoppedAtIndex + " list count: " + listToUpdateCount + " or " + listToUpdate.Count);
             Finished = true;
         }
 
