@@ -41,7 +41,7 @@ namespace Benito.ScriptingFoundations.Optimisation
                 //Debug.Log("A index: " + i);
                 listToUpdate[i]?.UpdateObject();
 
-                if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
+                if (i>0 && Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                 {
                     Debug.Log("B stoppedAtIndex: " + stoppedAtIndex + " time: " + (Time.realtimeSinceStartup - startUpdateTime + " budget: " + TimeBudget));
                     stoppedAtIndex = i;
