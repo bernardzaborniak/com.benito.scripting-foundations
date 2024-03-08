@@ -10,5 +10,7 @@ namespace Benito.ScriptingFoundations.Optimisation
 
         public void UpdateObject();
 
+        public bool IsNull();
+
     }
 }

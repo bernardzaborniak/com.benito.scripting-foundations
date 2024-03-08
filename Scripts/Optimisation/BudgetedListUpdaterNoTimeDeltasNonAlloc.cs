@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -30,9 +31,9 @@ namespace Benito.ScriptingFoundations.Optimisation
             float startUpdateTime = Time.realtimeSinceStartup;
             for (int i = stoppedAtIndex; i < listToUpdateCount; i++)
             {
-                Debug.Log("listToUpdate[i]: " + listToUpdate[i]);
-                Debug.Log("listToUpdate[i]!= null " + (listToUpdate[i] != null));
-                if (listToUpdate[i] != null)
+                Debug.Log($"listToUpdate[{i}]: " + listToUpdate[i]);
+                Debug.Log($"istToUpdate[{i}].IsNull() " + (listToUpdate[i].IsNull()));
+                if (!listToUpdate[i].IsNull())
                 {
                     listToUpdate[i]?.UpdateObject();
                 }               
