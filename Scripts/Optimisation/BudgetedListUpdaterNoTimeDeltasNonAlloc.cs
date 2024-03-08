@@ -8,7 +8,7 @@ namespace Benito.ScriptingFoundations.Optimisation
     /// List can change every frame, thats why time deltas for update don make sense
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class BudgetedListUpdaterNoTimeDeltasNonAlloc<T> : IBudgetedOperation where T : IBudgetedUpdatableNoTimeDelta
+    public class BudgetedListUpdaterNoTimeDeltasNonAlloc<T> : IBudgetedOperation where T : MonoBehaviour,IBudgetedUpdatableNoTimeDelta
     {
         List<T> listToUpdate;
 
@@ -31,12 +31,7 @@ namespace Benito.ScriptingFoundations.Optimisation
             float startUpdateTime = Time.realtimeSinceStartup;
             for (int i = stoppedAtIndex; i < listToUpdateCount; i++)
             {
-                Debug.Log($"listToUpdate[{i}]: " + listToUpdate[i]);
-                Debug.Log($"istToUpdate[{i}].IsNull() " + (listToUpdate[i].IsNull()));
-                if (!listToUpdate[i].IsNull())
-                {
-                    listToUpdate[i]?.UpdateObject();
-                }               
+                listToUpdate[i]?.UpdateObject();            
 
                 if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                 {
