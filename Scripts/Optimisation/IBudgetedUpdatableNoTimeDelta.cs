@@ -9,8 +9,5 @@ namespace Benito.ScriptingFoundations.Optimisation
         public float LastUpdateTime { get; }
 
         public void UpdateObject();
-
-        public bool IsNull();
-
     }
 }
