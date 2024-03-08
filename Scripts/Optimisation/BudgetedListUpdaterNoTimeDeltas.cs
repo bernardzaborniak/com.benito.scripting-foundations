@@ -30,7 +30,10 @@ namespace Benito.ScriptingFoundations.Optimisation
             float startUpdateTime = Time.realtimeSinceStartup;
             for (int i = stoppedAtIndex; i < listToUpdateCount; i++)
             {
-                listToUpdate[i]?.UpdateObject();
+                if (listToUpdate[i] != null)
+                {
+                    listToUpdate[i]?.UpdateObject();
+                }
 
                 if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                 {
