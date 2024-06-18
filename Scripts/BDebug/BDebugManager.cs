@@ -56,7 +56,7 @@ namespace Benito.ScriptingFoundations.BDebug
             for (int i = 0; i < settings.maxDebugTextsOnScreen; i++)
             {
                 TextMeshPro text = Instantiate(textPrefab, transform).GetComponent<TextMeshPro>();
-                text.autoSizeTextContainer = true;
+                text.autoSizeTextContainer = true; // Is this recessary? we still get multiple lines if the text is to big :(
                 textMeshPool.Add(text);
                 textMeshPool[i].enabled = false;
             }
@@ -187,7 +187,7 @@ namespace Benito.ScriptingFoundations.BDebug
                 textMesh.text = command.text;
                 if (command.scaleWithDistanceRatio > 0)
                 {
-                    textMesh.fontSize = command.size * (distanceToCamera * command.scaleWithDistanceRatio);
+                    textMesh.fontSize = Mathf.Max(command.size * (distanceToCamera * command.scaleWithDistanceRatio),command.size);
                 }
                 else
                 {
