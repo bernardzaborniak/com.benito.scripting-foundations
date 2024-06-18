@@ -56,7 +56,7 @@ namespace Benito.ScriptingFoundations.BDebug
             for (int i = 0; i < settings.maxDebugTextsOnScreen; i++)
             {
                 TextMeshPro text = Instantiate(textPrefab, transform).GetComponent<TextMeshPro>();
-                text.enableAutoSizing = true; // Is this recessary? we still get multiple lines if the text is to big :(
+                //text.enableAutoSizing = true; // Is this recessary? we still get multiple lines if the text is to big :(
                 text.overflowMode = TextOverflowModes.Overflow;
                 textMeshPool.Add(text);
                 textMeshPool[i].enabled = false;
