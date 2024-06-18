@@ -56,6 +56,7 @@ namespace Benito.ScriptingFoundations.BDebug
             for (int i = 0; i < settings.maxDebugTextsOnScreen; i++)
             {
                 TextMeshPro text = Instantiate(textPrefab, transform).GetComponent<TextMeshPro>();
+                text.autoSizeTextContainer = true;
                 textMeshPool.Add(text);
                 textMeshPool[i].enabled = false;
             }
@@ -157,7 +158,7 @@ namespace Benito.ScriptingFoundations.BDebug
             textMeshPool.AddRange(usedTextMeshes);
             usedTextMeshes.Clear();
 
-            // Sort the texts via distance
+            // Sort the texts via distance //Optimisation, maybe sort via squared distance instead?
             drawTextCommands.Sort(delegate (BDebugDrawTextCommand a, BDebugDrawTextCommand b)
             {
                 return Vector3.Distance(cameraPosition, a.position)
@@ -167,6 +168,7 @@ namespace Benito.ScriptingFoundations.BDebug
 
             foreach (BDebugDrawTextCommand command in drawTextCommands)
             {
+                // work with squared sitances too here? //TODO
                 distanceToCamera = Vector3.Distance(command.position, cameraPosition);
                 if (distanceToCamera > command.maxDrawDistance)
                     continue;
@@ -177,7 +179,7 @@ namespace Benito.ScriptingFoundations.BDebug
 
                 TextMeshPro textMesh = textMeshPool[0];
 
-                textMeshPool.RemoveAt(0);
+                textMeshPool.RemoveAt(0); //TODO quite bad for performance as we need to shift the whole remaining list back
                 usedTextMeshes.Add(textMesh);
 
                 textMesh.enabled = true;
