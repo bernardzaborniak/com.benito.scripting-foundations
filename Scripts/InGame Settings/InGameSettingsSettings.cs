@@ -8,7 +8,7 @@ namespace Benito.ScriptingFoundations.InGameSettings
 {
     public class InGameSettingsSettings : ScriptableObject
     {
-        const string DefaultSettingsPathInResourcesFolder = "Settings/InGame Settings Settings";
+        const string DefaultSettingsPathInResourcesFolder = "Scripting Foundations Settings/InGame Settings Settings";
 
         [SerializeField]
         IOUtilities.AssigneableGameDataPath inGameSettingsPath = new IOUtilities.AssigneableGameDataPath(IOUtilities.AssigneableGameDataPath.PathPrefix.PersistendData, "InGameSettings");

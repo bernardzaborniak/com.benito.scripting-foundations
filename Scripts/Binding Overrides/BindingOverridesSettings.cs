@@ -9,7 +9,7 @@ namespace Benito.ScriptingFoundations.BindingOverrides
     [System.Serializable]
     public class BindingOverridesSettings : ScriptableObject
     {
-        const string DefaultSettingsPathInResourcesFolder = "Settings/Binding Overrides Settings";
+        const string DefaultSettingsPathInResourcesFolder = "Scripting Foundations Settings/Binding Overrides Settings";
 
         [SerializeField]
         IOUtilities.AssigneableGameDataPath overridesPath = new IOUtilities.AssigneableGameDataPath(IOUtilities.AssigneableGameDataPath.PathPrefix.PersistendData, "BindingOverrides");

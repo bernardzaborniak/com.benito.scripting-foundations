@@ -7,7 +7,7 @@ namespace Benito.ScriptingFoundations.Saving
 {
     public class SavingSettings : ScriptableObject
     {
-        const string DefaultSettingsPathInResourcesFolder = "Settings/Saving Settings";
+        const string DefaultSettingsPathInResourcesFolder = "Scripting Foundations Settings/Saving Settings";
 
         [SerializeField]
         IOUtilities.AssigneableGameDataPath savesPath = new IOUtilities.AssigneableGameDataPath(IOUtilities.AssigneableGameDataPath.PathPrefix.PersistendData, "Saves");
