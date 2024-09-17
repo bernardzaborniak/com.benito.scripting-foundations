@@ -33,6 +33,13 @@ namespace Benito.ScriptingFoundations.BDebug
 
         BDebugSettings settings;
 
+        //cached for late update
+        float distanceToCameraSquared = 0;
+        float distanceToCamera = 0;
+        Transform cameraTransform;
+        Vector3 cameraPosition;
+        MaterialPropertyBlock propertyBlock;
+
 
         public override void InitialiseManager()
         {
@@ -63,6 +70,9 @@ namespace Benito.ScriptingFoundations.BDebug
             }
 
             Destroy(textPrefab);
+
+            //cached for late update
+            propertyBlock = new MaterialPropertyBlock();
 #endif
         }
 
@@ -75,17 +85,24 @@ namespace Benito.ScriptingFoundations.BDebug
         {
             Profiler.BeginSample("BDebug. Late Update");
 
-            if (Camera.main == null)
+            if (drawMeshCommands.Count == 0 && drawLinesCommands.Count == 0 && drawTextCommands.Count == 0)
             {
-                Debug.LogWarning("BDebugManager wont render, as there is no camera main present");
+                Profiler.EndSample();
                 return;
             }
 
-            float distanceToCameraSquared = 0;
-            float distanceToCamera = 0;
-            Transform cameraTransform = Camera.main.transform;
-            Vector3 cameraPosition = cameraTransform.position;
-            MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
+            if (Camera.main == null)
+            {
+                Debug.LogWarning("BDebugManager wont render, as there is no camera main present");
+                Profiler.EndSample();
+                return;
+            }
+
+            distanceToCameraSquared = 0;
+            distanceToCamera = 0;
+            cameraTransform = Camera.main.transform;
+            cameraPosition = cameraTransform.position;
+            propertyBlock.Clear();
 
             int colorPropertyID = Shader.PropertyToID("_BaseColor");
 
