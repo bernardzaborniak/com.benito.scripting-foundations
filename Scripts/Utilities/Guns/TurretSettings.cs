@@ -8,9 +8,11 @@ namespace Benito.ScriptingFoundations.Utilities.Guns
     public class TurretSettings
     {
         [Tooltip("in angles")]
-        public float turretRotSpeed;
+        public float turretRotationSpeed;
+        public float turretAcceleration;
         [Tooltip("in angles")]
-        public float gunRotSpeed;
+        public float gunRotationSpeed;
+        public float gunAcceleration;
 
         [Space]
         public bool hasTurretRotLimit;
