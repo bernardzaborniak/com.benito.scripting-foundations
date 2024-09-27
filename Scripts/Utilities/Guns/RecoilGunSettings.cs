@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Benito.ScriptingFoundations.Utilities.Recoil
+namespace Benito.ScriptingFoundations.Utilities.Guns
 {
     [System.Serializable]
-    public class RecoilGunStats
+    public class RecoilGunSettings
     {       
         [Header("Up Recoil - Measured in Degrees")]
 

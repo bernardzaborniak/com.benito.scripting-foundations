@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Benito.ScriptingFoundations.Utilities.Recoil
+namespace Benito.ScriptingFoundations.Utilities.Guns
 {
     public class RecoilController : MonoBehaviour
     {
@@ -19,7 +19,7 @@ namespace Benito.ScriptingFoundations.Utilities.Recoil
             [Header("Back Recoil")]
             public RecoilDirectionSettings recoilBack = new RecoilDirectionSettings();
 
-            public void UpdateRecoilSettings(RecoilGunStats gunStats, bool useTwoHanded)
+            public void UpdateRecoilSettings(RecoilGunSettings gunStats, bool useTwoHanded)
             {
                 if (useTwoHanded)
                 {
@@ -68,7 +68,7 @@ namespace Benito.ScriptingFoundations.Utilities.Recoil
         /// <summary>
         /// Called when switching the weapon or switching from 1 handed to 2 handed.
         /// </summary>
-        public void UpdateRecoilSettings(RecoilGunStats gunStats, bool useTwoHanded)
+        public void UpdateRecoilSettings(RecoilGunSettings gunStats, bool useTwoHanded)
         {
             currentRecoilSettings.UpdateRecoilSettings(gunStats, useTwoHanded);  
         }
