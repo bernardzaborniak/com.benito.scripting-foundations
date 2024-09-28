@@ -1,3 +1,4 @@
+using Benito.ScriptingFoundations.Utilities.Guns;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,65 +7,59 @@ namespace Benito.ScriptingFoundations.Utilities
 {
     /// <summary>
     /// Helper functions to get turret rotation right in different scenarios
-    /// Ideally make sure that turret and gun transform anchers have the same positions, let just their rotation differ?
     /// 
     /// Typically turret is rotated only on the local y axis and Gun is rotated oly on the local turrets x axis.
+    /// Its best to have an empty anchor transform as parent of both gun and turret to make angle calculation simpler
     /// </summary>
     public static class TurretUtilities
     {
-        /// <summary>
-        /// Yields good results when used with BlendLinearlyWithAccel to arrive at the current vector
-        /// 
-        /// turretBodyRotation is the rotation of the turret Parent
-        /// </summary>
-        /// <returns></returns>
-        public static Vector3 GetTargetTurretForward(Quaternion turretBodyRotation, Vector3 aimDirection)
+        public static (float targetTurretRotation, float targetGunRotation) CalculateTargetRotationInAnglesLinearSpeed(
+            Vector3 targetPos, Transform turretAnchorTransform, Transform gunAnchorTransform, TurretSettings settings)
         {
-            Vector3 aimDirectionInTurretBodySpace = Quaternion.Inverse(turretBodyRotation) * aimDirection;
-            aimDirectionInTurretBodySpace.y = 0;
+            Vector3 targetDirectionInTurretSpace = Quaternion.Inverse(turretAnchorTransform.rotation) * (targetPos - turretAnchorTransform.position);
+            float turretAngles = Vector2.SignedAngle(targetDirectionInTurretSpace.ToVector2_xz(), Vector2.up);
+            Vector3 targetDirectionInGunSpace = Quaternion.Inverse(gunAnchorTransform.rotation) * (targetPos - gunAnchorTransform.position);
+            float xzLength = targetDirectionInGunSpace.ToVector2_xz().magnitude;
+            Vector2 targetGunSpaceDirectionFlattened = new Vector2(xzLength, targetDirectionInGunSpace.y);
+            float gunAngles = Vector2.SignedAngle(targetGunSpaceDirectionFlattened.normalized, Vector2.right);
 
-            return aimDirectionInTurretBodySpace;
+            if(settings.hasTurretRotLimit)
+                turretAngles = Mathf.Clamp(turretAngles, settings.turretRotLeftLimit, settings.turretRotRightLimit);
+            if (settings.hasGunRotLimit)
+                gunAngles = Mathf.Clamp(gunAngles, settings.gunRotLowerLimit, settings.gunRotUpperLimit);
+
+            return (turretAngles, gunAngles);
         }
 
-        /// <summary>
-        /// Yields good results when used with BlendLinearlyWithAccel to arrive at the current vector
-        /// 
-        /// turretBodyRotation is the rotation of the turret Parent
-        /// 
-        /// This method respects the angle limits counting from bodyForward
-        /// </summary>
-        /// <returns></returns>
-        public static Vector3 GetTargetTurretForwardWithLimits(Quaternion turretBodyRotation, float maxAnglesLeft, float maxAnglesRight)
+        public static (float targetTurretRotation, float targetGunRotation) CalculateTargetRotationInAnglesAcceleration(
+            Vector3 targetPos, Transform turretAnchorTransform, Transform gunAnchorTransform, TurretSettings settings)
         {
-            return Vector3.zero;
+            return (0, 0);
         }
 
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="turretRotation"></param>
-        /// <param name="bodyRotation">this rotation represents the parent of the turret, angle limits are relative to this rotation</param>
-        /// <param name="aimDirection"></param>
-        /// <param name="degrees"></param>
+        /// <param name="turretAnchorRotation"></param>
+        /// <param name="turretAnchorUp"></param>
+        /// <param name="localTurretRotation">Measured between -180 and 180</param>
         /// <returns></returns>
-        /*public static Quaternion RotateTurretTowardsDirection(this Quaternion turretRotation, Quaternion bodyRotation, Vector3 aimDirection, float rotationSpeed, float deltaTime)
+        public static Quaternion GetTargetTurretRotation(Quaternion turretAnchorRotation, Vector3 turretAnchorUp, float localTurretRotation)
         {
-            Vector3 aimDirectionInTurretBodySpace = Quaternion.Inverse(bodyRotation) * aimDirection;
-            aimDirectionInTurretBodySpace.y = 0;
-            Vector3 aimDirectionInWorldSpace = bodyRotation * aimDirectionInTurretBodySpace;
-            return QuaternionUtilities.RotateTowards(
-                turretRotation,
-                Quaternion.LookRotation(aimDirectionInWorldSpace, bodyRotation*Vector3.up),
-                rotationSpeed,
-                deltaTime
-                );
-        }*/
+            return QuaternionUtilities.RotateAlongAxis(turretAnchorRotation, turretAnchorUp, localTurretRotation);
+        }
 
-        
-       /* public static Quaternion RotateGunTowardsDirection(this Quaternion turretRotation, Quaternion bodyRotation, Vector3 aimDirection, float degrees)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gunAnchorRotation"></param>
+        /// <param name="gunAnchorRight"></param>
+        /// <param name="localGunRotation">Between -90 and 90 or -89 and 89</param>
+        /// <returns></returns>
+        public static Quaternion GetTargetGunRotation(Quaternion gunAnchorRotation, Vector3 gunAnchorRight, float localGunRotation)
         {
-
-        }*/
+            return QuaternionUtilities.RotateAlongAxis(gunAnchorRotation, gunAnchorRight, localGunRotation);
+        }
     }
 }

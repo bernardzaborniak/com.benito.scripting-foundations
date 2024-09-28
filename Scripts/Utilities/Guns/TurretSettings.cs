@@ -16,15 +16,15 @@ namespace Benito.ScriptingFoundations.Utilities.Guns
 
         [Space]
         public bool hasTurretRotLimit;
-        [Tooltip("Relative to body forward in angles")]
+        [Tooltip("Relative to body forward in angles, left is in -80 for example while right is +80")]
         public float turretRotLeftLimit;
         public float turretRotRightLimit;
 
         [Space]
         public bool hasGunRotLimit;
-        [Tooltip("Relative to turret forward in angles")]
-        public float gunRotUpperLimit;
-        [Tooltip("Relative to turret forward in angles")]
+        [Tooltip("Relative to turret forward in angles -80 for upwards, but is used as lower limit")]
         public float gunRotLowerLimit;
+        [Tooltip("Relative to turret forward in angles 80 for downwards but is used as upper limit")]
+        public float gunRotUpperLimit;
     }
 }
