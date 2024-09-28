@@ -22,62 +22,37 @@ namespace Benito.ScriptingFoundations.Utilities.Guns
         public float gunVelocity;
 
         //public (float targetTurretRotation, float targetGunRotation) GetTargetRotationInAngles(Vector3 targetDirection, Transform parentTransform)
-        public (float targetTurretRotation, float targetGunRotation) GetTargetRotationInAngles(Transform targetTransform, Transform bodyTransform, Transform turretAnchorTransform, Transform gunAnchorTransform)
+        public (float targetTurretRotation, float targetGunRotation) CalculateTargetRotationInAngles(Transform targetTransform, Transform bodyTransform, Transform turretAnchorTransform, Transform gunAnchorTransform)
         {
             // convert target direction into local space ... but it will be different depending on which local spece we convert it inot - turret or gun or body
 
             Vector3 targetDirectionInTurretSpace = Quaternion.Inverse(turretAnchorTransform.rotation) * (targetTransform.position- turretAnchorTransform.position);
             
-            Debug.Log($"targetDirectionInTurretSpace: {targetDirectionInTurretSpace}");
+            //Debug.Log($"targetDirectionInTurretSpace: {targetDirectionInTurretSpace}");
 
             float turretAngles = Vector2.SignedAngle(targetDirectionInTurretSpace.ToVector2_xz(), Vector2.up);
-            Debug.Log($"turret angles: {turretAngles}");
+            //Debug.Log($"turret angles: {turretAngles}");
 
             Vector3 targetDirectionInGunSpace = Quaternion.Inverse(gunAnchorTransform.rotation) * (targetTransform.position - gunAnchorTransform.position);
 
-            Debug.Log($"targetDirectionInGunSpace: {targetDirectionInGunSpace}");
+            //Debug.Log($"targetDirectionInGunSpace: {targetDirectionInGunSpace}");
 
             float xzLength = targetDirectionInGunSpace.ToVector2_xz().magnitude;
             Vector2 targetGunSpaceDirectionFlattened = new Vector2(xzLength, targetDirectionInGunSpace.y);
-            Debug.DrawRay(gunAnchorTransform.position, gunAnchorTransform.rotation * targetGunSpaceDirectionFlattened, Color.cyan);
-            Debug.Log($"targetGunSpaceDirectionFlattened: {targetGunSpaceDirectionFlattened}");
+            //Debug.DrawRay(gunAnchorTransform.position, gunAnchorTransform.rotation * targetGunSpaceDirectionFlattened, Color.cyan);
+            //Debug.Log($"targetGunSpaceDirectionFlattened: {targetGunSpaceDirectionFlattened}");
             float gunAngles = Vector2.SignedAngle(targetGunSpaceDirectionFlattened.normalized, Vector2.right);
-            Debug.Log($"gun angles: {gunAngles}");
+            //Debug.Log($"gun angles: {gunAngles}");
 
 
             turretRotation = turretAngles;
             gunRotation = gunAngles;
 
-            /*
-            float targetTurretRot = VectorUtilities.AngleOffAroundAxis(parentTransform.forward, targetDirection, parentTransform.up);
-
-            // flatten target direction to a 2d vector
-            Vector2 flattenedTargetDirection = new Vector2(targetDirection.x + targetDirection.z)
-
-            // project it on the gun rotation plane
-
-            // calculate the angle difference
-
-            float targetGunRot = VectorUtilities.AngleOffAroundAxis(parentTransform.forward)
-
-
-
-            Debug.Log($"targetTurretRot: {targetTurretRot}");
-            //float targetTurretRotation = 
-
-            */
-
-            //float targetGunRotation
             return (0,0);
         }
 
         public Quaternion GetTargetTurretRotation(Quaternion turretAnchorRotation, Vector3 turretAnchorUp)
         {
-            //return Quaternion.LookRotation(
-            //    QuaternionUtilities.RotateAlongAxis(turretAnchor.rotation, turretAnchor.up, turretRotation),
-             //   turretAnchor.up
-             //   );
-
             return QuaternionUtilities.RotateAlongAxis(turretAnchorRotation, turretAnchorUp, turretRotation);
         }
 
