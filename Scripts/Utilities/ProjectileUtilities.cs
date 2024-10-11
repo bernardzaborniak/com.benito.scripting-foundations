@@ -11,6 +11,25 @@ namespace Benito.ScriptingFoundations.Utilities
     public static class ProjectileUtilities
     {
         /// <summary>
+        /// This method gives a new positon of the target, it symbolizes where we should aim if we fire a projectile that flies in a parabola through gravity
+        /// </summary>
+        /// <param name="projectileLaunchPosition"></param>
+        /// <param name="target"></param>
+        /// <returns>Returns targetAdjustedForGravity flight</returns>
+        public static Vector3 AdjustTargetByProjectileParabole(Vector3 projectileLaunchPosition, Vector3 target, float projectileLaunchVelocity, float gravity = 9.81f)
+        {
+            Vector3 directAimDirection = target - projectileLaunchPosition;
+                                                                                       
+            // New elevation angle (beta) in degrees
+            float beta = ProjectileUtilities.CalculateProjectileLaunchAngle(projectileLaunchVelocity, projectileLaunchPosition, target, true, gravity);
+            float betaRadians = beta * Mathf.Deg2Rad;
+
+            target = projectileLaunchPosition + Vector3.RotateTowards(directAimDirection.ToVector3_x0z(), Vector3.up, betaRadians, directAimDirection.magnitude);
+
+            return target;
+        }
+
+        /// <summary>
         /// There will almost always be 2 angles at which we can shoot (except at 45 degrees).
         /// If direct shot is true, it means we take the lower angle of the 2.
         /// </summary>
