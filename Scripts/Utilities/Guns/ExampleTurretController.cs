@@ -45,7 +45,7 @@ namespace Benito.ScriptingFoundations.Utilities.Guns
             gunTransform.rotation = TurretUtilities.GetTargetGunRotation(gunAnchorTransform.rotation, gunAnchorTransform.right, turretState.gunRotation);
 
             // Debug
-            Debug.DrawLine(gunTransform.position, gunTransform.position + gunTransform.forward * 25, Color.blue);
+            //Debug.DrawLine(gunTransform.position, gunTransform.position + gunTransform.forward * 25, Color.blue);
         }
     }
 }

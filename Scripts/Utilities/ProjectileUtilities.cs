@@ -14,18 +14,18 @@ namespace Benito.ScriptingFoundations.Utilities
         /// There will almost always be 2 angles at which we can shoot (except at 45 degrees).
         /// If direct shot is true, it means we take the lower angle of the 2.
         /// </summary>
-        public static float CalculateProjectileLaunchAngle(float launchVelocity, Vector3 startPosition, Vector3 targetPosition, bool directShot = true)
+        public static float CalculateProjectileLaunchAngle(float launchVelocity, Vector3 startPosition, Vector3 targetPosition, bool directShot = true, float gravity = 9.81f)
         {
             Vector3 distDelta = targetPosition - startPosition;
 
-            return CalculateProjectileLaunchAngle(launchVelocity, new Vector3(distDelta.x, 0f, distDelta.z).magnitude, distDelta.y, directShot);
+            return CalculateProjectileLaunchAngle(launchVelocity, new Vector3(distDelta.x, 0f, distDelta.z).magnitude, distDelta.y, directShot, gravity);
         }
 
         /// <summary>
         /// There will almost always be 2 angles at which we can shoot (except at 45 degrees).
         /// If direct shot is true, it means we take the lower angle of the 2.
         /// </summary>
-        public static float CalculateProjectileLaunchAngle(float speed, float horizontalDistance, float heightDifference, bool directShoot = true, float gravity = 9.71f)
+        public static float CalculateProjectileLaunchAngle(float speed, float horizontalDistance, float heightDifference, bool directShoot = true, float gravity = 9.81f)
         {
             float theta = 0f;
 
