@@ -10,7 +10,7 @@ namespace Benito.ScriptingFoundations.Utilities.Guns
     /// <summary>
     /// Represents a tank that is being rotated along its foward axis and still keeps aiming at the target at the same time
     /// </summary>
-    public class ExampleTurretController : MonoBehaviour
+    public class ExampleTurretControllerMono : MonoBehaviour
     {
         [SerializeField] bool useAcceleration;
 

@@ -16,7 +16,7 @@ namespace Benito.ScriptingFoundations.Utilities
         /// <param name="projectileLaunchPosition"></param>
         /// <param name="target"></param>
         /// <returns>Returns targetAdjustedForGravity flight</returns>
-        public static Vector3 AdjustTargetByProjectileParabole(Vector3 projectileLaunchPosition, Vector3 target, float projectileLaunchVelocity, float gravity = 9.81f)
+        public static Vector3 AdjustTargetByProjectileParabola(Vector3 projectileLaunchPosition, Vector3 target, float projectileLaunchVelocity, float gravity = 9.81f)
         {
             Vector3 directAimDirection = target - projectileLaunchPosition;
                                                                                        
