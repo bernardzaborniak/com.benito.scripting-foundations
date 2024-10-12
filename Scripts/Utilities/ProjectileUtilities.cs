@@ -10,41 +10,56 @@ namespace Benito.ScriptingFoundations.Utilities
     /// </summary>
     public static class ProjectileUtilities
     {
+    
+
+
         /// <summary>
         /// This method gives a new positon of the target, it symbolizes where we should aim if we fire a projectile that flies in a parabola through gravity
         /// </summary>
         /// <param name="projectileLaunchPosition"></param>
         /// <param name="target"></param>
-        /// <returns>Returns targetAdjustedForGravity flight</returns>
-        public static Vector3 AdjustTargetByProjectileParabola(Vector3 projectileLaunchPosition, Vector3 target, float projectileLaunchVelocity, float gravity = 9.81f)
+        /// <returns>Returns target pos adjusted for gravity, if NaN is returned, it means its out of range</returns>
+
+        
+        public static bool AdjustTargetByProjectileParabola(out Vector3 targetPosAdjustedForGravity, Vector3 projectileLaunchPosition, Vector3 target, float projectileLaunchVelocity, float gravity = 9.81f)
         {
-            Vector3 directAimDirection = target - projectileLaunchPosition;
-                                                                                       
             // New elevation angle (beta) in degrees
-            float beta = ProjectileUtilities.CalculateProjectileLaunchAngle(projectileLaunchVelocity, projectileLaunchPosition, target, true, gravity);
+            float beta;
+            bool inRange = ProjectileUtilities.CalculateProjectileLaunchAngle(out beta, projectileLaunchVelocity, projectileLaunchPosition, target, true, gravity);
+
+            if (!inRange)
+            {
+                targetPosAdjustedForGravity = Vector3.zero;
+                return false;
+            }
+
             float betaRadians = beta * Mathf.Deg2Rad;
-
-            target = projectileLaunchPosition + Vector3.RotateTowards(directAimDirection.ToVector3_x0z(), Vector3.up, betaRadians, directAimDirection.magnitude);
-
-            return target;
+            Vector3 directAimDirection = target - projectileLaunchPosition;
+           
+            targetPosAdjustedForGravity = projectileLaunchPosition + Vector3.RotateTowards(directAimDirection.ToVector3_x0z(), Vector3.up, betaRadians, directAimDirection.magnitude);
+            return true;
         }
+
 
         /// <summary>
         /// There will almost always be 2 angles at which we can shoot (except at 45 degrees).
         /// If direct shot is true, it means we take the lower angle of the 2.
         /// </summary>
-        public static float CalculateProjectileLaunchAngle(float launchVelocity, Vector3 startPosition, Vector3 targetPosition, bool directShot = true, float gravity = 9.81f)
+        /// <returns>True if target is in range and launch angle is available, False is target is out of range</returns>
+        public static bool CalculateProjectileLaunchAngle(out float launchAngle, float launchVelocity, Vector3 startPosition, Vector3 targetPosition, bool directShot = true, float gravity = 9.81f)
         {
             Vector3 distDelta = targetPosition - startPosition;
 
-            return CalculateProjectileLaunchAngle(launchVelocity, new Vector3(distDelta.x, 0f, distDelta.z).magnitude, distDelta.y, directShot, gravity);
+            return CalculateProjectileLaunchAngle(out launchAngle, launchVelocity, new Vector3(distDelta.x, 0f, distDelta.z).magnitude, distDelta.y, directShot, gravity);
         }
+
 
         /// <summary>
         /// There will almost always be 2 angles at which we can shoot (except at 45 degrees).
         /// If direct shot is true, it means we take the lower angle of the 2.
         /// </summary>
-        public static float CalculateProjectileLaunchAngle(float speed, float horizontalDistance, float heightDifference, bool directShoot = true, float gravity = 9.81f)
+        /// <returns>True if target is in range and launch angle is available, False is target is out of range</returns>
+        public static bool CalculateProjectileLaunchAngle(out float launchAngle, float speed, float horizontalDistance, float heightDifference, bool directShoot = true, float gravity = 9.81f)
         {
             float theta = 0f;
 
@@ -57,18 +72,26 @@ namespace Benito.ScriptingFoundations.Utilities
                 theta = Mathf.Atan((Mathf.Pow(speed, 2) + Mathf.Sqrt(Mathf.Pow(speed, 4) - gravity * (gravity * Mathf.Pow(horizontalDistance, 2) + 2 * heightDifference * Mathf.Pow(speed, 2)))) / (gravity * horizontalDistance));
             }
 
-            return (theta * (180 / Mathf.PI));  //change into degrees
+            // If the target is out of range for the specified velocity, it returns "Not a Number"
+            if (float.IsNaN(theta))
+            {
+                launchAngle = 0;
+                return false;
+            }         
+
+            launchAngle = (theta * (180 / Mathf.PI)); ;
+            return true;
         }
 
         /// <summary>
         /// Returns what the maximum range of such a projectile would be if the launch and landing points have the same y value.
         /// </summary>
-        public static float GetMaximumRangeForEvenGround(float projectileLaunchVelocity, float launchAngleInDegrees, float gravity = 9.71f)
+        public static float GetMaximumRangeForEvenGround(float projectileLaunchVelocity, float launchAngleInDegrees, float gravity = 9.81f)
         {
             return Mathf.Pow(projectileLaunchVelocity,2)*Mathf.Sin(2 * launchAngleInDegrees * (Mathf.PI / 180)) / gravity;
         }
 
-        public static float CalculateTimeOfFlightOfProjectileLaunchedAtAnAngle(float projectileLaunchVelocity, float launchAngleInDegrees, Vector3 projectileLaunchPosition, Vector3 targetPosition, float gravity = 9.71f)
+        public static float CalculateTimeOfFlightOfProjectileLaunchedAtAnAngle(float projectileLaunchVelocity, float launchAngleInDegrees, Vector3 projectileLaunchPosition, Vector3 targetPosition, float gravity = 9.81f)
         {
             // I dont exactly understand how it works, but it works.
 
