@@ -71,7 +71,6 @@ namespace Benito.ScriptingFoundations.Tools.Editor
 
                 scroll = GUILayout.BeginScrollView(scroll);
                 {
-
                     foreach (GameObject go in goWithMissingScripts)
                     {
                         if (goWithMissingScripts == null)

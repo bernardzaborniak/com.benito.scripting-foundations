@@ -10,8 +10,25 @@ namespace Benito.ScriptingFoundations.Utilities
     /// </summary>
     public static class ProjectileUtilities
     {
-    
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="launchAngle"></param>
+        /// <param name="launchVelocity"></param>
+        /// <param name="heightDifference">negative means, the target is higher than the launch point</param>
+        /// <returns></returns>
+        public static float CalculateProjectileRange(float launchAngle, float launchVelocity, float heightDifference, float gravity = 9.81f)
+        {
+            launchAngle = launchAngle * Mathf.Deg2Rad;
+            float range = launchVelocity * Mathf.Cos(launchAngle) *
+              ((launchVelocity * Mathf.Sin(launchAngle) + Mathf.Sqrt(
+                  Mathf.Pow(launchVelocity * Mathf.Sin(launchAngle), 2) + 2 * gravity * heightDifference))
+              / gravity);
+
+            return range;
+        }
 
         /// <summary>
         /// This method gives a new positon of the target, it symbolizes where we should aim if we fire a projectile that flies in a parabola through gravity
@@ -19,8 +36,6 @@ namespace Benito.ScriptingFoundations.Utilities
         /// <param name="projectileLaunchPosition"></param>
         /// <param name="target"></param>
         /// <returns>Returns target pos adjusted for gravity, if NaN is returned, it means its out of range</returns>
-
-        
         public static bool AdjustTargetByProjectileParabola(out Vector3 targetPosAdjustedForGravity, Vector3 projectileLaunchPosition, Vector3 target, float projectileLaunchVelocity, float gravity = 9.81f)
         {
             // New elevation angle (beta) in degrees
