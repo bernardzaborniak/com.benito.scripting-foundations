@@ -8,6 +8,8 @@ namespace Benito.ScriptingFoundations.Validator.Editor
 {
     public static class ValidationHelper
     {
+        //TODO validation methods dont work in subclasses :(
+
         public static bool IsPropertyValid(SerializedProperty property, ValidateAttribute attribute, out string errorMessage, out MessageType errorMessageType)
         {
             if(attribute.type == ValidateAttribute.ValidateAttributeType.ObjectNotNull)

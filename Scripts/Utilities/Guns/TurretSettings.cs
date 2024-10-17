@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Benito.ScriptingFoundations.Utilities.Guns
 {
     [System.Serializable]
-    public class TurretSettings
+    public class TurretSettings 
     {
         [Tooltip("in angles")]
         public float turretRotationSpeed;
