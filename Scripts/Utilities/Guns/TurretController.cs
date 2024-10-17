@@ -30,11 +30,11 @@ namespace Benito.ScriptingFoundations.Utilities.Guns
         /// </summary>
         public void ValidateTurretReferences()
         {
-            if (turret.localPosition != Vector3.zero || turret.localRotation != Quaternion.identity)
+            if (turret.localPosition.x != 0 || turret.localPosition.z != 0|| turret.localRotation != Quaternion.identity)
             {
                 Debug.Log("Turret Controller Validation failed, make sure turret.localPosition == Vector3.zero && turret.localRotation == Quaternion.identity");
             }
-            if (gun.localPosition != Vector3.zero || gun.localRotation != Quaternion.identity)
+            if (gun.localPosition.x != 0 || gun.localPosition.y != 0 || gun.localRotation != Quaternion.identity)
             {
                 Debug.Log("Turret Controller Validation failed, make sure gun.localPosition == Vector3.zero && gun.localRotation == Quaternion.identity");
             }
