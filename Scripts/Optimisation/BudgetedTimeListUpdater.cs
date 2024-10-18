@@ -10,6 +10,8 @@ public abstract class BudgetedTimeListUpdater<T> : IBudgetedOperation
 
     public float Progress { get; protected set; }
 
+    // Watch out -  if you switch the budget very low, it first needs to finish one whole iteraion on this low budget,
+    // probably only one item per frame, before starting a new iteration with the new budget
     public float TimeBudget { get; protected set; }
 
     protected int stoppedAtIndex;
