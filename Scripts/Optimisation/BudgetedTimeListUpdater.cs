@@ -6,11 +6,11 @@ using UnityEngine;
 
 public abstract class BudgetedTimeListUpdater<T> : IBudgetedOperation
 {
-    public bool Finished { get; private set; }
+    public bool Finished { get; protected set; }
 
-    public float Progress { get; private set; }
+    public float Progress { get; protected set; }
 
-    public float TimeBudget { get; private set; }
+    public float TimeBudget { get; protected set; }
 
     protected int stoppedAtIndex;
     protected List<T> listToTraverse;
@@ -40,12 +40,11 @@ public abstract class BudgetedTimeListUpdater<T> : IBudgetedOperation
         {
             PerFrameOperation(i);
 
-            if (TimeLimitReached())
+            if (GetElapsedMiliseconds()>TimeBudget)
             {
                 StopIterationForThisFrame(i);
                 return;
             }
-
         }
 
         stopwatch.Stop();
@@ -54,18 +53,20 @@ public abstract class BudgetedTimeListUpdater<T> : IBudgetedOperation
 
     protected abstract void PerFrameOperation(int index);
 
-
-    protected bool TimeLimitReached()
-    {
-        //double elapsedMiliseconds = (stopwatch.ElapsedTicks * 1000.0) / Stopwatch.Frequency;
-        return ((stopwatch.ElapsedTicks * 1000.0) / Stopwatch.Frequency) > TimeBudget;
-    }
-
     protected void StopIterationForThisFrame(int index)
     {
         stopwatch.Stop();
         stoppedAtIndex = index;
         Progress = (1f * index) / (1f * listToTraverse.Count);
+    }
+
+    /// <summary>
+    /// Dont use often, calling this method means its being calculated twice
+    /// </summary>
+    /// <returns></returns>
+    protected double GetElapsedMiliseconds()
+    {
+        return (stopwatch.ElapsedTicks * 1000.0) / Stopwatch.Frequency;
     }
 }
 
