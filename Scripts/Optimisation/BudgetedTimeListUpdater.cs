@@ -58,7 +58,7 @@ public abstract class BudgetedTimeListUpdater<T> : IBudgetedOperation
     protected void StopIterationForThisFrame(int index)
     {
         stopwatch.Stop();
-        stoppedAtIndex = index;
+        stoppedAtIndex = index + 1;
         Progress = (1f * index) / (1f * listToTraverse.Count);
     }
 
