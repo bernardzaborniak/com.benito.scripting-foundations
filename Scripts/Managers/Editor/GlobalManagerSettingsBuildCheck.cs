@@ -12,7 +12,11 @@ namespace Benito.ScriptingFoundations.Managers.Editor
     /// </summary>
     public class GlobalManagerSettingsBuildCheck : IPreprocessBuildWithReport
     {
-        public int callbackOrder => throw new System.NotImplementedException();
+        //public int callbackOrder => throw new System.NotImplementedException(); // dont remember why i made it an exception :D
+        public int callbackOrder
+        {
+            get { return 80; }
+        }
 
         public void OnPreprocessBuild(BuildReport report)
         {

@@ -12,7 +12,11 @@ namespace Benito.ScriptingFoundations.Modding.Editor
     /// </summary>
     public class ModdingSettingsBuildCheck : IPreprocessBuildWithReport
     {
-        public int callbackOrder => throw new System.NotImplementedException();
+        //public int callbackOrder => throw new System.NotImplementedException(); // dont remember why i made it an exception :D
+        public int callbackOrder
+        {
+            get { return 100; }
+        }
 
         public void OnPreprocessBuild(BuildReport report)
         {
