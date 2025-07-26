@@ -72,7 +72,14 @@ namespace Benito.ScriptingFoundations.Managers
             managers.Clear();
             foreach (ISingletonManager manager in GetComponentsInChildren<ISingletonManager>())
             {
-                managers.Add((T)manager);
+                try
+                {
+                    managers.Add((T)manager);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Could not cast the child {manager} to type {typeof(T)}", (manager as Component).gameObject);
+                }
             }
 
             UnityEditor.EditorUtility.SetDirty(this);
