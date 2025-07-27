@@ -31,7 +31,7 @@ namespace Benito.ScriptingFoundations.Utilities
                 UnityEditor.AssetDatabase.CreateAsset(settings, "Assets/Resources/" + defaultSettingsPathInRessourceFolder + ".asset");
                 UnityEditor.AssetDatabase.SaveAssets();
 #else
-                throw new System.Exception("No {typeof(T)} aviable in Ressources Folder, make sure it was created in the editor by just opening up Project Settings/Global Managers once");
+                throw new System.Exception("No {typeof(T)} aviable in Ressources Folder, make sure it was created in the editor by just opening up Project Settings/Benitos Foundations [all subsettings] once");
 #endif
             }
             else
