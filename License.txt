@@ -1,0 +1,9 @@
+Copyright 2025 Bernard Zaborniak
+
+This software is provided under a proprietary license. 
+You may not use, copy, distribute, modify, or reverse engineer this software 
+without explicit written permission from the copyright holder.
+
+For permission requests or clarifications, please contact:
+Bernard Zaborniak
+bernard.zaborniak@gmail.com
