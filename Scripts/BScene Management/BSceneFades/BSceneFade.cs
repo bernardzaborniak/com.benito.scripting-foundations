@@ -7,9 +7,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 {
     public abstract class BSceneFade : MonoBehaviour
     {
-        public Action OnTransitionFinished;
+        public Action OnFadeFinished;
 
-        public abstract void StartTransition();
+        public abstract void StartFade();
 
     }
 }

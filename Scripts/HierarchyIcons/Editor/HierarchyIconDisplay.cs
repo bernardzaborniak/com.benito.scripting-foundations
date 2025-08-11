@@ -49,6 +49,8 @@ namespace Benito.ScriptingFoundations.HierarchyIcons
 
             Component component = components.Length > 1 ? components[1] : components[0]; // components [0] is transform // adjust priority list if needed here
 
+            if(component == null) return; // additional checks as sometimes editor became stuck
+
             Type type = component.GetType();
 
             // Create an optional tooltip

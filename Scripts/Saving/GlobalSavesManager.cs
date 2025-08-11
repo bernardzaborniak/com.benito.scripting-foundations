@@ -16,7 +16,9 @@ using Debug = UnityEngine.Debug;
 
 namespace Benito.ScriptingFoundations.Saving
 {
-    // Takes care of loading and saving different savegames to files.
+    /// <summary>
+    ///  Takes care of loading and saving different savegames to files.
+    /// </summary>
     public class GlobalSavesManager : SingletonManagerGlobal
     {
         #region Fields
@@ -63,7 +65,6 @@ namespace Benito.ScriptingFoundations.Saving
 
         public class CreateSceneSaveJsonStringBudgetedOperation : IBudgetedOperation
         {
-
             public bool Finished { get; private set; }
             public float Progress { get; private set; }
             public float TimeBudget { get; private set; }
@@ -245,6 +246,8 @@ namespace Benito.ScriptingFoundations.Saving
 
         #endregion
 
+        // TODO move all scene loading into BScene Manager? it can just use the saves manager methods
+
         #region Load Scene Save Infos
 
         public List<(SceneSavegameInfo info, Texture2D image)> GetSceneSavegameInfosInsideFolder(string folderPathInSavesFolder)
@@ -333,6 +336,11 @@ namespace Benito.ScriptingFoundations.Saving
         /// Automaticly switches to target scene and loads savegame using BSceneManager.
         /// Write saveFilePathInsideSavesFolder without file extension.
         /// </summary>
+        /// 
+
+        // TODO move this into BScene Mangement somehow
+
+        /*
         public void LoadSceneSave(string saveFilePathInsideSavesFolder, string transitionSceneName,
             GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
             GameObject exitTransitiontSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
@@ -347,7 +355,7 @@ namespace Benito.ScriptingFoundations.Saving
 
             ManagerState = State.LoadingSceneSave;
 
-            BSceneManager sceneManager = GlobalManagers.Get<BSceneManager>();
+            BSceneLoader sceneManager = GlobalManagers.Get<BSceneLoader>();
 
             sceneManager.LoadSceneSaveThroughTransitionScene(SceneSavegame.GetTargetSceneFromSceneSavegamePath(fullSaveFilePath), transitionSceneName, saveFilePathInsideSavesFolder,
                exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab, exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
@@ -358,9 +366,11 @@ namespace Benito.ScriptingFoundations.Saving
         void OnTransitionToSavedSceneFinishes()
         {
             ManagerState = State.Idle;
-            GlobalManagers.Get<BSceneManager>().OnTransitionFinishes -= OnTransitionToSavedSceneFinishes;
+            GlobalManagers.Get<BSceneLoader>().OnTransitionFinishes -= OnTransitionToSavedSceneFinishes;
             OnLoadingSceneSaveFileCompleted.Invoke();
         }
+
+        */
 
         #endregion
 

@@ -5,14 +5,16 @@ using UnityEditor;
 
 namespace Benito.ScriptingFoundations.BSceneManagement.Editor
 {
-    [CustomEditor(typeof(BSceneManager))]
-    public class BSceneManagerEditor : UnityEditor.Editor
+    
+
+    [CustomEditor(typeof(BSceneTransitionManager))]
+    public class BSceneTransitionManagerEditor : UnityEditor.Editor
     {
-        BSceneManager manager;
+        BSceneTransitionManager manager;
 
         void OnEnable()
         {
-            manager = (target as BSceneManager);
+            manager = (target as BSceneTransitionManager);
         }
 
         public override void OnInspectorGUI()
@@ -22,24 +24,26 @@ namespace Benito.ScriptingFoundations.BSceneManagement.Editor
 
             EditorGUILayout.BeginHorizontal();
             {
-                EditorGUILayout.LabelField("Manager State: ");
-                EditorGUILayout.LabelField(manager.GetCurrentState());
-            }
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            {
                 EditorGUILayout.LabelField("Current Transition: ");
                 EditorGUILayout.LabelField(manager.GetCurrentTransitionName());
             }
             EditorGUILayout.EndHorizontal();
 
+            
             EditorGUILayout.BeginHorizontal();
             {
-                EditorGUILayout.LabelField("Current State: ");
+                EditorGUILayout.LabelField("Current Transition Stage: ");
                 EditorGUILayout.LabelField(manager.GetCurrentTransitionStage());
             }
             EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            {
+                EditorGUILayout.LabelField("Current Transition Progress: ");
+                EditorGUILayout.LabelField(manager.TransitionProgress.ToString());
+            }
+            EditorGUILayout.EndHorizontal();
+
         }
     }
 }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
 {
-    public class BSceneTransitionLoadSceneSave : BSceneTransition
+    public class BTransitionExecutorLoadSceneSaveThroughTransitionScene : BTransitionExecuter
     {
         // Scenes & Savegames
         string targetScene;
@@ -57,7 +57,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         Stage stage;
 
-        public BSceneTransitionLoadSceneSave(string targetScene, string transitionScene, string savegamePathInSavesFolder, Transform sceneManagerTransform, AsyncOperation preloadSceneOperation,
+        public BTransitionExecutorLoadSceneSaveThroughTransitionScene(string targetScene, string transitionScene, string savegamePathInSavesFolder, Transform sceneManagerTransform, AsyncOperation preloadSceneOperation,
             GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
             GameObject exitTransitionSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
@@ -106,8 +106,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             if (exitCurrentSceneFadePrefab != null)
             {
                 exitCurrentSceneFade = CreateFade(exitCurrentSceneFadePrefab, sceneManagerTransform);
-                exitCurrentSceneFade.OnTransitionFinished += OnExitCurrentSceneFadeFinished;
-                exitCurrentSceneFade.StartTransition();
+                exitCurrentSceneFade.OnFadeFinished += OnExitCurrentSceneFadeFinished;
+                exitCurrentSceneFade.StartFade();
                 stage = Stage.PlayingExitCurrentSceneFade;
             }
             else
@@ -151,8 +151,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             if (enterTransitionSceneFadePrefab != null)
             {
                 enterTransitionSceneFade = CreateFade(enterTransitionSceneFadePrefab, sceneManagerTransform);
-                enterTransitionSceneFade.OnTransitionFinished += OnEnterTransitionSceneFadeFinished;
-                enterTransitionSceneFade.StartTransition();
+                enterTransitionSceneFade.OnFadeFinished += OnEnterTransitionSceneFadeFinished;
+                enterTransitionSceneFade.StartFade();
                 stage = Stage.PlayingEnterTransitionSceneFade;
             }
             else
@@ -218,8 +218,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             if (exitTransitionSceneFadePrefab != null)
             {
                 exitTransitionSceneFade = CreateFade(exitTransitionSceneFadePrefab, sceneManagerTransform);
-                exitTransitionSceneFade.OnTransitionFinished += OnExitTransitionSceneFadeFinished;
-                exitTransitionSceneFade.StartTransition();
+                exitTransitionSceneFade.OnFadeFinished += OnExitTransitionSceneFadeFinished;
+                exitTransitionSceneFade.StartFade();
                 stage = Stage.PlayingExitTransitionSceneFade;
             }
             else
@@ -254,8 +254,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             if (enterNextSceneFadePrefab != null)
             {
                 enterNextSceneFade = CreateFade(enterNextSceneFadePrefab, sceneManagerTransform);
-                enterNextSceneFade.OnTransitionFinished += OnEnterNextSceneFadeFinished;
-                enterNextSceneFade.StartTransition();
+                enterNextSceneFade.OnFadeFinished += OnEnterNextSceneFadeFinished;
+                enterNextSceneFade.StartFade();
                 stage = Stage.PlayingEnterNextSceneFade;
             }
             else
@@ -294,9 +294,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         {
             return stage.ToString();
         }
-        public override bool IsFinished()
+        /*public override bool HasFinished()
         {
             return stage == Stage.Finished || stage == Stage.PlayingEnterNextSceneFade;
-        }
+        }*/
     }
 }
