@@ -25,6 +25,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             transitionStartTime = Time.time;
             nextTransitionEndTime = Time.time + transitionDuration;
             colorOverlayImage.color = startColor;
+
+            HasFinished = false;
         }
 
        
@@ -36,6 +38,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 {
                     playTransition = false;
                     colorOverlayImage.color = endColor;
+                    HasFinished = true;
                     OnFadeFinished?.Invoke();
                 }
                 else

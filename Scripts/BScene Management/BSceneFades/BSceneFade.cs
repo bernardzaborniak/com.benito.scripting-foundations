@@ -9,6 +9,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
     {
         public Action OnFadeFinished;
 
+        public bool HasFinished {  get; protected set; }
+
         public abstract void StartFade();
 
     }

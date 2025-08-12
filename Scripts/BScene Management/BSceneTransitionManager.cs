@@ -59,7 +59,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
         }*/
 
-       
+
 
         /// <summary>
         /// Transitions into the currently preloaded scene with optional fades if you leave them empty.
@@ -72,19 +72,21 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 Debug.LogError("[BSceneTransitionManager] Can't transition into preloaded scene as loading hasn't finished yet or there i no preloaded scene.");
                 return;
             }
-            if (currentTransition != null) 
+            if (currentTransition != null)
             {
                 Debug.LogError("[BSceneTransitionManager] Can't start a new transition as the previous one hasnt finished yet");
                 return;
             }
 
-            currentTransition = new BTransitionExecutorDefaultRequiresPreloadedScene(transform, sceneLoader, exitCurrentSceneFadePrefab, enterNextSceneFadePrefab);
+            currentTransition = new BTransitionExecutorDefaultRequiresPreloadedSceneCoroutine(
+                this, transform, sceneLoader, 
+                exitCurrentSceneFadePrefab, enterNextSceneFadePrefab);
 
             AddTransitionFinishingHooks();
             currentTransition.StartTransition();  // Calling start is enough, the transition will handle all further setps asynchronously on its own
 
         }
-        
+
         /// <summary>
         /// Transitions into target scene with fades. Preloads target scene automatically.
         /// </summary>
@@ -101,7 +103,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 return;
             }
 
-            currentTransition = new BTransitionExecutorDefault(targetScene, transform, sceneLoader,
+            currentTransition = new BTransitionExecutorDefaultCoroutine( targetScene, 
+                this, transform, sceneLoader,
                exitCurrentSceneFadePrefab, enterNextSceneFadePrefab);
 
             AddTransitionFinishingHooks();
@@ -115,7 +118,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         public void TransitionThroughTransitionScene(string targetScene, string transitionScene,
            GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
            GameObject exitTransitiontSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
-       {
+        {
             if (sceneLoader.IsCurrentlyPreloading())
             {
                 Debug.LogError("[BSceneTransitionManager] Can't start Transition as there already is another preloaded scene.");
@@ -127,36 +130,42 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 return;
             }
 
-            currentTransition = new BTransitionExecutorThroughTransitionScene(targetScene, transitionScene, transform, sceneLoader,
+            currentTransition = new BTransitionExecutorThroughTransitionSceneCoroutine(targetScene, transitionScene, 
+                this, transform, sceneLoader,
                exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab,
                exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
 
             AddTransitionFinishingHooks();
             currentTransition.StartTransition();
-       }
+        }
 
 
         /// <summary>
         /// Transitions into target scene with a specified transition. Preloads all scenes automatically. Loads the save while being inside the transition scene.
         /// </summary>
-        /*
-       public void LoadSceneSaveThroughTransitionScene(string targetScene, string transitionScene, string savegamePathInSavesFolder,
-           GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
-           GameObject exitTransitiontSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
-       {
+
+        public void LoadSceneSaveThroughTransitionScene(string targetScene, string transitionScene, string savegamePathInSavesFolder,
+            GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
+            GameObject exitTransitiontSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
+        {
             if (sceneLoader.IsCurrentlyPreloading())
             {
                 Debug.LogError("[BSceneTransitionManager] Can't start Transition as there already is another preloaded scene.");
                 return;
             }
+            if (currentTransition != null)
+            {
+                Debug.LogError("[BSceneTransitionManager] Can't start a new transition as the previous one hasnt finished yet");
+                return;
+            }
+            /*
+            currentTransition = new BTransitionExecutorLoadSceneSaveThroughTransitionScene(targetScene, transitionSceneName, savegamePathInSavesFolder, transform, preloadSceneOperation,
+            exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab,
+                exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
+            currentTransition.StartTransition();
+            */
+        }
 
-           currentTransition = new BSceneTransitionLoadSceneSave(targetScene, transitionSceneName, savegamePathInSavesFolder, transform, preloadSceneOperation,
-           exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab,
-               exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
-           currentTransition.StartTransition();
-           //state = State.TransitioningToTargetScene;
-       }
-       */
 
         void AddTransitionFinishingHooks()
         {

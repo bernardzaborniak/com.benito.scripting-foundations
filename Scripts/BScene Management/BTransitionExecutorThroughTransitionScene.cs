@@ -5,6 +5,13 @@ using UnityEngine;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
 {
+    /// <summary>
+    /// Handles the seperate steps of playing fades to switch between 2 scenes.
+    /// Automatically goes through a transition scene that exits either automatically or on player input 
+    /// Requires a trransition scene with a BTransitionSceneController object inside
+    /// 
+    /// This executor preloads the next scene himself
+    /// </summary>
     public class BTransitionExecutorThroughTransitionScene : BTransitionExecuter
     {
         // Fades
@@ -32,6 +39,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         {
             Idle,
             PlayingExitCurrentSceneFade,
+            WaitingForTransitionSceneToPreload,
             PlayingEnterTransitionSceneFade,
             WaitingForTargetSceneToPreload,
             WaitingForTransitionScenePlayerInteraction,
@@ -116,6 +124,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
             else
             {
+                stage = Stage.WaitingForTransitionSceneToPreload;
                 sceneLoader.OnPreloadingSceneFinished += _3_OnPreloadingTransitionSceneComplete;
             }         
         }
@@ -170,6 +179,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         {
             if (enterTransitionSceneFade)
                 GameObject.Destroy(enterTransitionSceneFade.gameObject);
+            
             stage = Stage.WaitingForTargetSceneToPreload;
 
             if (sceneLoader.IsPreloadingComplete())
@@ -179,8 +189,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             else
             {
                 sceneLoader.OnPreloadingSceneFinished += _7_OnTargetSceneFinishedPreloading;
-            }
-            
+            }          
         }
 
         void _7_OnTargetSceneFinishedPreloading()
@@ -255,7 +264,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
             else
             {
-
                 _13_OnEnterNextSceneFadeFinished();
             }
         }
