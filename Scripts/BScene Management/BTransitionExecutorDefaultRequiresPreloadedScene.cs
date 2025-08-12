@@ -87,7 +87,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             _4_StartEnterNextSceneFade();
         }
-
+        
         void _4_StartEnterNextSceneFade()
         {
             if (enterNextSceneFadePrefab != null)

@@ -72,6 +72,11 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 Debug.LogError("[BSceneTransitionManager] Can't transition into preloaded scene as loading hasn't finished yet or there i no preloaded scene.");
                 return;
             }
+            if (currentTransition != null) 
+            {
+                Debug.LogError("[BSceneTransitionManager] Can't start a new transition as the previous one hasnt finished yet");
+                return;
+            }
 
             currentTransition = new BTransitionExecutorDefaultRequiresPreloadedScene(transform, sceneLoader, exitCurrentSceneFadePrefab, enterNextSceneFadePrefab);
 
@@ -88,6 +93,11 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             if (sceneLoader.IsCurrentlyPreloading())
             {
                 Debug.LogError("[BSceneTransitionManager] Can't start Transition as there already is another preloaded scene.");
+                return;
+            }
+            if (currentTransition != null)
+            {
+                Debug.LogError("[BSceneTransitionManager] Can't start a new transition as the previous one hasnt finished yet");
                 return;
             }
 
@@ -109,6 +119,11 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             if (sceneLoader.IsCurrentlyPreloading())
             {
                 Debug.LogError("[BSceneTransitionManager] Can't start Transition as there already is another preloaded scene.");
+                return;
+            }
+            if (currentTransition != null)
+            {
+                Debug.LogError("[BSceneTransitionManager] Can't start a new transition as the previous one hasnt finished yet");
                 return;
             }
 

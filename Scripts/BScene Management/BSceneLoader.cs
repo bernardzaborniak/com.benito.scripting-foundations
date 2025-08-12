@@ -56,9 +56,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void ResetPreloadOperation()
         {
-            Debug.Log($" [{Time.frameCount}] ResetPreloadOperation called");
-
-
             state = State.Idle;
             preloadedScene = null;
             preloadSceneOperation = null;
