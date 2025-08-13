@@ -54,6 +54,7 @@ namespace Benito.ScriptingFoundations.Saving
             int[] saveableObjectIds;
             List<SaveableSceneObjectData> objectsData;
             int creatingDictionaryStoppedAtIndex;
+            public Action OnLoadingBoFinished;
             int lastStoppedIndex;
 
 
@@ -107,6 +108,7 @@ namespace Benito.ScriptingFoundations.Saving
                         }
                     }
                     stage = Stage.Finished;
+                    OnLoadingBoFinished?.Invoke();
                 }
 
                 Progress = 1;
@@ -122,7 +124,7 @@ namespace Benito.ScriptingFoundations.Saving
 
             List<SaveableSceneObject> saveableObjects;
             List<SaveableSceneObjectData> objectsData;
-            public Action<List<SaveableSceneObjectData>> OnSavingFinished;
+            public Action<List<SaveableSceneObjectData>> OnSavingBoFinished;
             int lastStoppedIndex;
 
             public SavingSceneSaveBudgetedOperation(List<SaveableSceneObject> saveableObjects, float timeBudget)
@@ -156,7 +158,7 @@ namespace Benito.ScriptingFoundations.Saving
                 }
                 Progress = 1;
                 Finished = true;
-                OnSavingFinished?.Invoke(objectsData);
+                OnSavingBoFinished?.Invoke(objectsData);
             }
         }
 
@@ -177,22 +179,10 @@ namespace Benito.ScriptingFoundations.Saving
             {
                 loadingSceneOperation.Update(Time.deltaTime);
 
-                if (loadingSceneOperation.Finished)
-                {
-                    ManagerState = State.Idle;
-                    loadingSceneOperation = null;
-                    OnLoadingFinished?.Invoke();
-                }
             }
             else if(ManagerState == State.SavingSceneSave)
             {
                 savingSceneOperation.Update(Time.deltaTime);
-
-                if (savingSceneOperation.Finished)
-                {
-                    ManagerState = State.Idle;
-                    savingSceneOperation = null;
-                }
             }
         }
 
@@ -209,39 +199,40 @@ namespace Benito.ScriptingFoundations.Saving
             }
         }
 #endif
-        /*[Button("Save")]
-        public void TempCallSave()
-        {
-            GlobalManagers.Get<GlobalSavesManager>().CreateSceneSaveForCurrentScene("", "test");
-        }*/
-
-        /*[Button("Load")]
-       public async void LoadSaveFileWithoutSceneTransition()
-       {
-           SceneSavegame save = await GlobalManagers.Get<GlobalSavesManager>().ReadSceneSaveFileAsync("test");
-           LoadFromSaveData(save.SavedObjects);
-       }*/
-
+       
         public void SaveAllObjects()
         {
             ManagerState = State.SavingSceneSave;
             savingSceneOperation = new SavingSceneSaveBudgetedOperation(saveableObjects, SavingSettings.GetOrCreateSettings().savingSceneSaveMsBudgetPerFrame /1000);
-            savingSceneOperation.OnSavingFinished += OnSavingOperationFinished;
+            savingSceneOperation.OnSavingBoFinished += OnSavingOperationFinished;
         }
 
         void OnSavingOperationFinished(List<SaveableSceneObjectData> objectsData)
         {
-            savingSceneOperation.OnSavingFinished -= OnSavingOperationFinished;
+            savingSceneOperation.OnSavingBoFinished -= OnSavingOperationFinished;
+            savingSceneOperation = null;
+
+            ManagerState = State.Idle;
+
             OnSavingFinished?.Invoke(objectsData);
         }
 
-       
-
+        // TODO refactor, only let global saves manager call this?
         public void LoadFromSaveData(List<SaveableSceneObjectData> objectsData)
         {
             ManagerState = State.LoadingSceneSave;
-
             loadingSceneOperation = new LoadingSceneSaveBudgetedOperation(saveableObjects, saveableObjectIds, objectsData, SavingSettings.GetOrCreateSettings().loadingSceneSaveMsBudgetPerFrame/1000);
+            loadingSceneOperation.OnLoadingBoFinished += OnLoadingOperationFinished;
+        }
+
+        void OnLoadingOperationFinished()
+        {
+            loadingSceneOperation.OnLoadingBoFinished -= OnLoadingOperationFinished;
+            loadingSceneOperation = null;
+
+            ManagerState = State.Idle;
+
+            OnLoadingFinished?.Invoke();         
         }
     }
 }

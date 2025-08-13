@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Benito.ScriptingFoundations.Managers;
+using Benito.ScriptingFoundations.Saving;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
 {
@@ -18,6 +19,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
     {
         // Refs
         BSceneLoader sceneLoader;
+        GlobalSavesManager savesManager;
 
         // Transitions 
         BTransitionExecuter currentTransition;
@@ -30,6 +32,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         public override void InitialiseManager()
         {
             sceneLoader = GlobalManagers.Get<BSceneLoader>();
+            savesManager = GlobalManagers.Get<GlobalSavesManager>();
         }
 
         public override void UpdateManager()
@@ -158,12 +161,20 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 Debug.LogError("[BSceneTransitionManager] Can't start a new transition as the previous one hasnt finished yet");
                 return;
             }
-            /*
-            currentTransition = new BTransitionExecutorLoadSceneSaveThroughTransitionScene(targetScene, transitionSceneName, savegamePathInSavesFolder, transform, preloadSceneOperation,
-            exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab,
+            if(savesManager == null)
+            {
+                Debug.LogError("[BSceneTransitionManager] Can't load save as theres no save manager present inside global managers");
+                return;
+            }
+            
+            currentTransition = new BTransitionExecutorLoadSceneSaveThroughTransitionSceneCoroutine(
+                targetScene, transitionScene, savegamePathInSavesFolder,
+                GlobalManagers.Get<GlobalSavesManager>(), this,
+                transform, sceneLoader,
+                exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab,
                 exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
             currentTransition.StartTransition();
-            */
+            
         }
 
 

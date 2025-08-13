@@ -6,7 +6,7 @@
 
 using UnityEngine;
 
-namespace UnityTemplateProjects
+namespace Benito.ScriptingFoundations.CameraHelpers
 {
     public class SimpleCameraController : MonoBehaviour
     {

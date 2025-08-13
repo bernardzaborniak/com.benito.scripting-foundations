@@ -240,7 +240,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             saveSceneManager = LocalSceneManagers.Get<SaveableObjectsSceneManager>();
             saveSceneManager.OnLoadingFinished += OnLoadingSavegameFinished;
-            saveSceneManager.LoadFromSaveData(savegame.SavedObjects);
+            //saveSceneManager.LoadFromSaveData(savegame.SavedObjects);
+            // to be moved to global saves manager
         }
 
         void OnLoadingSavegameFinished()
@@ -283,14 +284,14 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 GameObject.Destroy(exitTransitionSceneFade.gameObject);
 
             stage = Stage.WaitingForTransitionSceneToUnload;
-           // unloadSceneOperation = UnitysSceneManager.UnloadSceneAsync(transitionScene);
-           // unloadSceneOperation.completed += OnUnloadTransitionSceneCompleted;
+            //unloadSceneOperation = UnitysSceneManager.UnloadSceneAsync(transitionScene); // todo move this into BSceneLoader
+            //unloadSceneOperation.completed += OnUnloadTransitionSceneCompleted;
         }
 
         void OnUnloadTransitionSceneCompleted(AsyncOperation operation)
         {
-            // unloadSceneOperation.completed -= OnUnloadTransitionSceneCompleted;
-            // unloadSceneOperation = null;
+             //unloadSceneOperation.completed -= OnUnloadTransitionSceneCompleted;
+             //unloadSceneOperation = null;
 
             if (exitTransitionSceneFade)
                 GameObject.Destroy(exitTransitionSceneFade.gameObject);

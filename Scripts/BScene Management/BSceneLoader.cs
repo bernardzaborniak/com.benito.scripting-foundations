@@ -38,6 +38,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         public Action OnPreloadingSceneFinished;
         public Action OnSwitchedToPreloadedScene;
 
+
         public bool IsPreloadingComplete()
         {
             return state is State.IdleWithPreloadedScene;
@@ -104,7 +105,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         /// <summary>
         /// Preloads a scene asynchronously with SceneManager.LoadSceneAsync.
         /// </summary>
-        public void PreloadScene(string sceneName)
+        public void PreloadScene(string sceneName, LoadSceneMode loadSceneMode = LoadSceneMode.Single)
         {
             if (state is State.PreloadingScene or State.IdleWithPreloadedScene)
             {
@@ -113,14 +114,12 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
 
             state = State.PreloadingScene;
-            preloadSceneOperation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+            preloadSceneOperation = SceneManager.LoadSceneAsync(sceneName, loadSceneMode);
             preloadSceneOperation.allowSceneActivation = false;
             preloadedScene = sceneName;
         }
 
-      
-
-        // UNLOADING a preloaded scene is not possible rn in Unity :(
+        // UNLOADING a preloaded scene is not possible rn in Unity, only active scenes if there are multiple :(
 
     }
 }
