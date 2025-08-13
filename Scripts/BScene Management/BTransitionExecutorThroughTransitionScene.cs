@@ -1,6 +1,6 @@
+
+using System;
 using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.SearchService;
 using UnityEngine;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
@@ -20,15 +20,11 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         GameObject exitTransitionSceneFadePrefab;
         GameObject enterNextSceneFadePrefab;
 
-        BSceneFade exitCurrentSceneFade;
-        BSceneFade enterTransitionSceneFade;
-        BSceneFade exitTransitionSceneFade;
-        BSceneFade enterNextSceneFade;
-        
         // Refs
         string targetScene;
         string transitionScene;
 
+        MonoBehaviour coroutineHost;
         Transform sceneManagerTransform;
         BSceneLoader sceneLoader;
 
@@ -50,8 +46,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         Stage stage;
 
-        public BTransitionExecutorThroughTransitionScene(string targetScene, string transitionScene, 
-            Transform sceneManagerTransform, BSceneLoader sceneLoader,
+        public BTransitionExecutorThroughTransitionScene(string targetScene, string transitionScene,
+            MonoBehaviour coroutineHost, Transform sceneManagerTransform, BSceneLoader sceneLoader,
             GameObject exitCurrentSceneFadePrefab, GameObject enterTransitionSceneFadePrefab,
             GameObject exitTransitionSceneFadePrefab, GameObject enterNextSceneFadePrefab)
         {
@@ -60,8 +56,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             this.targetScene = targetScene;
             this.transitionScene = transitionScene;
 
-            this.sceneLoader = sceneLoader;
+            this.coroutineHost = coroutineHost;
             this.sceneManagerTransform = sceneManagerTransform;
+            this.sceneLoader = sceneLoader;
 
             this.exitCurrentSceneFadePrefab = exitCurrentSceneFadePrefab;
             this.enterTransitionSceneFadePrefab = enterTransitionSceneFadePrefab;
@@ -69,209 +66,132 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             this.enterNextSceneFadePrefab = enterNextSceneFadePrefab;
         }
 
+        public override void StartTransition()
+        {
+            coroutineHost.StartCoroutine(TransitionCoroutine());
+        }
+
         public override void UpdateTransition()
         {
 
         }
 
-        public override void StartTransition()
+        IEnumerator TransitionCoroutine()
         {
-            _1_StartExitCurrentSceneFade();
-
-          
-            // also do scene preload here somehow
-        }
-
-        /// <summary>
-        /// Call this to allow exiting a transition scene.
-        /// </summary>
-        /*
-         public void OnTransitionSceneAllowsContinuation()
-        {
-            if (stage == Stage.WaitingForTargetSceneToPreload)
-            {
-                _6_StartExitTransitionSceneFade();
-            }
-        }
-        */
-
-        void _1_StartExitCurrentSceneFade()
-        {
+            // 1 Start Preloading 
             sceneLoader.PreloadScene(transitionScene);
 
+            // 2 play ExitCurrentScene Fade
+            BSceneFade exitCurrentSceneFade = null;
             if (exitCurrentSceneFadePrefab != null)
             {
-                exitCurrentSceneFade = CreateFade(exitCurrentSceneFadePrefab, sceneManagerTransform);
-                exitCurrentSceneFade.OnFadeFinished += _2_OnExitCurrentSceneFadeFinished;
-                exitCurrentSceneFade.StartFade();
                 stage = Stage.PlayingExitCurrentSceneFade;
+                exitCurrentSceneFade = CreateFade(exitCurrentSceneFadePrefab, sceneManagerTransform);
+                exitCurrentSceneFade.StartFade();
+
+                yield return new WaitUntil(() => exitCurrentSceneFade.HasFinished);
             }
-            else
+
+            // 3 Wait for transition scene to finish preloading
+            stage = Stage.WaitingForTransitionSceneToPreload;
+
+            if (!sceneLoader.IsPreloadingComplete())
             {
-                _2_OnExitCurrentSceneFadeFinished();
+                yield return new WaitUntil(() => sceneLoader.IsPreloadingComplete());
             }
-        }
 
-        void _2_OnExitCurrentSceneFadeFinished()
-        {
-            // If preloading of the transition scene has finished already, we jump straight into the next stage
-            // we only assign the sceneLoader.OnPreloadingSceneFinished now to not have 2 hooks at the same time
-            // as sceneLoader.OnPreloadingSceneFinished and exitCurrentSceneFade.OnFadeFinished could conflict with another
-
-            if (sceneLoader.IsPreloadingComplete())
+            // 4 Switch to preloaded  transition scene
+            bool switchDone = false;
+            Action switchDoneHandler = () =>
             {
-                _3_OnPreloadingTransitionSceneComplete();
-            }
-            else
-            {
-                stage = Stage.WaitingForTransitionSceneToPreload;
-                sceneLoader.OnPreloadingSceneFinished += _3_OnPreloadingTransitionSceneComplete;
-            }         
-        }
+                switchDone = true;
+                // Set up the transition controller
+                currentTransitionSceneController = GameObject.FindFirstObjectByType<BTransitionSceneController>();
+                if (currentTransitionSceneController == null)
+                {
+                    Debug.LogError($"[{this.GetType()}] The transition scene you are using has no object of " +
+                        $"Type {typeof(BTransitionSceneController)}. Make sure the transition scene has this object");
+                }
+                currentTransitionSceneController.SetUp(this);
+            };
 
-        void _3_OnPreloadingTransitionSceneComplete()
-        {
-            sceneLoader.OnPreloadingSceneFinished -= _3_OnPreloadingTransitionSceneComplete;
-
-            sceneLoader.OnSwitchedToPreloadedScene += _4_OnLoadingTransitionSceneComplete;
+            sceneLoader.OnSwitchedToPreloadedScene += switchDoneHandler;
             sceneLoader.SwitchToPreloadedScene();
-        }
-
-        void _4_OnLoadingTransitionSceneComplete()
-        {
-            sceneLoader.OnSwitchedToPreloadedScene -= _4_OnLoadingTransitionSceneComplete;
+            yield return new WaitUntil(() => switchDone);
+            sceneLoader.OnSwitchedToPreloadedScene -= switchDoneHandler;
 
             if (exitCurrentSceneFade)
                 GameObject.Destroy(exitCurrentSceneFade.gameObject);
 
-
-            // Get the controller which must be present in the transition scene.
-            currentTransitionSceneController = GameObject.FindFirstObjectByType<BTransitionSceneController>();
-            if (currentTransitionSceneController == null)
-            {
-                Debug.LogError($"[{this.GetType()}] The transition scene you are using has no object of " +
-                    $"Type {typeof(BTransitionSceneController)}. Make sure the transition scene has this object");
-            }
-            currentTransitionSceneController.SetUp(this);
-
+            
+            // 5 Start Preloading target scene
             sceneLoader.PreloadScene(targetScene);
 
-            _5_StartEnterTransitionSceneFade();
 
-        }
-
-        void _5_StartEnterTransitionSceneFade()
-        {
+            // 6 Play enter transition scene fade
             if (enterTransitionSceneFadePrefab != null)
             {
-                enterTransitionSceneFade = CreateFade(enterTransitionSceneFadePrefab, sceneManagerTransform);
-                enterTransitionSceneFade.OnFadeFinished += _6_OnEnterTransitionSceneFadeFinished;
-                enterTransitionSceneFade.StartFade();
                 stage = Stage.PlayingEnterTransitionSceneFade;
-            }
-            else
-            {
-                _6_OnEnterTransitionSceneFadeFinished();
-            }
-        }
+                BSceneFade enterTransitionSceneFade = CreateFade(enterTransitionSceneFadePrefab, sceneManagerTransform);
+                enterTransitionSceneFade.StartFade();
 
-        void _6_OnEnterTransitionSceneFadeFinished()
-        {
-            if (enterTransitionSceneFade)
+                yield return new WaitUntil(() => enterTransitionSceneFade.HasFinished);
                 GameObject.Destroy(enterTransitionSceneFade.gameObject);
-            
-            stage = Stage.WaitingForTargetSceneToPreload;
-
-            if (sceneLoader.IsPreloadingComplete())
-            {
-                _7_OnTargetSceneFinishedPreloading();
             }
-            else
-            {
-                sceneLoader.OnPreloadingSceneFinished += _7_OnTargetSceneFinishedPreloading;
-            }          
-        }
 
-        void _7_OnTargetSceneFinishedPreloading()
-        {
-            sceneLoader.OnPreloadingSceneFinished -= _7_OnTargetSceneFinishedPreloading;
+            // 7 Wait for target Scene to preload
+            stage = Stage.WaitingForTargetSceneToPreload;
+            yield return new WaitUntil(() => sceneLoader.IsPreloadingComplete());
 
+            // 8 Wait for player interaction to exit transition (if set)
             if (currentTransitionSceneController.TransitionWaitsForPlayerInteractionToFinish)
             {
-                // We wait for the transition controller inside the scene to give us the GO to continue.
                 stage = Stage.WaitingForTransitionScenePlayerInteraction;
 
-                currentTransitionSceneController.OnPlayerTriggeredTransitionCompletion
-                    += _8_OnPlayerInteractionTriggeredTransitionCompletion;
+                bool playerGaveGo = false;
+                Action playerInteractionHandler = () => playerGaveGo = true;
+
+                // We wait for the transition controller inside the scene to give us the GO to continue.
+                currentTransitionSceneController.OnPlayerTriggeredTransitionCompletion += playerInteractionHandler;
+                yield return new WaitUntil(() => playerGaveGo);
+                currentTransitionSceneController.OnPlayerTriggeredTransitionCompletion -= playerInteractionHandler;
             }
-            else
-            {
-                _9_StartExitTransitionSceneFade();
-            }
-        }
 
-        void _8_OnPlayerInteractionTriggeredTransitionCompletion()
-        {
-            currentTransitionSceneController.OnPlayerTriggeredTransitionCompletion
-                    -= _8_OnPlayerInteractionTriggeredTransitionCompletion;
-
-            _9_StartExitTransitionSceneFade();
-        }
-
-        void _9_StartExitTransitionSceneFade()
-        {
-            Debug.Log("_9_StartExitTransitionSceneFade ");
+            // 9 play exit transition scene fade
+            BSceneFade exitTransitionSceneFade = null;
             if (exitTransitionSceneFadePrefab != null)
             {
-                exitTransitionSceneFade = CreateFade(exitTransitionSceneFadePrefab, sceneManagerTransform);
-                exitTransitionSceneFade.OnFadeFinished += _10_OnExitTransitionSceneFadeFinished;
-                exitTransitionSceneFade.StartFade();
                 stage = Stage.PlayingExitTransitionSceneFade;
-            }
-            else
-            {
-                _10_OnExitTransitionSceneFadeFinished();
+                exitTransitionSceneFade = CreateFade(exitTransitionSceneFadePrefab, sceneManagerTransform);
+                exitTransitionSceneFade.StartFade();
+                yield return new WaitUntil(() => exitTransitionSceneFade.HasFinished);
             }
 
-        }
+            // 10 Switch to preloaded target scene
+            bool switchToTargetDone = false;
+            Action switchToTargetDoneHandler = () => switchToTargetDone = true;
 
-        void _10_OnExitTransitionSceneFadeFinished()
-        {
-            sceneLoader.OnSwitchedToPreloadedScene += _11_OnLoadingNextSceneComplete;
+            sceneLoader.OnSwitchedToPreloadedScene += switchToTargetDoneHandler;
             sceneLoader.SwitchToPreloadedScene();
-        }
-
-        void _11_OnLoadingNextSceneComplete()
-        {
-            sceneLoader.OnSwitchedToPreloadedScene -= _11_OnLoadingNextSceneComplete;
+            yield return new WaitUntil(() => switchToTargetDone);
+            sceneLoader.OnSwitchedToPreloadedScene -= switchToTargetDoneHandler;
 
             OnFinishedLoadingTargetScene?.Invoke();
 
             if (exitTransitionSceneFade)
                 GameObject.Destroy(exitTransitionSceneFade.gameObject);
 
-            _12_StartEnterNextSceneFade();
-        }
 
-        void _12_StartEnterNextSceneFade()
-        {
+            // 11 Play enter target scene fade
             if (enterNextSceneFadePrefab != null)
             {
-                enterNextSceneFade = CreateFade(enterNextSceneFadePrefab, sceneManagerTransform);
-                enterNextSceneFade.OnFadeFinished += _13_OnEnterNextSceneFadeFinished;
-                enterNextSceneFade.StartFade();
                 stage = Stage.PlayingEnterTargetSceneFade;
-            }
-            else
-            {
-                _13_OnEnterNextSceneFadeFinished();
-            }
-        }
+                BSceneFade enterNextSceneFade = CreateFade(enterNextSceneFadePrefab, sceneManagerTransform);
+                enterNextSceneFade.StartFade();
 
-        void _13_OnEnterNextSceneFadeFinished()
-        {
-            if (enterNextSceneFade)
+                yield return new WaitUntil(() => enterNextSceneFade.HasFinished);
                 GameObject.Destroy(enterNextSceneFade.gameObject);
+            }
 
             stage = Stage.Finished;
             OnFinished?.Invoke();

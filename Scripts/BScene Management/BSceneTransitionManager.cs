@@ -81,7 +81,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 return;
             }
 
-            currentTransition = new BTransitionExecutorDefaultRequiresPreloadedSceneCoroutine(
+            currentTransition = new BTransitionExecutorDefaultRequiresPreloadedScene(
                 this, transform, sceneLoader, 
                 exitCurrentSceneFadePrefab, enterNextSceneFadePrefab);
 
@@ -106,7 +106,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 return;
             }
 
-            currentTransition = new BTransitionExecutorDefaultCoroutine( targetScene, 
+            currentTransition = new BTransitionExecutorDefault( targetScene, 
                 this, transform, sceneLoader,
                exitCurrentSceneFadePrefab, enterNextSceneFadePrefab);
 
@@ -133,7 +133,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 return;
             }
 
-            currentTransition = new BTransitionExecutorThroughTransitionSceneCoroutine(targetScene, transitionScene, 
+            currentTransition = new BTransitionExecutorThroughTransitionScene(targetScene, transitionScene, 
                 this, transform, sceneLoader,
                exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab,
                exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
@@ -167,7 +167,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 return;
             }
             
-            currentTransition = new BTransitionExecutorLoadSceneSaveThroughTransitionSceneCoroutine(
+            currentTransition = new BTransitionExecutorLoadSceneSaveThroughTransitionScene(
                 targetScene, transitionScene, savegamePathInSavesFolder,
                 GlobalManagers.Get<GlobalSavesManager>(), this,
                 transform, sceneLoader,
