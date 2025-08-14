@@ -34,8 +34,8 @@ namespace Benito.ScriptingFoundations.Saving
         }
         public State ManagerState { get; private set; }
 
-        public enum SceneSavingState 
-        { 
+        public enum SceneSavingState
+        {
             Idle,
             SceneManagerIsSavingObjects,
             CreatingJsonString,
@@ -61,7 +61,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         // OnFinished Callbacks
         public Action OnCreatingSceneSaveFileFinished;
-        public Action OnCreatingProgressSaveFileFinished; 
+        public Action OnCreatingProgressSaveFileFinished;
 
         public Action OnLoadingSceneSaveFileCompleted;
 
@@ -129,7 +129,7 @@ namespace Benito.ScriptingFoundations.Saving
                 else
                 {
                     waitedOneFrameBeforeInvokingOnFinished = true;
-                }           
+                }
             }
         }
 
@@ -235,23 +235,27 @@ namespace Benito.ScriptingFoundations.Saving
             }
 
             // Save file
-            Profiler.BeginSample("[GlobalSavesManager] GlobalSavesManager.OnCreatingSceneSaveJsonStringFinished , Start writing json file");
-
             CreatingSceneSaveState = SceneSavingState.WritingToFile;
 
             string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), pathInSavesFolder);
             IOUtilities.EnsurePathExists(savePath);
-            File.WriteAllText(Path.Combine(savePath, savegameInfo.savegameName + ".bsave"), createSceneSaveJsonStringBudgetedOperation.Result);
 
-            // 2. Create Saveinfo and 
+            Task writeFileTask = File.WriteAllTextAsync(Path.Combine(savePath, savegameInfo.savegameName + ".bsave"), createSceneSaveJsonStringBudgetedOperation.Result);
+            yield return new WaitUntil(() => writeFileTask.IsCompleted);
+
+            // 2. Create Saveinfo  
             string saveInfoContent = JsonUtility.ToJson(savegameInfo);
-            File.WriteAllText(Path.Combine(savePath, savegameInfo.savegameName + ".json"), saveInfoContent);
+
+            Task writeSaveInfoTask = File.WriteAllTextAsync(Path.Combine(savePath, savegameInfo.savegameName + ".json"), saveInfoContent);
+            yield return new WaitUntil(() => writeSaveInfoTask.IsCompleted);
 
             // 3. Create optional preview Image
             if (savegamePreviewImage != null)
             {
-                byte[] imageBytes = savegamePreviewImage.EncodeToPNG();
-                File.WriteAllBytes(Path.Combine(savePath, savegameInfo.savegameName + ".png"), imageBytes);
+                byte[] imageBytes = savegamePreviewImage.EncodeToPNG(); // this is quite performance expensive, but cant be put on another thread sadly
+
+                Task writeImageTask = File.WriteAllBytesAsync(Path.Combine(savePath, savegameInfo.savegameName + ".png"), imageBytes);
+                yield return new WaitUntil(() => writeImageTask.IsCompleted);
             }
 
             // 4. Reset Values after completing Save
@@ -262,11 +266,20 @@ namespace Benito.ScriptingFoundations.Saving
             // 5. Call callbacks
             OnCreatingSceneSaveFileFinished?.Invoke();
 
-            Profiler.EndSample();
+            //Profiler.EndSample();
 
             stopwatch.Stop();
             Debug.Log($"[GlobalSavesManager] Finished Writing Save, took {(float)stopwatch.Elapsed.TotalSeconds} seconds");
             stopwatch.Reset();
+        }
+
+        async Task<byte[]> EncodeToPNGAsync(Texture2D texture)
+        {
+            return await Task.Run(() =>
+            {
+                // This runs on a background thread
+                return texture.EncodeToPNG();
+            });
         }
 
         #endregion
@@ -284,7 +297,7 @@ namespace Benito.ScriptingFoundations.Saving
 
             foreach (FileInfo info in directoryInfo.GetFiles())
             {
-                if(info.Extension == ".json")
+                if (info.Extension == ".json")
                 {
                     infoList.Add(GetSceneSavegameInfoAtPath(Path.Combine(folderPathInSavesFolder, Path.GetFileNameWithoutExtension(info.FullName))));
                 }
@@ -298,7 +311,7 @@ namespace Benito.ScriptingFoundations.Saving
         /// </summary>
         public (SceneSavegameInfo info, Texture2D image) GetSceneSavegameInfoAtPath(string filePathInSavesFolder)
         {
-            (SceneSavegameInfo info, Texture2D image) infoTouple = (null,null);
+            (SceneSavegameInfo info, Texture2D image) infoTouple = (null, null);
             string savesFolderPath = SavingSettings.GetOrCreateSettings().GetSavesFolderPath();
 
             // Read info file
@@ -393,7 +406,7 @@ namespace Benito.ScriptingFoundations.Saving
             }
 
             StartCoroutine(LoadSceneSaveCoroutine(saveableObjectsSceneManager, sceneSavegame));
-           
+
         }
 
         IEnumerator LoadSceneSaveCoroutine(SaveableObjectsSceneManager saveableObjectsSceneManager, SceneSavegame sceneSavegame)
@@ -433,7 +446,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         #region Progress Saves
 
-        public async void CreateProgressSave<T>(T save, string pathInSavesFolder, string saveName) where T: ISaveableProgress
+        public async void CreateProgressSave<T>(T save, string pathInSavesFolder, string saveName) where T : ISaveableProgress
         {
             string fileString = JsonUtility.ToJson(save);
             string folderPath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), pathInSavesFolder);
@@ -442,14 +455,14 @@ namespace Benito.ScriptingFoundations.Saving
             OnCreatingProgressSaveFileFinished?.Invoke();
         }
 
-        public T ReadProgressSave<T>(string saveFilePathInsideSavesFolder) where T: ISaveableProgress
+        public T ReadProgressSave<T>(string saveFilePathInsideSavesFolder) where T : ISaveableProgress
         {
             string fileContent;
             string path = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInsideSavesFolder) + ".json";
 
             using (StreamReader reader = new StreamReader(path))
             {
-                fileContent =  reader.ReadToEnd();
+                fileContent = reader.ReadToEnd();
                 reader.Close();
             }
 
