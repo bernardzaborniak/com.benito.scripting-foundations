@@ -70,11 +70,11 @@ namespace Benito.ScriptingFoundations.Saving
         }
 
         /// <summary>
-        /// This ist actually Json but a kind of custom format
+        /// This ist actually Json but a kind of custom format, i think this logic was moved into the budgeted Operation
         /// </summary>
         public static string ConvertSaveGameToJsonString(SceneSavegame savegame)
         {
-            // Workaround, because erializing one by one works, but whole list doesnt :(
+            // Workaround, because Serializing one by one works, but whole list doesnt :(
             string jsonString = savegame.SceneName + "\n";
 
             for (int i = 0; i < savegame.SavedObjects.Count; i++)

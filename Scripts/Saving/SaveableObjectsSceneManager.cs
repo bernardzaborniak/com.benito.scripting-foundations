@@ -217,7 +217,9 @@ namespace Benito.ScriptingFoundations.Saving
             OnSavingFinished?.Invoke(objectsData);
         }
 
-        // TODO refactor, only let global saves manager call this?
+        /// <summary>
+        /// Only let global saves manager call this.
+        /// </summary>
         public void LoadFromSaveData(List<SaveableSceneObjectData> objectsData)
         {
             ManagerState = State.LoadingSceneSave;

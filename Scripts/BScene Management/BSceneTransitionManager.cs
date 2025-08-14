@@ -44,27 +44,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         }
 
         /// <summary>
-        /// Needs to be called by the transition scene - every transition scene can do it differently?
-        /// </summary>
-        /*public void ExitTransitionScene()
-        {
-            if (currentTransition is BSceneTransitionWithTransitionScene)
-            {
-                (currentTransition as BSceneTransitionWithTransitionScene).OnTransitionSceneAllowsContinuation();
-            }
-            else if (currentTransition is BSceneTransitionLoadSceneSave)
-            {
-                (currentTransition as BSceneTransitionLoadSceneSave).OnTransitionSceneAllowsContinuation();
-            }
-            else
-            {
-                Debug.LogError("ExitTransitionScene failed, as current transition is not a BSceneTransitionWithTransitionScene or BSceneTransitionLoadSceneSave");
-            }
-        }*/
-
-
-
-        /// <summary>
         /// Transitions into the currently preloaded scene with optional fades if you leave them empty.
         /// Requires an already preloaded scene
         /// </summary>

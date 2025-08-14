@@ -49,15 +49,15 @@ namespace Benito.ScriptingFoundations.Saving
         public float ReadSceneSaveFileProgress { get; private set; }
         public float CreateSceneSaveFileProgress { get; private set; }
 
-        public float ReadSceneLoadFileprogress { get; private set; }
+        public float ReadSceneLoadFileProgress { get; private set; }
 
         Stopwatch stopwatch;
 
         // References for creating Save
-        SaveableObjectsSceneManager saveableObjectsSceneManager;
-        string createSceneSaveFolderPathInSavesFolder;
-        SceneSavegameInfo createSceneSaveInfo;
-        Texture2D createSavePreviewImage;
+        //SaveableObjectsSceneManager saveableObjectsSceneManager;
+        //string createSceneSaveFolderPathInSavesFolder;
+        //SceneSavegameInfo createSceneSaveInfo;
+        //Texture2D createSavePreviewImage;
 
         // OnFinished Callbacks
         public Action OnCreatingSceneSaveFileFinished;
@@ -80,6 +80,7 @@ namespace Benito.ScriptingFoundations.Saving
             StringBuilder stringBuilder;
 
             public Action<string> OnCreatingJsonStringFinished;
+            public string Result { get; private set; }
 
             bool waitedOneFrameBeforeInvokingOnFinished;
 
@@ -122,7 +123,8 @@ namespace Benito.ScriptingFoundations.Saving
                 if (waitedOneFrameBeforeInvokingOnFinished)
                 {
                     Finished = true;
-                    OnCreatingJsonStringFinished?.Invoke(stringBuilder.ToString());
+                    Result = stringBuilder.ToString();
+                    OnCreatingJsonStringFinished?.Invoke(Result);
                 }
                 else
                 {
@@ -145,22 +147,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         public override void UpdateManager()
         {
-            if (ManagerState == State.CreatingSceneSave)
-            {
-                if (saveableObjectsSceneManager.ManagerState == SaveableObjectsSceneManager.State.SavingSceneSave)
-                {
-                    CreateSceneSaveFileProgress = saveableObjectsSceneManager.SavingProgress * 0.2f;
-                }
-                else
-                {
-                    CreateSceneSaveFileProgress = 0.2f + CreateSceneSaveFileProgress * 0.8f;
-                }
 
-                if(CreatingSceneSaveState == SceneSavingState.CreatingJsonString)
-                {
-                    createSceneSaveJsonStringBudgetedOperation.Update(Time.deltaTime);
-                }
-            }
         }
 
         #region Scene Saves
@@ -181,10 +168,9 @@ namespace Benito.ScriptingFoundations.Saving
         /// Write pathInSavesFolder without actual save name .
         /// Write saveName without file extension.
         /// </summary>
-        public void CreateSceneSaveForCurrentScene(string folderPathInSavesFolder, SceneSavegameInfo savegameInfo, Texture2D savegamePreviewImage = null)
+        public void CreateSceneSaveForCurrentScene(string pathInSavesFolder, SceneSavegameInfo savegameInfo, Texture2D savegamePreviewImage = null)
         {
-            Debug.Log($"[GlobalSavesManager] Start CreateSceneSaveForCurrentScene");
-            stopwatch.Start();
+            // Verify data before starting coroutine
 
             if (ManagerState != State.Idle)
             {
@@ -192,7 +178,7 @@ namespace Benito.ScriptingFoundations.Saving
                 return;
             }
 
-            saveableObjectsSceneManager = LocalSceneManagers.Get<SaveableObjectsSceneManager>();
+            SaveableObjectsSceneManager saveableObjectsSceneManager = LocalSceneManagers.Get<SaveableObjectsSceneManager>();
 
             if (saveableObjectsSceneManager == null)
             {
@@ -200,61 +186,78 @@ namespace Benito.ScriptingFoundations.Saving
                 return;
             }
 
+            StartCoroutine(CreateSceneSaveCoroutine(saveableObjectsSceneManager, pathInSavesFolder, savegameInfo, savegamePreviewImage));
+
+        }
+
+        IEnumerator CreateSceneSaveCoroutine(SaveableObjectsSceneManager saveableObjectsSceneManager, string pathInSavesFolder, SceneSavegameInfo savegameInfo, Texture2D savegamePreviewImage = null)
+        {
+            Debug.Log($"[GlobalSavesManager] Start CreateSceneSaveForCurrentScene");
+            stopwatch.Start();
+
+            //  Set up values
             ManagerState = State.CreatingSceneSave;
             CreatingSceneSaveState = SceneSavingState.SceneManagerIsSavingObjects;
 
-            createSceneSaveFolderPathInSavesFolder = folderPathInSavesFolder;
-            createSceneSaveInfo = savegameInfo;
-            createSavePreviewImage = savegamePreviewImage;
 
-            saveableObjectsSceneManager.OnSavingFinished += CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
+            // Save all Objects with local manager, get their save info
+            bool savingFinished = false;
+            List<SaveableSceneObjectData> objectsData = null;
+            Action<List<SaveableSceneObjectData>> savingFinishedHandler = (data) =>
+            {
+                savingFinished = true;
+                objectsData = data;
+            };
+
+            saveableObjectsSceneManager.OnSavingFinished += savingFinishedHandler;
             saveableObjectsSceneManager.SaveAllObjects();
-        }
 
-        void CreateSceneSaveForCurrentSceneOnSceneManagerFinished(List<SaveableSceneObjectData> objectsData)
-        {
-            saveableObjectsSceneManager.OnSavingFinished -= CreateSceneSaveForCurrentSceneOnSceneManagerFinished;
+            while (!savingFinished)
+            {
+                // TODO set the progress 
+                yield return null;
+            }
+            saveableObjectsSceneManager.OnSavingFinished -= savingFinishedHandler;
 
-            SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsData);
-
-            createSceneSaveJsonStringBudgetedOperation = new CreateSceneSaveJsonStringBudgetedOperation(save, SavingSettings.GetOrCreateSettings().savingSceneSaveMsBudgetPerFrame / 1000);
-            createSceneSaveJsonStringBudgetedOperation.OnCreatingJsonStringFinished += OnCreatingSceneSaveJsonStringFinished;
+            // Create Scene Save For Current Scene
+            Debug.Log($"[GlobalSavesManager] Start Creating Scene Save Json String");
             CreatingSceneSaveState = SceneSavingState.CreatingJsonString;
 
-            Debug.Log($"[GlobalSavesManager] Start Creating Scene Save Json String");
-        }
+            SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsData);
+            createSceneSaveJsonStringBudgetedOperation = new CreateSceneSaveJsonStringBudgetedOperation(save, SavingSettings.GetOrCreateSettings().savingSceneSaveMsBudgetPerFrame / 1000);
 
-        void OnCreatingSceneSaveJsonStringFinished(string jsonString)
-        {    
-            Profiler.BeginSample("[GlobalSavesManager] GlobalSavesManager.OnCreatingSceneSaveJsonStringFinished");
 
-            createSceneSaveJsonStringBudgetedOperation.OnCreatingJsonStringFinished -= OnCreatingSceneSaveJsonStringFinished;
+            while (!createSceneSaveJsonStringBudgetedOperation.Finished)
+            {
+                createSceneSaveJsonStringBudgetedOperation.Update(Time.deltaTime);
+                // TODO update progress of this
+                yield return null;
+            }
+
+            // Save file
+            Profiler.BeginSample("[GlobalSavesManager] GlobalSavesManager.OnCreatingSceneSaveJsonStringFinished , Start writing json file");
 
             CreatingSceneSaveState = SceneSavingState.WritingToFile;
 
-            string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), createSceneSaveFolderPathInSavesFolder);
+            string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), pathInSavesFolder);
             IOUtilities.EnsurePathExists(savePath);
-            File.WriteAllText(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".bsave"), jsonString);
+            File.WriteAllText(Path.Combine(savePath, savegameInfo.savegameName + ".bsave"), createSceneSaveJsonStringBudgetedOperation.Result);
 
             // 2. Create Saveinfo and 
-            string saveInfoContent = JsonUtility.ToJson(createSceneSaveInfo);
-            File.WriteAllText(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".json"), saveInfoContent);
+            string saveInfoContent = JsonUtility.ToJson(savegameInfo);
+            File.WriteAllText(Path.Combine(savePath, savegameInfo.savegameName + ".json"), saveInfoContent);
 
             // 3. Create optional preview Image
-            if (createSavePreviewImage != null)
+            if (savegamePreviewImage != null)
             {
-                byte[] imageBytes = createSavePreviewImage.EncodeToPNG();
-                File.WriteAllBytes(Path.Combine(savePath, createSceneSaveInfo.savegameName + ".png"), imageBytes);
+                byte[] imageBytes = savegamePreviewImage.EncodeToPNG();
+                File.WriteAllBytes(Path.Combine(savePath, savegameInfo.savegameName + ".png"), imageBytes);
             }
 
             // 4. Reset Values after completing Save
             ManagerState = State.Idle;
             CreatingSceneSaveState = SceneSavingState.Idle;
             saveableObjectsSceneManager = null;
-            CreateSceneSaveFileProgress = 0;
-            createSceneSaveFolderPathInSavesFolder = "";
-            createSceneSaveInfo = null;
-            createSavePreviewImage = null;
 
             // 5. Call callbacks
             OnCreatingSceneSaveFileFinished?.Invoke();
@@ -266,14 +269,8 @@ namespace Benito.ScriptingFoundations.Saving
             stopwatch.Reset();
         }
 
-        void OnGetJsonStringAsyncProgressUpdate(float progress)
-        {
-            CreateSceneSaveFileProgress = progress;
-        }
-
         #endregion
 
-        // TODO move all scene loading into BScene Manager? it can just use the saves manager methods
 
         #region Load Scene Save Infos
 
@@ -374,25 +371,20 @@ namespace Benito.ScriptingFoundations.Saving
 
 
         /// <summary>
-        /// Automaticly switches to target scene and loads savegame using BSceneManager.
         /// Write saveFilePathInsideSavesFolder without file extension.
         /// </summary>
         /// 
 
-        // TODO move this into BScene Mangement somehow
         public void LoadSceneSave(SceneSavegame sceneSavegame)
         {
-            Debug.Log($"[GlobalSavesManager] Start Loading Scene Save");
-            stopwatch.Start();
-
-
+            // Verify data before starting coroutine
             if (ManagerState != State.Idle)
             {
                 Debug.LogError("[GlobalSavesManager] Cant Load Scene Save, as globals saves manager is doing something else:  " + ManagerState);
                 return;
             }
 
-            saveableObjectsSceneManager = LocalSceneManagers.Get<SaveableObjectsSceneManager>();
+            SaveableObjectsSceneManager saveableObjectsSceneManager = LocalSceneManagers.Get<SaveableObjectsSceneManager>();
 
             if (saveableObjectsSceneManager == null)
             {
@@ -400,59 +392,39 @@ namespace Benito.ScriptingFoundations.Saving
                 return;
             }
 
+            StartCoroutine(LoadSceneSaveCoroutine(saveableObjectsSceneManager, sceneSavegame));
+           
+        }
+
+        IEnumerator LoadSceneSaveCoroutine(SaveableObjectsSceneManager saveableObjectsSceneManager, SceneSavegame sceneSavegame)
+        {
+            Debug.Log($"[GlobalSavesManager] Start Loading Scene Save");
+            stopwatch.Start();
 
             ManagerState = State.LoadingSceneSave;
 
-            saveableObjectsSceneManager.OnLoadingFinished += LoadSceneSaveOnLoadingFinished;
-            saveableObjectsSceneManager.LoadFromSaveData(sceneSavegame.SavedObjects);
-        }
+            // Save all Objects with local manager, get their save info
+            bool loadingFinished = false;
+            Action loadingFinishedHandler = () => loadingFinished = true;
 
-        void LoadSceneSaveOnLoadingFinished()
-        {
+            saveableObjectsSceneManager.OnLoadingFinished += loadingFinishedHandler;
+            saveableObjectsSceneManager.LoadFromSaveData(sceneSavegame.SavedObjects);
+
+            while (!loadingFinished)
+            {
+                // TODO set the progress 
+                yield return null;
+            }
+            saveableObjectsSceneManager.OnLoadingFinished -= loadingFinishedHandler;
+
             stopwatch.Stop();
             Debug.Log($"[GlobalSavesManager] Finished loading Scene Save, took {(float)stopwatch.Elapsed.TotalSeconds} seconds");
             stopwatch.Reset();
 
-
-            saveableObjectsSceneManager.OnLoadingFinished -= LoadSceneSaveOnLoadingFinished;
-
-
             ManagerState = State.Idle;
             OnLoadingSceneSaveFileCompleted?.Invoke();
-
         }
 
-        /*
-        public void LoadSceneSave(string saveFilePathInsideSavesFolder, string transitionSceneName,
-            GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
-            GameObject exitTransitiontSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
-        {
-            string fullSaveFilePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInsideSavesFolder) + ".bsave";
-
-            if (ManagerState != State.Idle)
-            {
-                Debug.LogError("Cant Load Scene Save, as globals saves manager is doing something else:  " + ManagerState);
-                return;
-            }
-
-            ManagerState = State.LoadingSceneSave;
-
-            BSceneLoader sceneManager = GlobalManagers.Get<BSceneLoader>();
-
-            sceneManager.LoadSceneSaveThroughTransitionScene(SceneSavegame.GetTargetSceneFromSceneSavegamePath(fullSaveFilePath), transitionSceneName, saveFilePathInsideSavesFolder,
-               exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab, exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
-
-            sceneManager.OnTransitionFinishes += OnTransitionToSavedSceneFinishes;
-        }
-
-        void OnTransitionToSavedSceneFinishes()
-        {
-            ManagerState = State.Idle;
-            GlobalManagers.Get<BSceneLoader>().OnTransitionFinishes -= OnTransitionToSavedSceneFinishes;
-            OnLoadingSceneSaveFileCompleted.Invoke();
-        }
-
-        */
 
         #endregion
 

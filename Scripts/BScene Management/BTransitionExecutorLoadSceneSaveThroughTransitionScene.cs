@@ -247,7 +247,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
             else if (stage == Stage.LoadingSaveFile)
             {
-                return 0.3f + globalSavesManager.ReadSceneLoadFileprogress * 0.5f;
+                return 0.3f + globalSavesManager.ReadSceneLoadFileProgress * 0.5f;
             }
             else if (stage == Stage.WaitingForTransitionScenePlayerInteraction)
             {
