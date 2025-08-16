@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Debug = UnityEngine.Debug;
 using UnityEngine.SceneManagement;
 using System.Diagnostics;
+using Benito.ScriptingFoundations.Saving.Models;
 
 
 namespace Benito.ScriptingFoundations.Saving
@@ -75,7 +76,7 @@ namespace Benito.ScriptingFoundations.Saving
             public float Progress { get; private set; }
             public float TimeBudget { get; private set; }
 
-            SceneSavegame savegame;
+            SceneSave savegame;
             int lastStoppedIndex;
             StringBuilder stringBuilder;
 
@@ -84,7 +85,7 @@ namespace Benito.ScriptingFoundations.Saving
 
             bool waitedOneFrameBeforeInvokingOnFinished;
 
-            public CreateSceneSaveJsonStringBudgetedOperation(SceneSavegame savegame, float timeBudget)
+            public CreateSceneSaveJsonStringBudgetedOperation(SceneSave savegame, float timeBudget)
             {
                 this.savegame = savegame;
                 this.TimeBudget = timeBudget;
@@ -158,17 +159,7 @@ namespace Benito.ScriptingFoundations.Saving
         /// Write pathInSavesFolder without actual save name .
         /// Write saveName without file extension.
         /// </summary>
-        public void CreateSceneSaveForCurrentScene(string pathInSavesFolder, string savegameName, SceneSavegameType savegameType, string unitySceneName, string missionName, Texture2D savegamePreviewImage = null)
-        {
-            SceneSavegameInfo info = new SceneSavegameInfo(savegameName, savegameType, unitySceneName, missionName);
-            CreateSceneSaveForCurrentScene(pathInSavesFolder, info, savegamePreviewImage);
-        }
-
-        /// <summary>
-        /// Write pathInSavesFolder without actual save name .
-        /// Write saveName without file extension.
-        /// </summary>
-        public void CreateSceneSaveForCurrentScene(string pathInSavesFolder, SceneSavegameInfo savegameInfo, Texture2D savegamePreviewImage = null)
+        public void CreateSceneSaveForCurrentScene<T>(string pathInSavesFolder, T sceneSaveCreationInfo) where T : SceneSaveInfoCreateModel
         {
             // Verify data before starting coroutine
 
@@ -186,11 +177,11 @@ namespace Benito.ScriptingFoundations.Saving
                 return;
             }
 
-            StartCoroutine(CreateSceneSaveCoroutine(saveableObjectsSceneManager, pathInSavesFolder, savegameInfo, savegamePreviewImage));
+            StartCoroutine(CreateSceneSaveCoroutine(saveableObjectsSceneManager, pathInSavesFolder, sceneSaveCreationInfo));
 
         }
 
-        IEnumerator CreateSceneSaveCoroutine(SaveableObjectsSceneManager saveableObjectsSceneManager, string pathInSavesFolder, SceneSavegameInfo savegameInfo, Texture2D savegamePreviewImage = null)
+        IEnumerator CreateSceneSaveCoroutine<T>(SaveableObjectsSceneManager saveableObjectsSceneManager, string pathInSavesFolder, T sceneSaveCreationInfo) where T : SceneSaveInfoCreateModel
         {
             Debug.Log($"[GlobalSavesManager] Start CreateSceneSaveForCurrentScene");
             stopwatch.Start();
@@ -198,6 +189,8 @@ namespace Benito.ScriptingFoundations.Saving
             //  Set up values
             ManagerState = State.CreatingSceneSave;
             CreatingSceneSaveState = SceneSavingState.SceneManagerIsSavingObjects;
+            SceneSaveInfoJsonModel sceneSaveInfoJsonModel = sceneSaveCreationInfo.MapToJsonModel<SceneSaveInfoJsonModel>();
+            sceneSaveInfoJsonModel.dateTimeCreated = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
 
 
             // Save all Objects with local manager, get their save info
@@ -223,7 +216,7 @@ namespace Benito.ScriptingFoundations.Saving
             Debug.Log($"[GlobalSavesManager] Start Creating Scene Save Json String");
             CreatingSceneSaveState = SceneSavingState.CreatingJsonString;
 
-            SceneSavegame save = new SceneSavegame(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsData);
+            SceneSave save = new SceneSave(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, objectsData);
             createSceneSaveJsonStringBudgetedOperation = new CreateSceneSaveJsonStringBudgetedOperation(save, SavingSettings.GetOrCreateSettings().savingSceneSaveMsBudgetPerFrame / 1000);
 
 
@@ -240,21 +233,21 @@ namespace Benito.ScriptingFoundations.Saving
             string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), pathInSavesFolder);
             IOUtilities.EnsurePathExists(savePath);
 
-            Task writeFileTask = File.WriteAllTextAsync(Path.Combine(savePath, savegameInfo.savegameName + ".bsave"), createSceneSaveJsonStringBudgetedOperation.Result);
+            Task writeFileTask = File.WriteAllTextAsync(Path.Combine(savePath, sceneSaveInfoJsonModel.savegameName + ".bsave"), createSceneSaveJsonStringBudgetedOperation.Result);
             yield return new WaitUntil(() => writeFileTask.IsCompleted);
 
             // 2. Create Saveinfo  
-            string saveInfoContent = JsonUtility.ToJson(savegameInfo);
+            string saveInfoContent = JsonUtility.ToJson(sceneSaveInfoJsonModel);
 
-            Task writeSaveInfoTask = File.WriteAllTextAsync(Path.Combine(savePath, savegameInfo.savegameName + ".json"), saveInfoContent);
+            Task writeSaveInfoTask = File.WriteAllTextAsync(Path.Combine(savePath, sceneSaveInfoJsonModel.savegameName + ".json"), saveInfoContent);
             yield return new WaitUntil(() => writeSaveInfoTask.IsCompleted);
 
             // 3. Create optional preview Image
-            if (savegamePreviewImage != null)
+            if (sceneSaveCreationInfo.previewImage != null)
             {
-                byte[] imageBytes = savegamePreviewImage.EncodeToPNG(); // this is quite performance expensive, but cant be put on another thread sadly
+                byte[] imageBytes = sceneSaveCreationInfo.previewImage.EncodeToPNG(); // this is quite performance expensive, but cant be put on another thread sadly
 
-                Task writeImageTask = File.WriteAllBytesAsync(Path.Combine(savePath, savegameInfo.savegameName + ".png"), imageBytes);
+                Task writeImageTask = File.WriteAllBytesAsync(Path.Combine(savePath, sceneSaveInfoJsonModel.savegameName + ".png"), imageBytes);
                 yield return new WaitUntil(() => writeImageTask.IsCompleted);
             }
 
@@ -273,23 +266,17 @@ namespace Benito.ScriptingFoundations.Saving
             stopwatch.Reset();
         }
 
-        async Task<byte[]> EncodeToPNGAsync(Texture2D texture)
-        {
-            return await Task.Run(() =>
-            {
-                // This runs on a background thread
-                return texture.EncodeToPNG();
-            });
-        }
-
         #endregion
 
 
         #region Load Scene Save Infos
 
-        public List<(SceneSavegameInfo info, Texture2D image)> GetSceneSavegameInfosInsideFolder(string folderPathInSavesFolder)
+        /// <summary>
+        /// Get Scene Infos T must be either the default savegame info datamodel or your game specific one
+        /// </summary>
+        public static List<R> GetSceneSavegameInfosInsideFolder<R,J>(string folderPathInSavesFolder) where R : SceneSaveInfoReadModel, new() where J : SceneSaveInfoJsonModel
         {
-            List<(SceneSavegameInfo info, Texture2D image)> infoList = new List<(SceneSavegameInfo info, Texture2D image)>();
+            List<R> infoList = new List<R>();
 
             DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), folderPathInSavesFolder));
 
@@ -299,7 +286,7 @@ namespace Benito.ScriptingFoundations.Saving
             {
                 if (info.Extension == ".json")
                 {
-                    infoList.Add(GetSceneSavegameInfoAtPath(Path.Combine(folderPathInSavesFolder, Path.GetFileNameWithoutExtension(info.FullName))));
+                    infoList.Add(GetSceneSavegameInfoAtPath<R,J>(Path.Combine(folderPathInSavesFolder, Path.GetFileNameWithoutExtension(info.FullName))));
                 }
             }
 
@@ -307,11 +294,12 @@ namespace Benito.ScriptingFoundations.Saving
         }
 
         /// <summary>
-        /// Write file path without extension.
+        /// Get Scene Infos T must be either the default savegame info datamodel or your game specific one
         /// </summary>
-        public (SceneSavegameInfo info, Texture2D image) GetSceneSavegameInfoAtPath(string filePathInSavesFolder)
+        public static R GetSceneSavegameInfoAtPath<R, J>(string filePathInSavesFolder) where R : SceneSaveInfoReadModel, new() where J : SceneSaveInfoJsonModel
         {
-            (SceneSavegameInfo info, Texture2D image) infoTouple = (null, null);
+            R info = new R();
+
             string savesFolderPath = SavingSettings.GetOrCreateSettings().GetSavesFolderPath();
 
             // Read info file
@@ -324,26 +312,28 @@ namespace Benito.ScriptingFoundations.Saving
                 reader.Close();
             }
 
-            infoTouple.info = JsonUtility.FromJson<SceneSavegameInfo>(infoFileContent);
+            J jsonInfo = JsonUtility.FromJson<J>(infoFileContent);
+
+            R readInfo = jsonInfo.MapToReadModel<R>();
+            readInfo.filePathInSavesFolder = filePathInSavesFolder;
 
             // read image, if available
             string previewImagePath = Path.Combine(savesFolderPath, filePathInSavesFolder) + ".png";
             if (File.Exists(previewImagePath))
             {
                 //  Texture size does not matter, since LoadImage will replace with with incoming image size.
-                infoTouple.image = new Texture2D(2, 2);
+                readInfo.previewImage = new Texture2D(2, 2);
                 byte[] imageBytes = File.ReadAllBytes(previewImagePath);
-                infoTouple.image.LoadImage(imageBytes);
+                readInfo.previewImage.LoadImage(imageBytes);
             }
 
-
-            return infoTouple;
+            return readInfo;
         }
 
         #endregion
 
         #region Load Scene Save
-        public async Task<SceneSavegame> ReadSceneSaveFileAsync(string folderPathInSavesFolder, string savefileName)
+        public async Task<SceneSave> ReadSceneSaveFileAsync(string folderPathInSavesFolder, string savefileName)
         {
             return await ReadSceneSaveFileAsync(Path.Combine(folderPathInSavesFolder, savefileName));
         }
@@ -352,7 +342,7 @@ namespace Benito.ScriptingFoundations.Saving
         /// <summary>
         ///  Write saveFilePathInSavesFolder without file extension. Called by save game scene transition.
         /// </summary>
-        public async Task<SceneSavegame> ReadSceneSaveFileAsync(string saveFilePathInSavesFolder)
+        public async Task<SceneSave> ReadSceneSaveFileAsync(string saveFilePathInSavesFolder)
         {
             Debug.Log($"[GlobalSavesManager] Start Reading Save File");
             stopwatch.Start();
@@ -367,7 +357,7 @@ namespace Benito.ScriptingFoundations.Saving
             }
 
             var progress = new Progress<float>(OnReadSceneSaveFileAsyncProgressUpdate);
-            var result = await SceneSavegameUtility.CreateSavegameFromJsonStringAsync(fileContent, progress);
+            var result = await SceneSaveUtility.CreateSaveFromJsonStringAsync(fileContent, progress);
 
             stopwatch.Stop();
             Debug.Log($"[GlobalSavesManager] Finished reading Save File, took {(float)stopwatch.Elapsed.TotalSeconds} seconds");
@@ -388,7 +378,7 @@ namespace Benito.ScriptingFoundations.Saving
         /// </summary>
         /// 
 
-        public void LoadSceneSave(SceneSavegame sceneSavegame)
+        public void LoadSceneSave(SceneSave sceneSavegame)
         {
             // Verify data before starting coroutine
             if (ManagerState != State.Idle)
@@ -409,7 +399,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         }
 
-        IEnumerator LoadSceneSaveCoroutine(SaveableObjectsSceneManager saveableObjectsSceneManager, SceneSavegame sceneSavegame)
+        IEnumerator LoadSceneSaveCoroutine(SaveableObjectsSceneManager saveableObjectsSceneManager, SceneSave sceneSavegame)
         {
             Debug.Log($"[GlobalSavesManager] Start Loading Scene Save");
             stopwatch.Start();

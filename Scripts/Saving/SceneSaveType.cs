@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Benito.ScriptingFoundations.Saving
 {
-    public enum SceneSavegameType 
+    public enum SceneSaveType 
     {
         Manual,
         Autosave

@@ -140,7 +140,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             // 5 Start Preloading target scene & loading save
             sceneLoader.PreloadScene(targetScene,LoadSceneMode.Additive);
-            Task<SceneSavegame> readSceneSaveFileTask = globalSavesManager.ReadSceneSaveFileAsync(savegamePathInSavesFolder);
+            Task<SceneSave> readSceneSaveFileTask = globalSavesManager.ReadSceneSaveFileAsync(savegamePathInSavesFolder);
 
             // 6 Play enter transition scene fade
             if (enterTransitionSceneFadePrefab != null)
@@ -175,7 +175,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             // 9 Load Scene Save
             stage = Stage.LoadingSaveFile;
 
-            SceneSavegame savegame = readSceneSaveFileTask.Result;
+            SceneSave savegame = readSceneSaveFileTask.Result;
 
             bool loadingFinished = false;
             Action loadingFinishedHandler = () => loadingFinished = true;

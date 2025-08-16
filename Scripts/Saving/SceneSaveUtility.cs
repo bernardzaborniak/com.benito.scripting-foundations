@@ -4,12 +4,14 @@ using UnityEngine;
 using System.Threading.Tasks;
 using System.Reflection;
 using System;
+using Benito.ScriptingFoundations.Utilities;
+using System.IO;
 
 namespace Benito.ScriptingFoundations.Saving
 {
-    public static class SceneSavegameUtility
+    public static class SceneSaveUtility
     {
-        public static SceneSavegame CreateSavegameFromJsonString(string jsonString)
+        public static SceneSave CreateSaveFromJsonString(string jsonString)
         {
             string[] seperatedString = jsonString.Split("\n");
             string sceneName = seperatedString[0];
@@ -30,12 +32,12 @@ namespace Benito.ScriptingFoundations.Saving
                 saveableObjects.Add((SaveableSceneObjectData)JsonUtility.FromJson(seperatedString[i], saveableDataType));
             }
 
-            SceneSavegame newSaveGame = new SceneSavegame(sceneName, saveableObjects);
+            SceneSave newSaveGame = new SceneSave(sceneName, saveableObjects);
 
             return newSaveGame;
         }
 
-        public static async Task<SceneSavegame> CreateSavegameFromJsonStringAsync(string jsonString, IProgress<float> progress = null)
+        public static async Task<SceneSave> CreateSaveFromJsonStringAsync(string jsonString, IProgress<float> progress = null)
         {
             var result = await Task.Run(() =>
             {
@@ -61,7 +63,7 @@ namespace Benito.ScriptingFoundations.Saving
                     progress?.Report(0.1f + 1f * i / seperatedString.Length);
                 }
 
-                SceneSavegame newSaveGame = new SceneSavegame(sceneName, saveableObjects);
+                SceneSave newSaveGame = new SceneSave(sceneName, saveableObjects);
 
                 return newSaveGame;
             });
@@ -72,7 +74,7 @@ namespace Benito.ScriptingFoundations.Saving
         /// <summary>
         /// This ist actually Json but a kind of custom format, i think this logic was moved into the budgeted Operation
         /// </summary>
-        public static string ConvertSaveGameToJsonString(SceneSavegame savegame)
+        public static string ConvertSaveGameToJsonString(SceneSave savegame)
         {
             // Workaround, because Serializing one by one works, but whole list doesnt :(
             string jsonString = savegame.SceneName + "\n";

@@ -6,12 +6,12 @@ namespace Benito.ScriptingFoundations.Saving
     /// <summary>
     /// The class storing all information about a loaded Savegame.
     /// </summary>
-    public class SceneSavegame
+    public class SceneSave
     {
         public string SceneName { get; private set; }
         public List<SaveableSceneObjectData> SavedObjects { get; private set; }
 
-        public SceneSavegame(string sceneName, List<SaveableSceneObjectData> savedObjects)
+        public SceneSave(string sceneName, List<SaveableSceneObjectData> savedObjects)
         {
             this.SceneName = sceneName;
             this.SavedObjects = savedObjects;
