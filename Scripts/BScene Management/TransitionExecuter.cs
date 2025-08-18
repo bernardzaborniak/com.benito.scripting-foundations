@@ -8,7 +8,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
     /// <summary>
     /// Classes deriving from this class take complete care of scene transitions.
     /// </summary>
-    public abstract class BTransitionExecuter
+    public abstract class TransitionExecuter
     {
         /// <summary>
         /// ::HasFinishedLoadingTargetLevel::: level was loaded, now the last fade is still playing.   

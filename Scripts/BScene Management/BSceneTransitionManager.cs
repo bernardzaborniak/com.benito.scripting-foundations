@@ -22,7 +22,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         GlobalSavesManager savesManager;
 
         // Transitions 
-        BTransitionExecuter currentTransition;
+        TransitionExecuter currentTransition;
         public float TransitionProgress { get => currentTransition != null ? currentTransition.GetProgress() : -1; }
 
         public Action OnTransitionFinishedLoadingTargetScene;
@@ -60,7 +60,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 return;
             }
 
-            currentTransition = new BTransitionExecutorDefaultRequiresPreloadedScene(
+            currentTransition = new TransitionExecutorDefaultRequiresPreloadedScene(
                 this, transform, sceneLoader, 
                 exitCurrentSceneFadePrefab, enterNextSceneFadePrefab);
 
@@ -85,7 +85,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 return;
             }
 
-            currentTransition = new BTransitionExecutorDefault( targetScene, 
+            currentTransition = new TransitionExecutorDefault( targetScene, 
                 this, transform, sceneLoader,
                exitCurrentSceneFadePrefab, enterNextSceneFadePrefab);
 
@@ -112,7 +112,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 return;
             }
 
-            currentTransition = new BTransitionExecutorThroughTransitionScene(targetScene, transitionScene, 
+            currentTransition = new TransitionExecutorThroughTransitionScene(targetScene, transitionScene, 
                 this, transform, sceneLoader,
                exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab,
                exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
@@ -146,7 +146,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 return;
             }
             
-            currentTransition = new BTransitionExecutorLoadSceneSaveThroughTransitionScene(
+            currentTransition = new TransitionExecutorLoadSceneSaveThroughTransitionScene(
                 targetScene, transitionScene, savegamePathInSavesFolder,
                 GlobalManagers.Get<GlobalSavesManager>(), this,
                 transform, sceneLoader,

@@ -12,7 +12,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Debug = UnityEngine.Debug;
-using UnityEngine.SceneManagement;
 using System.Diagnostics;
 using Benito.ScriptingFoundations.Saving.Models;
 
@@ -333,6 +332,26 @@ namespace Benito.ScriptingFoundations.Saving
         #endregion
 
         #region Load Scene Save
+
+        public void ReadAndLoadSceneSave(string folderPathInSavesFolder, string savefileName)
+        {
+            ReadAndLoadSceneSave(Path.Combine(folderPathInSavesFolder, savefileName));
+        }
+
+        public void ReadAndLoadSceneSave(string saveFilePathInSavesFolder)
+        {
+            StartCoroutine(ReadAndLoadSceneSaveCoroutine(saveFilePathInSavesFolder));
+        }
+
+        IEnumerator ReadAndLoadSceneSaveCoroutine(string saveFilePathInSavesFolder)
+        {
+            Task<SceneSave> saveTask = ReadSceneSaveFileAsync(saveFilePathInSavesFolder);
+
+            yield return new WaitUntil(() => saveTask.IsCompleted);
+
+            GlobalManagers.Get<GlobalSavesManager>().LoadSceneSave(saveTask.Result);
+        }
+
         public async Task<SceneSave> ReadSceneSaveFileAsync(string folderPathInSavesFolder, string savefileName)
         {
             return await ReadSceneSaveFileAsync(Path.Combine(folderPathInSavesFolder, savefileName));

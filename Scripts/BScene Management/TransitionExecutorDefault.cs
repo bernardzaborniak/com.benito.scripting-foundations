@@ -9,7 +9,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
     /// 
     /// This executor preloads the next scene himself
     /// </summary>
-    public class BTransitionExecutorDefault : BTransitionExecuter
+    public class TransitionExecutorDefault : TransitionExecuter
     {
         // Fades
         GameObject exitCurrentSceneFadePrefab;
@@ -32,7 +32,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         Stage stage;
 
-        public BTransitionExecutorDefault(string targetScene,
+        public TransitionExecutorDefault(string targetScene,
            MonoBehaviour coroutineHost, Transform sceneManagerTransform, BSceneLoader sceneLoader,
            GameObject exitCurrentSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {

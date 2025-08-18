@@ -9,7 +9,7 @@ using UnityEngine;
 /// Requires an already preloaded Scene. This change is there to allow the game to control how and when to start preloading
 /// as this transition type will be used more creatively
 /// </summary>
-public class BTransitionExecutorDefaultRequiresPreloadedScene : BTransitionExecuter
+public class TransitionExecutorDefaultRequiresPreloadedScene : TransitionExecuter
 {
     // Fades
     GameObject exitCurrentSceneFadePrefab;
@@ -30,7 +30,7 @@ public class BTransitionExecutorDefaultRequiresPreloadedScene : BTransitionExecu
 
     Stage stage;
 
-    public BTransitionExecutorDefaultRequiresPreloadedScene(MonoBehaviour coroutineHost, Transform sceneManagerTransform, BSceneLoader sceneLoader, GameObject exitCurrentSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
+    public TransitionExecutorDefaultRequiresPreloadedScene(MonoBehaviour coroutineHost, Transform sceneManagerTransform, BSceneLoader sceneLoader, GameObject exitCurrentSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
     {
         stage = Stage.Idle;
 
