@@ -104,7 +104,7 @@ public class TransitionExecutorDefaultRequiresPreloadedScene : TransitionExecute
         return (int)stage;
     }
 
-    public override string GetCurrentStageDebugString()
+    public override string GetProgressString()
     {
         return stage.ToString();
     }

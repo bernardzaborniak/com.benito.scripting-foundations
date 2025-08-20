@@ -14,13 +14,13 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         /// ::HasFinishedLoadingTargetLevel::: level was loaded, now the last fade is still playing.   
         /// ::HasFinished::: target level is loaded and graphical part of transition has also finished.   
         /// </summary>
-        public Action OnFinished;
+        public Action OnFinishedLoadingTargetScene;
 
         /// <summary>
         /// ::HasFinishedLoadingTargetLevel::: level was loaded, now the last fade is still playing.   
         /// ::HasFinished::: target level is loaded and graphical part of transition has also finished.   
         /// </summary>
-        public Action OnFinishedLoadingTargetScene;
+        public Action OnFinished;
 
         public abstract void StartTransition();
 
@@ -32,7 +32,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         /// <returns></returns>
         public abstract float GetProgress();
 
-        public abstract string GetCurrentStageDebugString();
+        public abstract string GetProgressString();
 
         protected BSceneFade CreateFade(GameObject fadePrefab, Transform fadeParent)
         {

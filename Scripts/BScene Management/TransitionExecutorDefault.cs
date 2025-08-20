@@ -121,7 +121,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             return (int)stage;
         }
 
-        public override string GetCurrentStageDebugString()
+        public override string GetProgressString()
         {
             return stage.ToString();
         }

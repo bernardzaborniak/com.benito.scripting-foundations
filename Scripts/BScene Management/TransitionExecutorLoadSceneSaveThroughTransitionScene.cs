@@ -40,6 +40,10 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         // Dynamic Refs
         TransitionSceneController currentTransitionSceneController;
 
+        // Progress feedback for loading screens
+        float progress;
+        string progressString;
+
         enum Stage
         {
             Idle,
@@ -111,6 +115,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             // 3 Wait for transition scene to finish preloading
             stage = Stage.WaitingForTransitionSceneToPreload;
+            progressString = "Loading transition";
 
             if (!sceneLoader.IsPreloadingComplete())
             {
@@ -144,6 +149,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             // 5 Start Preloading target scene & loading save
             sceneLoader.PreloadScene(targetScene,LoadSceneMode.Additive);
             Task<SceneSave> readSceneSaveFileTask = globalSavesManager.ReadSceneSaveFileAsync(savegamePathInSavesFolder);
+            progressString = "Loading savefile";
 
             // 6 Play enter transition scene fade
             if (enterTransitionSceneFadePrefab != null)
@@ -159,8 +165,20 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             // 7 Wait for target Scene to preload & save to read
             stage = Stage.WaitingForTargetSceneToPreloadAndSaveToRead;
 
-            yield return new WaitUntil(() => sceneLoader.IsPreloadingComplete());
-            yield return new WaitUntil(() => readSceneSaveFileTask.IsCompleted);
+            if (!readSceneSaveFileTask.IsCompleted)
+            {
+                progress = 0.1f * globalSavesManager.ReadSceneSaveFileProgress;
+                yield return null;
+            }
+
+            progressString = "Preloading target scene";
+
+            if (!sceneLoader.IsPreloadingComplete())
+            {
+                progress = 0.1f + sceneLoader.NormalizedPreloadingSceneProgress * 0.4f;
+                yield return null;
+            }
+            progress = 0.5f;
 
             // 8 Enable Second Scene, but dont unload transition yet, it enables in the background?
             stage = Stage.WaitingForTargetSceneToFullyLoad;
@@ -180,13 +198,16 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             SceneInitializersManager initializersManager = SceneInitializersManager.Instance;
             while (!initializersManager.IsFinished)
             {
-                // todo copy text and progress from initializers Manager
+                progressString = $"Initialializing Scene: {initializersManager.ProgressString}";
+                progress = 0.5f + (initializersManager.Progress * 0.3f);
                 yield return null;
             }
-
+            progress = 0.8f;
 
             // 10 Load Scene Save
             stage = Stage.LoadingSaveFile;
+            progressString = $"Loading scene save";
+
 
             SceneSave savegame = readSceneSaveFileTask.Result;
 
@@ -195,7 +216,16 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             globalSavesManager.OnLoadingSceneSaveFileCompleted += loadingFinishedHandler;
             globalSavesManager.LoadSceneSave(savegame);
-            yield return new WaitUntil(() => loadingFinished);
+
+            if (!loadingFinished)
+            {
+                progress = 0.8f * globalSavesManager.LoadSceneSaveFileProgress;
+
+                yield return null;
+            }
+            progress = 1f;
+            progressString = "";
+
             globalSavesManager.OnLoadingSceneSaveFileCompleted -= loadingFinishedHandler;
 
             // 11 Wait for player interaction to exit transition (if set)
@@ -252,25 +282,12 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         public override float GetProgress()
         {
-            if (stage == Stage.WaitingForTargetSceneToPreloadAndSaveToRead)
-            {
-                //return preloadSceneOperation.progress / 0.9f * 0.1f + (globalSavesManager.ReadSceneSaveFileProgress*0.2f);
-            }
-            else if (stage == Stage.LoadingSaveFile)
-            {
-                return 0.3f + globalSavesManager.ReadSceneLoadFileProgress * 0.5f;
-            }
-            else if (stage == Stage.WaitingForTransitionScenePlayerInteraction)
-            {
-                return 1;
-            }
-
-            return 0;
+            return progress;
         }
 
-        public override string GetCurrentStageDebugString()
+        public override string GetProgressString()
         {
-            return stage.ToString();
+            return progressString;
         }
     }
 }

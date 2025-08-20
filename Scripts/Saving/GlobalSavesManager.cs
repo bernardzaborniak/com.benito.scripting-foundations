@@ -47,17 +47,13 @@ namespace Benito.ScriptingFoundations.Saving
 
         // Progress
         public float ReadSceneSaveFileProgress { get; private set; }
+
+        public float LoadSceneSaveFileProgress { get; private set; }
         public float CreateSceneSaveFileProgress { get; private set; }
 
-        public float ReadSceneLoadFileProgress { get; private set; }
 
         Stopwatch stopwatch;
 
-        // References for creating Save
-        //SaveableObjectsSceneManager saveableObjectsSceneManager;
-        //string createSceneSaveFolderPathInSavesFolder;
-        //SceneSavegameInfo createSceneSaveInfo;
-        //Texture2D createSavePreviewImage;
 
         // OnFinished Callbacks
         public Action OnCreatingSceneSaveFileFinished;
@@ -434,7 +430,7 @@ namespace Benito.ScriptingFoundations.Saving
 
             while (!loadingFinished)
             {
-                // TODO set the progress 
+                LoadSceneSaveFileProgress = saveableObjectsSceneManager.LoadingProgress;
                 yield return null;
             }
             saveableObjectsSceneManager.OnLoadingFinished -= loadingFinishedHandler;

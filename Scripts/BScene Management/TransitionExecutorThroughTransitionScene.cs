@@ -3,6 +3,7 @@ using Benito.ScriptingFoundations.BSceneManagement.TransitionScene;
 using Benito.ScriptingFoundations.SceneInitializers;
 using System;
 using System.Collections;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -33,6 +34,10 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         // Dynamic Refs
         TransitionSceneController currentTransitionSceneController;
+
+        // Progress feedback for loading screens
+        float progress;
+        string progressString;
 
         enum Stage
         {
@@ -100,10 +105,11 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             // 3 Wait for transition scene to finish preloading
             stage = Stage.WaitingForTransitionSceneToPreload;
+            progressString = "Loading transition";
 
             if (!sceneLoader.IsPreloadingComplete())
             {
-                yield return new WaitUntil(() => sceneLoader.IsPreloadingComplete());
+                yield return null;
             }
 
             // 4 Switch to preloaded  transition scene
@@ -132,6 +138,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             
             // 5 Start Preloading target scene
             sceneLoader.PreloadScene(targetScene, LoadSceneMode.Additive);
+            progressString = "Preloading target scene";
 
 
             // 6 Play enter transition scene fade
@@ -147,7 +154,12 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             // 7 Wait for target Scene to preload
             stage = Stage.WaitingForTargetSceneToPreload;
-            yield return new WaitUntil(() => sceneLoader.IsPreloadingComplete());
+            if (!sceneLoader.IsPreloadingComplete())
+            {
+                progress = sceneLoader.NormalizedPreloadingSceneProgress * 0.5f;
+                yield return null;
+            }
+            progress = 0.5f;
 
             stage = Stage.WaitingForTargetSceneToFullyLoad;
             bool switchToTargetDone = false;
@@ -164,11 +176,15 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             // 8  Wait for initializers to finish in target scene
             SceneInitializersManager initializersManager = SceneInitializersManager.Instance;
+
             while (!initializersManager.IsFinished)
             {
-                // todo copy text and progress from initializers Manager
+                progressString = $"Initialializing Scene: {initializersManager.ProgressString}";
+                progress = 0.5f + (initializersManager.Progress * 0.5f);
                 yield return null;
             }
+            progress = 1;
+            progressString = "";
 
             // 9 Wait for player interaction to exit transition (if set)
             if (currentTransitionSceneController.TransitionWaitsForPlayerInteractionToFinish)
@@ -222,12 +238,12 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         public override float GetProgress()
         {
-            return (int)stage;
+            return progress;
         }
 
-        public override string GetCurrentStageDebugString()
+        public override string GetProgressString()
         {
-            return stage.ToString();
+            return progressString;
         }
     }
 }

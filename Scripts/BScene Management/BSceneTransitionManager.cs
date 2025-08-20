@@ -28,6 +28,15 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         public Action OnTransitionFinishedLoadingTargetScene;
         public Action OnTransitionFinished;
 
+        public enum State
+        {
+            Idle,
+            PlayingTransition,
+            FinishingTransitionPlayingLastFadeIn
+        }
+
+        public State ManagerState;
+
 
         public override void InitialiseManager()
         {
@@ -190,7 +199,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         {
             if (currentTransition != null)
             {
-                return currentTransition.GetCurrentStageDebugString();
+                return currentTransition.GetProgressString();
             }
             return "";
 
