@@ -2,21 +2,43 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.NaughtyAttributes;
 
 namespace Benito.ScriptingFoundations.SceneInitializers
 {
     [DefaultExecutionOrder(-4)]
-    public class SceneInitializers : MonoBehaviour
+    public class SceneInitializersManager : MonoBehaviour
     {
-        public static SceneInitializers Instance;
+        public static SceneInitializersManager Instance;
 
         [SerializeField] protected List<AbstractSceneInitializer> initializers = new List<AbstractSceneInitializer>();
 
-
         // Dictionary used to simplify the get by type process internaly.
         protected Dictionary<Type, object> singletonDictionary = new Dictionary<Type, object>();
+
+
+        // ----- Execution Variables -------
+
+        [Tooltip("Initializers are only allowed to use a maximum of this amount of miliseconds per frame " +
+       "- to prevent stuttering in the loading bar. values around 5-10 seem appropriate")]
+        [SerializeField] float initializersBudgetInMs = 7;
+
+
+        public bool IsFinished { get; private set; }
+        public Action OnFinished;
+        /// <summary>
+        /// Says what the initializers are currently doing
+        /// </summary>.
+        public string ProgressString { get; private set; }
+        /// <summary>
+        /// Value between 0 and 1, gives back the initialization progress.
+        /// </summary>
+        public float Progress { get; private set; }
+
+        int currentInitializerIndex;
+
+        // -----------------------------
+
 
         void Awake()
         {
@@ -37,9 +59,38 @@ namespace Benito.ScriptingFoundations.SceneInitializers
 
         void Start()
         {
-            for (int i = 0; i < initializers.Count; i++)
+            // TODO start initialization coroutine?
+
+            // have the initializer budget handled here maybe?
+
+            currentInitializerIndex = 0;
+            IsFinished = false;
+
+            initializers[currentInitializerIndex].StartInitialization();
+        }
+
+        private void Update()
+        {
+            if (IsFinished)
+                return;
+
+            initializers[currentInitializerIndex].UpdateInitialization(initializersBudgetInMs);
+
+            Progress = (float)currentInitializerIndex / initializers.Count + initializers[currentInitializerIndex].Progress;
+            ProgressString = initializers[currentInitializerIndex].ProgressString;
+
+            if (initializers[currentInitializerIndex].InitializationFinished)
             {
-                initializers[i].Initialize();
+                if(currentInitializerIndex == initializers.Count-1)
+                {
+                    IsFinished = true;
+                    OnFinished?.Invoke();
+                }
+                else
+                {
+                    currentInitializerIndex++;
+                    initializers[currentInitializerIndex].StartInitialization();
+                }
             }
         }
 

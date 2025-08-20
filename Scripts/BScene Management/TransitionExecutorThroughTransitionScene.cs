@@ -1,8 +1,10 @@
 
 using Benito.ScriptingFoundations.BSceneManagement.TransitionScene;
+using Benito.ScriptingFoundations.SceneInitializers;
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
 {
@@ -39,8 +41,11 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             WaitingForTransitionSceneToPreload,
             PlayingEnterTransitionSceneFade,
             WaitingForTargetSceneToPreload,
+            WaitingForTargetSceneToFullyLoad,
+            WaitingForSceneInitializers,
             WaitingForTransitionScenePlayerInteraction,
             PlayingExitTransitionSceneFade,
+            WaitingForTransitionSceneToUnload,
             PlayingEnterTargetSceneFade,
             Finished
         }
@@ -126,7 +131,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             
             // 5 Start Preloading target scene
-            sceneLoader.PreloadScene(targetScene);
+            sceneLoader.PreloadScene(targetScene, LoadSceneMode.Additive);
 
 
             // 6 Play enter transition scene fade
@@ -144,7 +149,28 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             stage = Stage.WaitingForTargetSceneToPreload;
             yield return new WaitUntil(() => sceneLoader.IsPreloadingComplete());
 
-            // 8 Wait for player interaction to exit transition (if set)
+            stage = Stage.WaitingForTargetSceneToFullyLoad;
+            bool switchToTargetDone = false;
+            Action switchToTargetDoneHandler = () =>
+            {
+                switchToTargetDone = true;
+                UnityEngine.SceneManagement.SceneManager.SetActiveScene(SceneManager.GetSceneByName(targetScene));
+            };
+            sceneLoader.OnSwitchedToPreloadedScene += switchToTargetDoneHandler;
+            sceneLoader.SwitchToPreloadedScene();
+            yield return new WaitUntil(() => switchToTargetDone);
+            sceneLoader.OnSwitchedToPreloadedScene -= switchToTargetDoneHandler;
+
+
+            // 8  Wait for initializers to finish in target scene
+            SceneInitializersManager initializersManager = SceneInitializersManager.Instance;
+            while (!initializersManager.IsFinished)
+            {
+                // todo copy text and progress from initializers Manager
+                yield return null;
+            }
+
+            // 9 Wait for player interaction to exit transition (if set)
             if (currentTransitionSceneController.TransitionWaitsForPlayerInteractionToFinish)
             {
                 stage = Stage.WaitingForTransitionScenePlayerInteraction;
@@ -158,7 +184,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 currentTransitionSceneController.OnPlayerTriggeredTransitionCompletion -= playerInteractionHandler;
             }
 
-            // 9 play exit transition scene fade
+            // 10 play exit transition scene fade
             BSceneFade exitTransitionSceneFade = null;
             if (exitTransitionSceneFadePrefab != null)
             {
@@ -168,22 +194,18 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 yield return new WaitUntil(() => exitTransitionSceneFade.HasFinished);
             }
 
-            // 10 Switch to preloaded target scene
-            bool switchToTargetDone = false;
-            Action switchToTargetDoneHandler = () => switchToTargetDone = true;
-
-            sceneLoader.OnSwitchedToPreloadedScene += switchToTargetDoneHandler;
-            sceneLoader.SwitchToPreloadedScene();
-            yield return new WaitUntil(() => switchToTargetDone);
-            sceneLoader.OnSwitchedToPreloadedScene -= switchToTargetDoneHandler;
-
-            OnFinishedLoadingTargetScene?.Invoke();
+            // 11 Wait for transition scene to unload
+            stage = Stage.WaitingForTransitionSceneToUnload;
+            AsyncOperation unloadSceneOperation = SceneManager.UnloadSceneAsync(transitionScene);
+            yield return new WaitUntil(() => unloadSceneOperation.isDone);
 
             if (exitTransitionSceneFade)
                 GameObject.Destroy(exitTransitionSceneFade.gameObject);
 
 
-            // 11 Play enter target scene fade
+            // 12 Play enter target scene fade
+            OnFinishedLoadingTargetScene?.Invoke();
+
             if (enterNextSceneFadePrefab != null)
             {
                 stage = Stage.PlayingEnterTargetSceneFade;

@@ -7,9 +7,9 @@ using UnityEngine;
 namespace Benito.ScriptingFoundations.SceneInitializers
 {
     [DefaultExecutionOrder(-4)]
-    public class EnterPlayModeSceneInitializers : MonoBehaviour
+    public class EnterPlayModeSceneInitializersManager : MonoBehaviour
     {
-        public static EnterPlayModeSceneInitializers Instance;
+        public static EnterPlayModeSceneInitializersManager Instance;
         [SerializeField] protected List<AbstractEnterPlayModeSceneInitializer> initializers = new List<AbstractEnterPlayModeSceneInitializer>();
 
 

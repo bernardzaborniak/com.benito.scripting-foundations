@@ -16,7 +16,7 @@ namespace Benito.ScriptingFoundations.SceneInitializers.Editor
         {
             if (state == PlayModeStateChange.EnteredPlayMode)
             {
-                EnterPlayModeSceneInitializers.Instance?.OnEnteredPlayModeViaEditor();
+                EnterPlayModeSceneInitializersManager.Instance?.OnEnteredPlayModeViaEditor();
             }
         }
     }

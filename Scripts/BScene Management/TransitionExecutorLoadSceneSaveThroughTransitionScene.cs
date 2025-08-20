@@ -2,6 +2,7 @@
 using Benito.ScriptingFoundations.BSceneManagement.TransitionScene;
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.Saving;
+using Benito.ScriptingFoundations.SceneInitializers;
 using System;
 using System.Collections;
 using System.Threading.Tasks;
@@ -47,6 +48,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             PlayingEnterTransitionSceneFade,
             WaitingForTargetSceneToPreloadAndSaveToRead,
             WaitingForTargetSceneToFullyLoad,
+            WaitingForSceneInitializers,
             LoadingSaveFile,
             WaitingForTransitionScenePlayerInteraction,
             PlayingExitTransitionSceneFade,
@@ -173,7 +175,17 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             yield return new WaitUntil(() => switchToTargetDone);
             sceneLoader.OnSwitchedToPreloadedScene -= switchToTargetDoneHandler;
 
-            // 9 Load Scene Save
+            // 9 Wait for initializers to finish in target scene
+            stage = Stage.WaitingForSceneInitializers;
+            SceneInitializersManager initializersManager = SceneInitializersManager.Instance;
+            while (!initializersManager.IsFinished)
+            {
+                // todo copy text and progress from initializers Manager
+                yield return null;
+            }
+
+
+            // 10 Load Scene Save
             stage = Stage.LoadingSaveFile;
 
             SceneSave savegame = readSceneSaveFileTask.Result;
@@ -186,7 +198,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             yield return new WaitUntil(() => loadingFinished);
             globalSavesManager.OnLoadingSceneSaveFileCompleted -= loadingFinishedHandler;
 
-            // 8 Wait for player interaction to exit transition (if set)
+            // 11 Wait for player interaction to exit transition (if set)
             if (currentTransitionSceneController.TransitionWaitsForPlayerInteractionToFinish)
             {
                 stage = Stage.WaitingForTransitionScenePlayerInteraction;
@@ -200,7 +212,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 currentTransitionSceneController.OnPlayerTriggeredTransitionCompletion -= playerInteractionHandler;
             }
 
-            // 9 play exit transition scene fade
+            // 12 play exit transition scene fade
             BSceneFade exitTransitionSceneFade = null;
             if (exitTransitionSceneFadePrefab != null)
             {
@@ -210,18 +222,16 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 yield return new WaitUntil(() => exitTransitionSceneFade.HasFinished);
             }
                 
-            // 10 Wait for transition scene to unload
+            // 13 Wait for transition scene to unload
             stage = Stage.WaitingForTransitionSceneToUnload;
-
             AsyncOperation unloadSceneOperation = SceneManager.UnloadSceneAsync(transitionScene);
-
             yield return new WaitUntil(() => unloadSceneOperation.isDone);
 
             if (exitTransitionSceneFade)
                 GameObject.Destroy(exitTransitionSceneFade.gameObject);
 
 
-            // 11 Play enter target scene fade
+            // 14 Play enter target scene fade
             OnFinishedLoadingTargetScene?.Invoke();
 
             if (enterNextSceneFadePrefab != null)
