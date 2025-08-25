@@ -42,6 +42,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         {
             sceneLoader = GlobalManagers.Get<BSceneLoader>();
             savesManager = GlobalManagers.Get<GlobalSavesManager>();
+            ManagerState = State.Idle;
         }
 
         public override void UpdateManager()
@@ -73,9 +74,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 this, transform, sceneLoader, 
                 exitCurrentSceneFadePrefab, enterNextSceneFadePrefab);
 
-            AddTransitionFinishingHooks();
-            currentTransition.StartTransition();  // Calling start is enough, the transition will handle all further setps asynchronously on its own
-
+            StartCurrentTransition();
         }
 
         /// <summary>
@@ -98,8 +97,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 this, transform, sceneLoader,
                exitCurrentSceneFadePrefab, enterNextSceneFadePrefab);
 
-            AddTransitionFinishingHooks();
-            currentTransition.StartTransition();
+            StartCurrentTransition();
         }
 
 
@@ -126,8 +124,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab,
                exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
 
-            AddTransitionFinishingHooks();
-            currentTransition.StartTransition();
+            StartCurrentTransition();
         }
 
 
@@ -161,10 +158,17 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 transform, sceneLoader,
                 exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab,
                 exitTransitiontSceneFadePrefab, enterNextSceneFadePrefab);
-            currentTransition.StartTransition();
-            
+
+            StartCurrentTransition();
+
         }
 
+        void StartCurrentTransition()
+        {
+            AddTransitionFinishingHooks();
+            ManagerState = State.PlayingTransition;
+            currentTransition.StartTransition();  // Calling start is enough, the transition will handle all further setps asynchronously on its own
+        }
 
         void AddTransitionFinishingHooks()
         {
@@ -172,13 +176,15 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             currentTransition.OnFinishedLoadingTargetScene += () =>
             {
+                ManagerState = State.FinishingTransitionPlayingLastFadeIn;
                 OnTransitionFinishedLoadingTargetScene?.Invoke();
             };
 
             currentTransition.OnFinished += () =>
             {
+                ManagerState = State.Idle;
                 OnTransitionFinished?.Invoke();
-                currentTransition = null;
+                currentTransition = null;           
             };
         }
 
