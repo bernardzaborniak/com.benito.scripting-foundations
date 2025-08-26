@@ -453,15 +453,26 @@ namespace Benito.ScriptingFoundations.Saving
 
         public async void CreateProgressSave<T>(T save, string pathInSavesFolder, string saveName) where T : ISaveableProgress
         {
+            Debug.Log($"[GlobalSavesManager] Start creating Progress Save");
+            stopwatch.Start();
+
             string fileString = JsonUtility.ToJson(save);
             string folderPath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), pathInSavesFolder);
             IOUtilities.EnsurePathExists(folderPath);
             await File.WriteAllTextAsync(Path.Combine(folderPath, saveName + ".json"), fileString);
-            OnCreatingProgressSaveFileFinished?.Invoke();
+
+            stopwatch.Stop();
+            Debug.Log($"[GlobalSavesManager] Finished creating Progress Save, took {(float)stopwatch.Elapsed.TotalSeconds} seconds");
+            stopwatch.Reset();
+
+            OnCreatingProgressSaveFileFinished?.Invoke();         
         }
 
         public T ReadProgressSave<T>(string saveFilePathInsideSavesFolder) where T : ISaveableProgress
         {
+            Debug.Log($"[GlobalSavesManager] Start reading Progress Save");
+            stopwatch.Start();
+
             string fileContent;
             string path = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInsideSavesFolder) + ".json";
 
@@ -470,6 +481,10 @@ namespace Benito.ScriptingFoundations.Saving
                 fileContent = reader.ReadToEnd();
                 reader.Close();
             }
+
+            stopwatch.Stop();
+            Debug.Log($"[GlobalSavesManager] Finished reading Progress Save, took {(float)stopwatch.Elapsed.TotalSeconds} seconds");
+            stopwatch.Reset();
 
             return JsonUtility.FromJson<T>(fileContent);
         }
