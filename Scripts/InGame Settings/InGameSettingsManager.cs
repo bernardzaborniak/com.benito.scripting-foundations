@@ -8,6 +8,8 @@ using Benito.ScriptingFoundations.Managers;
 
 namespace Benito.ScriptingFoundations.InGameSettings
 {
+    [AddComponentMenu("Benitos Scripting Foundations/InGameSettingsManager")]
+
     public class InGameSettingsManager : SingletonManagerGlobal
     {
         Dictionary<Type, InGameSettings> settingsDictionary = new Dictionary<Type, InGameSettings>();

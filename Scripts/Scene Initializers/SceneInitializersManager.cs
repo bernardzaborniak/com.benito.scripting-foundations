@@ -7,6 +7,7 @@ using Benito.ScriptingFoundations.NaughtyAttributes;
 namespace Benito.ScriptingFoundations.SceneInitializers
 {
     [DefaultExecutionOrder(-4)]
+    [AddComponentMenu("Benitos Scripting Foundations/Initializers/SceneInitializersManager")]
     public class SceneInitializersManager : MonoBehaviour
     {
         public static SceneInitializersManager Instance;

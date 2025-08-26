@@ -12,6 +12,7 @@ using UnityEngine.Profiling;
 
 namespace Benito.ScriptingFoundations.BDebug
 {
+    [AddComponentMenu("Benitos Scripting Foundations/BDebug Manager")]
     public class BDebugManager : SingletonManagerGlobal
     {
         List<TextMeshPro> textMeshPool = new List<TextMeshPro>();

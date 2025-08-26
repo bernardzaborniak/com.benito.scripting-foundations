@@ -15,6 +15,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
     /// 
     /// Creates new BSceneTransition objects for each transition
     /// </summary>
+    [AddComponentMenu("Benitos Scripting Foundations/Transitions/BSceneTransitionManager")]
     public class BSceneTransitionManager : SingletonManagerGlobal
     {
         // Refs

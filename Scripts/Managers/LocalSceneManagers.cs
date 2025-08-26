@@ -6,6 +6,7 @@ using System;
 namespace Benito.ScriptingFoundations.Managers
 {
     [DefaultExecutionOrder(-5)]
+    [AddComponentMenu("Benitos Scripting Foundations/LocalSceneManagers")]
     public class LocalSceneManagers : AbstractManagersManager<SingletonManagerLocalScene>
     {
         public static LocalSceneManagers Instance;

@@ -5,6 +5,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
     /// <summary>
     /// Example hook, that just enables objects when hooked
     /// </summary>
+    [AddComponentMenu("Benitos Scripting Foundations/Transitions/OnTransitionFinishedHookBehaviourEnabler")]
     public class OnTransitionFinishedHookBehaviourEnabler : OnTransitionFinishedHook
     {
         [SerializeField] Behaviour[] behavioursToActivate;

@@ -9,6 +9,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
     /// 
     /// Dreive from this class for more complex behaviours.
     /// </summary>
+
+    [AddComponentMenu("Benitos Scripting Foundations/Transitions/OnTransitionFinishedHook")]
     public abstract class OnTransitionFinishedHook : MonoBehaviour
     {
         public enum HookMode

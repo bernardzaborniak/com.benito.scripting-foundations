@@ -21,6 +21,7 @@ namespace Benito.ScriptingFoundations.Saving
     /// <summary>
     ///  Takes care of loading and saving different savegames to files.
     /// </summary>
+    [AddComponentMenu("Benitos Scripting Foundations/Saving/GlobalSavesManager")]
     public class GlobalSavesManager : SingletonManagerGlobal
     {
         #region Fields

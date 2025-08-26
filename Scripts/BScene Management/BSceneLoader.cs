@@ -15,6 +15,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
     /// 
     /// Use Methods of BSceneTransitionManager whenever possible
     /// </summary>
+    [AddComponentMenu("Benitos Scripting Foundations/Transitions/BSceneLoader")]
+
     public class BSceneLoader : SingletonManagerGlobal
     {
         // State

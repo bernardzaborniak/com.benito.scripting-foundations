@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Benito.ScriptingFoundations.CameraHelpers
 {
+    [AddComponentMenu("Benitos Scripting Foundations/SimpleCameraController")]
     public class SimpleCameraController : MonoBehaviour
     {
         class CameraState

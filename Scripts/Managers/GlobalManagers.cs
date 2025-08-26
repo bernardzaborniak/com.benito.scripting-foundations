@@ -6,6 +6,7 @@ using System;
 namespace Benito.ScriptingFoundations.Managers
 {
     [DefaultExecutionOrder(-6)]
+    [AddComponentMenu("Benitos Scripting Foundations/GlobalManagers")]
     public class GlobalManagers : AbstractManagersManager<SingletonManagerGlobal>
     {
         public static GlobalManagers Instance;
