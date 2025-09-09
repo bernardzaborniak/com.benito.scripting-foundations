@@ -177,7 +177,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             // 8  Wait for initializers to finish in target scene
             SceneInitializersManager initializersManager = SceneInitializersManager.Instance;
 
-            while (!initializersManager.IsFinished)
+            while (initializersManager!= null && !initializersManager.IsFinished)
             {
                 progressString = $"Initialializing Scene: {initializersManager.ProgressString}";
                 progress = 0.5f + (initializersManager.Progress * 0.5f);

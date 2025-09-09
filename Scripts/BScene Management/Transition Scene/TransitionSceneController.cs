@@ -13,7 +13,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement.TransitionScene
     {
         [Tooltip("If this is set to true, the transition system will wait until the player action is triggered before transitioning")]
         [field: SerializeField]
-        public bool TransitionWaitsForPlayerInteractionToFinish { get; private set; }
+        public bool TransitionWaitsForPlayerInteractionToFinish { get; protected set; }
 
         public Action OnPlayerTriggeredTransitionCompletion;
 

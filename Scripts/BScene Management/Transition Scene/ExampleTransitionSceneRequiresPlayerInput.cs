@@ -13,17 +13,15 @@ namespace Benito.ScriptingFoundations.BSceneManagement.TransitionScene
         [SerializeField] TextMeshProUGUI loadingFinishedTriggerPlayerInputText;
         [SerializeField] Image progressBarFillable;
 
-        // TODO implement progress loading bar and numbers here and put it into the package directory afterwards
-
         private void Start()
         {
+            TransitionWaitsForPlayerInteractionToFinish = true;
             loadingFinishedTriggerPlayerInputText.gameObject.SetActive(false);
         }
 
         void Update()
         {
             float progress = transitionExecutor.GetProgress();
-            //displayTex.text = progress.ToString("F2");
 
             loadingProgressNumber.text = (progress * 100).ToString("F0");
             loadingProgressString.text = transitionExecutor.GetProgressString();
@@ -39,8 +37,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement.TransitionScene
                 {
                     OnPlayerTriggeredTransitionCompletion?.Invoke();
                 }
-            }
-
+            }            
         }
     }
 }
