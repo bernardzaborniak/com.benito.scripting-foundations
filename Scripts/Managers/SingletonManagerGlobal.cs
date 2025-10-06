@@ -15,5 +15,9 @@ namespace Benito.ScriptingFoundations.Managers
 
         }
 
+        public virtual void FixedUpdateManager()
+        {
+
+        }
     }
 }

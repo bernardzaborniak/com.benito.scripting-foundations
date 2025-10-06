@@ -10,7 +10,13 @@ namespace Benito.ScriptingFoundations.Managers
 
         public abstract void UpdateManager();
 
+        // late and fixed update are optional
         public virtual void LateUpdateManager()
+        {
+
+        }
+
+        public virtual void FixedUpdateManager()
         {
 
         }

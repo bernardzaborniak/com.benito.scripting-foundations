@@ -11,5 +11,7 @@ namespace Benito.ScriptingFoundations.Managers
         public void UpdateManager();
 
         public void LateUpdateManager();
+
+        public void FixedUpdateManager();
     }
 }

@@ -35,8 +35,16 @@ namespace Benito.ScriptingFoundations.Managers
             }
         }
 
+        private void FixedUpdate()
+        {
+            for (int i = 0; i < managers.Count; i++)
+            {
+                managers[i].FixedUpdateManager();
+            }
+        }
 
-#region Validation 
+
+        #region Validation 
 
         protected void OnValidate()
         {
