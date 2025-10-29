@@ -60,10 +60,6 @@ namespace Benito.ScriptingFoundations.SceneInitializers
 
         void Start()
         {
-            // TODO start initialization coroutine?
-
-            // have the initializer budget handled here maybe?
-
             currentInitializerIndex = 0;
             IsFinished = false;
 
