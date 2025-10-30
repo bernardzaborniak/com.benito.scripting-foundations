@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Benito.ScriptingFoundations.SceneInitializers
 {
-    [DefaultExecutionOrder(-4)]
+    [DefaultExecutionOrder(-3)]
     [AddComponentMenu("Benitos Scripting Foundations/Initializers/EnterPlayModeSceneInitializersManager")]
     public class EnterPlayModeSceneInitializersManager : MonoBehaviour
     {

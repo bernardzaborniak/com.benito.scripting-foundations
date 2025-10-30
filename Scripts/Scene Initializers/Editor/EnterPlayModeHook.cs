@@ -5,7 +5,6 @@ namespace Benito.ScriptingFoundations.SceneInitializers.Editor
 {
     public class EnterPlayModeHook
     {
-
         [RuntimeInitializeOnLoadMethod]
         static void InitializeHook()
         {
