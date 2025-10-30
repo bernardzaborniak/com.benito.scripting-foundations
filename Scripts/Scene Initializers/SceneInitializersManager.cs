@@ -60,6 +60,12 @@ namespace Benito.ScriptingFoundations.SceneInitializers
 
         void Start()
         {
+            if(initializers.Count == 0)
+            {
+                IsFinished = true;
+                return;
+            }
+
             currentInitializerIndex = 0;
             IsFinished = false;
 
