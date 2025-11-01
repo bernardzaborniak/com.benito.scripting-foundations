@@ -85,7 +85,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             Action switchDoneHandler = () =>
             {
                 switchDone = true;
-                OnFinishedLoadingTargetScene?.Invoke();
+                h1_OnFinishedLoadTargetScene?.Invoke();
+                h2_OnFinishedLoadSceneLoadSaveAndInitialize?.Invoke();
             };
 
             sceneLoader.OnSwitchedToPreloadedScene += switchDoneHandler;
@@ -103,6 +104,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             if (enterNextSceneFadePrefab != null)
             {
                 stage = Stage.PlayingEnterNextSceneFade;
+                h3_OnFinishedStillPlayingLastFadeIn?.Invoke();
                 enterNextSceneFade = CreateFade(enterNextSceneFadePrefab, sceneManagerTransform);
                 enterNextSceneFade.StartFade();
 
@@ -113,7 +115,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 GameObject.Destroy(enterNextSceneFade.gameObject);
 
             stage = Stage.Finished;
-            OnFinished?.Invoke();
+            h4_OnFinished?.Invoke();
         }
 
         public override float GetProgress()

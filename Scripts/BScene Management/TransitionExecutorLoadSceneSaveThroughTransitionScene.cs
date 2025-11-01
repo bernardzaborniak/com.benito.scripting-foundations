@@ -187,6 +187,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             {
                 switchToTargetDone = true;
                 UnityEngine.SceneManagement.SceneManager.SetActiveScene(SceneManager.GetSceneByName(targetScene));
+                h1_OnFinishedLoadTargetScene?.Invoke();
             };
             sceneLoader.OnSwitchedToPreloadedScene += switchToTargetDoneHandler;
             sceneLoader.SwitchToPreloadedScene();
@@ -223,8 +224,10 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
                 yield return null;
             }
+
             progress = 1f;
             progressString = "";
+            h2_OnFinishedLoadSceneLoadSaveAndInitialize?.Invoke();
 
             globalSavesManager.OnLoadingSceneSaveFileCompleted -= loadingFinishedHandler;
 
@@ -262,7 +265,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
 
             // 14 Play enter target scene fade
-            OnFinishedLoadingTargetScene?.Invoke();
+            h3_OnFinishedStillPlayingLastFadeIn?.Invoke();
 
             if (enterNextSceneFadePrefab != null)
             {
@@ -277,7 +280,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             stage = Stage.Finished;
 
-            OnFinished?.Invoke();
+            h4_OnFinished?.Invoke();
         }
 
         public override float GetProgress()

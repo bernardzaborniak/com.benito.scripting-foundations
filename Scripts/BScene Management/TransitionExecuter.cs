@@ -11,16 +11,26 @@ namespace Benito.ScriptingFoundations.BSceneManagement
     public abstract class TransitionExecuter
     {
         /// <summary>
-        /// ::HasFinishedLoadingTargetLevel::: level was loaded, now the last fade is still playing.   
-        /// ::HasFinished::: target level is loaded and graphical part of transition has also finished.   
+        /// ::HasFinishedLoadingTargetLevel::: level was loaded, initializers and saves are ready,
+        /// but transition is still playing.   
         /// </summary>
-        public Action OnFinishedLoadingTargetScene;
+        public Action h1_OnFinishedLoadTargetScene;
 
         /// <summary>
-        /// ::HasFinishedLoadingTargetLevel::: level was loaded, now the last fade is still playing.   
-        /// ::HasFinished::: target level is loaded and graphical part of transition has also finished.   
+        /// ::HasFinishedLoadingTargetLevel::: level was loaded, initializers and saves are ready,
+        /// but transition is still playing.   
         /// </summary>
-        public Action OnFinished;
+        public Action h2_OnFinishedLoadSceneLoadSaveAndInitialize;
+
+        /// <summary>
+        /// ::HasFinished::: level was loaded, now the last fade is still playing.   
+        /// </summary>
+        public Action h3_OnFinishedStillPlayingLastFadeIn;
+
+        /// <summary>
+        /// ::HasFinished::: level was loaded, now also the last fade in stopped playing. 
+        /// </summary>
+        public Action h4_OnFinished;
 
         public abstract void StartTransition();
 

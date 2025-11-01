@@ -6,8 +6,8 @@ using UnityEngine;
 namespace Benito.ScriptingFoundations.BSceneManagement
 {
     /// <summary>
-    /// Objects wishing to use the proper start after transition finished may use either once 
-    /// of the 2 Action hooks provided. They should register during awake
+    /// Objects wishing to use the proper start after transition finished may use those hookes
+    /// They should register to the singleton instance during awake.
     /// </summary>
 
     [DefaultExecutionOrder(-3)]
@@ -16,8 +16,10 @@ namespace Benito.ScriptingFoundations.BSceneManagement
     {
         public static SceneLoadHooks Instance;
 
-        public Action OnTransitionFinishedInitializingTargetScene; // Initializers finished
-        public Action OnTransitionFinished;
+        public Action h1_OnFinishedLoadTargetScene; 
+        public Action h2_OnFinishedLoadSceneLoadSaveAndInitialize;
+        public Action h3_OnFinishedStillPlayingLastFadeIn;
+        public Action h4_OnFinished;
 
         SceneInitializersManager sceneInitializersManager;
         BSceneTransitionManager transitionManager;
@@ -34,33 +36,31 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
         }
 
-        private void Start()
+        /// <summary>
+        /// If there is no transition to call the hooks, we have to call them ourselves.
+        /// </summary>
+        public void OnEnteredPlayModeViaEditor()
         {
-            // Register yourself to the transition manager if present, if not, just execute
+            Debug.Log("[SceneLoadHooks] Initialized Scene Hooks via Editor Play Mode for this scene.");
             sceneInitializersManager = SceneInitializersManager.Instance;
-            transitionManager = GlobalManagers.Get<BSceneTransitionManager>();
 
-            if (transitionManager == null || transitionManager.ManagerState == BSceneTransitionManager.State.Idle)
+            h1_OnFinishedLoadTargetScene?.Invoke();
+
+            if (sceneInitializersManager == null || sceneInitializersManager.IsFinished)
             {
-                if (sceneInitializersManager == null || sceneInitializersManager.IsFinished)
-                {
-                    OnTransitionFinishedInitializingTargetScene?.Invoke();
-                    OnTransitionFinished?.Invoke();
-                    return;
-                }
-                else
-                {
-                    sceneInitializersManager.OnFinished += () =>
-                    {
-                        OnTransitionFinishedInitializingTargetScene?.Invoke();
-                        OnTransitionFinished?.Invoke();
-                    };
-                }
+                h2_OnFinishedLoadSceneLoadSaveAndInitialize?.Invoke();
+                h3_OnFinishedStillPlayingLastFadeIn?.Invoke();
+                h4_OnFinished?.Invoke();
+                return;
             }
             else
             {
-                transitionManager.OnTransitionFinishedLoadingTargetScene += () => OnTransitionFinishedInitializingTargetScene?.Invoke();
-                transitionManager.OnTransitionFinished += () => OnTransitionFinished?.Invoke();
+                sceneInitializersManager.OnFinished += () =>
+                {
+                    h2_OnFinishedLoadSceneLoadSaveAndInitialize?.Invoke();
+                    h3_OnFinishedStillPlayingLastFadeIn?.Invoke();
+                    h4_OnFinished?.Invoke();
+                };
             }
         }
     }

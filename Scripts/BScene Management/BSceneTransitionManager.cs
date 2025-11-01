@@ -26,9 +26,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         TransitionExecuter currentTransition;
         public float TransitionProgress { get => currentTransition != null ? currentTransition.GetProgress() : -1; }
 
-        public Action OnTransitionFinishedLoadingTargetScene;
-        public Action OnTransitionFinished;
-
         public enum State
         {
             Idle,
@@ -175,17 +172,32 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         {
             // we dont need to reassign the hooks, as every transition object will be destroyed after use
 
-            currentTransition.OnFinishedLoadingTargetScene += () =>
+            currentTransition.h1_OnFinishedLoadTargetScene += () =>
             {
-                ManagerState = State.FinishingTransitionPlayingLastFadeIn;
-                OnTransitionFinishedLoadingTargetScene?.Invoke();
+                Debug.Log("[BSceneManager] h1_OnFinishedLoadTargetScene");
+                SceneLoadHooks.Instance?.h1_OnFinishedLoadTargetScene?.Invoke();
             };
 
-            currentTransition.OnFinished += () =>
+            currentTransition.h2_OnFinishedLoadSceneLoadSaveAndInitialize += () =>
             {
+                Debug.Log("[BSceneManager] h2_OnFinishedLoadSceneLoadSaveAndInitialize");
+                SceneLoadHooks.Instance?.h2_OnFinishedLoadSceneLoadSaveAndInitialize?.Invoke();
+            };
+
+            currentTransition.h3_OnFinishedStillPlayingLastFadeIn += () =>
+            {
+                Debug.Log("[BSceneManager] h3_OnFinishedStillPlayingLastFadeIn");
+                ManagerState = State.FinishingTransitionPlayingLastFadeIn;
+                SceneLoadHooks.Instance?.h3_OnFinishedStillPlayingLastFadeIn?.Invoke();
+
+            };
+
+            currentTransition.h4_OnFinished += () =>
+            {
+                Debug.Log("[BSceneManager] h4_OnFinished");
                 ManagerState = State.Idle;
-                OnTransitionFinished?.Invoke();
-                currentTransition = null;           
+                SceneLoadHooks.Instance?.h4_OnFinished?.Invoke();
+                currentTransition = null;
             };
         }
 
