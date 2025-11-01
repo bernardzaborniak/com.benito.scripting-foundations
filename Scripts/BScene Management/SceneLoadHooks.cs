@@ -1,13 +1,14 @@
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.SceneInitializers;
+using Benito.ScriptingFoundations.Utilities;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
 {
     /// <summary>
-    /// Objects wishing to use the proper start after transition finished may use those hookes
-    /// They should register to the singleton instance during awake.
+    /// Calls the hook methods for all objects implementing the ISceneLoadHooksMethods interface.
     /// </summary>
 
     [DefaultExecutionOrder(-3)]
@@ -16,13 +17,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
     {
         public static SceneLoadHooks Instance;
 
-        public Action h1_OnFinishedLoadTargetScene; 
-        public Action h2_OnFinishedLoadSceneLoadSaveAndInitialize;
-        public Action h3_OnFinishedStillPlayingLastFadeIn;
-        public Action h4_OnFinished;
-
-        SceneInitializersManager sceneInitializersManager;
-        BSceneTransitionManager transitionManager;
+        List<ISceneLoadHooksListener> methodListeners;
 
         void Awake()
         {
@@ -34,7 +29,40 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             {
                 Instance = this;
             }
+
+            methodListeners = InterfaceUtilities.FindInterfacesInScene<ISceneLoadHooksListener>();
         }
+
+        public void h1_OnFinishedLoadTargetScene()
+        {
+            for (int i = 0; i < methodListeners.Count; i++) 
+            {
+                methodListeners[i].Start_h1_OnFinishedLoadTargetScene();
+            }
+
+        }
+        public void h2_OnFinishedLoadSceneLoadSaveAndInitialize()
+        {
+            for (int i = 0; i < methodListeners.Count; i++)
+            {
+                methodListeners[i].Start_h2_OnFinishedLoadSceneLoadSaveAndInitialize();
+            }
+        }
+        public void h3_OnFinishedStillPlayingLastFadeIn()
+        {
+            for (int i = 0; i < methodListeners.Count; i++)
+            {
+                methodListeners[i].Start_h3_OnFinishedStillPlayingLastFadeIn();
+            }
+        }
+        public void h4_OnFinished()
+        {
+            for (int i = 0; i < methodListeners.Count; i++)
+            {
+                methodListeners[i].Start_h4_OnFinished();
+            }
+        }
+
 
         /// <summary>
         /// If there is no transition to call the hooks, we have to call them ourselves.
@@ -42,24 +70,24 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         public void OnEnteredPlayModeViaEditor()
         {
             Debug.Log("[SceneLoadHooks] Initialized Scene Hooks via Editor Play Mode for this scene.");
-            sceneInitializersManager = SceneInitializersManager.Instance;
+            SceneInitializersManager sceneInitializersManager = SceneInitializersManager.Instance;
 
-            h1_OnFinishedLoadTargetScene?.Invoke();
+            h1_OnFinishedLoadTargetScene();
 
             if (sceneInitializersManager == null || sceneInitializersManager.IsFinished)
             {
-                h2_OnFinishedLoadSceneLoadSaveAndInitialize?.Invoke();
-                h3_OnFinishedStillPlayingLastFadeIn?.Invoke();
-                h4_OnFinished?.Invoke();
+                h2_OnFinishedLoadSceneLoadSaveAndInitialize();
+                h3_OnFinishedStillPlayingLastFadeIn();
+                h4_OnFinished();
                 return;
             }
             else
             {
                 sceneInitializersManager.OnFinished += () =>
                 {
-                    h2_OnFinishedLoadSceneLoadSaveAndInitialize?.Invoke();
-                    h3_OnFinishedStillPlayingLastFadeIn?.Invoke();
-                    h4_OnFinished?.Invoke();
+                    h2_OnFinishedLoadSceneLoadSaveAndInitialize();
+                    h3_OnFinishedStillPlayingLastFadeIn();
+                    h4_OnFinished();
                 };
             }
         }
