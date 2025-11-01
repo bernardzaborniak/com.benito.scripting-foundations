@@ -83,7 +83,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             if (exitCurrentSceneFade)
                 GameObject.Destroy(exitCurrentSceneFade.gameObject);
 
-
+            h3_OnFinishedStillPlayingLastFadeIn?.Invoke();
             // 3 Play enter next scene fade
             BSceneFade enterNextSceneFade = null;
             if (enterNextSceneFadePrefab != null)
