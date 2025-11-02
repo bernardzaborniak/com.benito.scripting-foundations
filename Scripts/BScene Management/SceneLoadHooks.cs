@@ -1,9 +1,10 @@
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.SceneInitializers;
 using Benito.ScriptingFoundations.Utilities;
-using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
 {
@@ -18,6 +19,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         public static SceneLoadHooks Instance;
 
         List<ISceneLoadHooksListener> methodListeners;
+        List<ISceneLoadHooksListenerOnly3> methodListenersOnly3;
 
         void Awake()
         {
@@ -30,11 +32,17 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 Instance = this;
             }
 
-            methodListeners = InterfaceUtilities.FindInterfacesInScene<ISceneLoadHooksListener>();
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            methodListeners = InterfaceUtilities.FindInterfacesInScene<ISceneLoadHooksListener>(gameObject.scene);
+            methodListenersOnly3 = InterfaceUtilities.FindInterfacesInScene<ISceneLoadHooksListenerOnly3>(gameObject.scene);
+            stopwatch.Stop();
+            Debug.Log($"[Scene Load Hooks] Scanning Scene for objects implementing the ISceneLoadHooksListener interface took: {stopwatch.ElapsedMilliseconds} ms");
         }
 
         public void h1_OnFinishedLoadTargetScene()
         {
+            Debug.Log("[Scene Load Hooks] h1_OnFinishedLoadTargetScene");
             for (int i = 0; i < methodListeners.Count; i++) 
             {
                 methodListeners[i].Start_h1_OnFinishedLoadTargetScene();
@@ -43,6 +51,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         }
         public void h2_OnFinishedLoadSceneLoadSaveAndInitialize()
         {
+            Debug.Log("[Scene Load Hooks] h2_OnFinishedLoadSceneLoadSaveAndInitialize");
             for (int i = 0; i < methodListeners.Count; i++)
             {
                 methodListeners[i].Start_h2_OnFinishedLoadSceneLoadSaveAndInitialize();
@@ -50,13 +59,20 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         }
         public void h3_OnFinishedStillPlayingLastFadeIn()
         {
+            Debug.Log("[Scene Load Hooks] h3_OnFinishedStillPlayingLastFadeIn");
             for (int i = 0; i < methodListeners.Count; i++)
             {
                 methodListeners[i].Start_h3_OnFinishedStillPlayingLastFadeIn();
             }
+
+            for (int i = 0;i < methodListenersOnly3.Count; i++)
+            {
+                methodListenersOnly3[i].Start_h3_OnFinishedStillPlayingLastFadeIn();
+            }
         }
         public void h4_OnFinished()
         {
+            Debug.Log("[Scene Load Hooks] h4_OnFinished");
             for (int i = 0; i < methodListeners.Count; i++)
             {
                 methodListeners[i].Start_h4_OnFinished();

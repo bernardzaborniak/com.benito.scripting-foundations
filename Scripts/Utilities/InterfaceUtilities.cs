@@ -6,20 +6,22 @@ namespace Benito.ScriptingFoundations.Utilities
 {
     public static class InterfaceUtilities
     {
-        public static List<T> FindInterfacesInScene<T>()
+        public static List<T> FindInterfacesInActiveScene<T>()
+        {
+            return FindInterfacesInScene<T>(SceneManager.GetActiveScene());
+        }
+
+        public static List<T> FindInterfacesInScene<T>(Scene scene)
         {
             List<T> interfaces = new List<T>();
-            GameObject[] rootGameObjects = SceneManager.GetActiveScene().GetRootGameObjects();
+            GameObject[] rootGameObjects = scene.GetRootGameObjects();
 
             foreach (var rootGameObject in rootGameObjects)
             {
-                T rootInterface = rootGameObject.GetComponent<T>();
-                if (rootInterface != null) interfaces.Add(rootInterface);
-
-
                 T[] childrenInterfaces = rootGameObject.GetComponentsInChildren<T>();
                 foreach (var childInterface in childrenInterfaces)
                 {
+                    Debug.Log($"found interface: {childInterface} with interface id: {childInterface.GetHashCode()}");
                     interfaces.Add(childInterface);
                 }
             }
