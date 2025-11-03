@@ -8,7 +8,7 @@ namespace Benito.ScriptingFoundations.PlayerManagement
     /// Handles possession of localPlayerManagers
     /// Handles player data like progress , stats, id , etc... ?
     /// </summary>
-    public class GlobalPlayerManager : SingletonManagerGlobal
+    public abstract class GlobalPlayerManager : SingletonManagerGlobal
     {      
         public LocalPlayerManager PossessedLocalManager { get; private set; }
 
