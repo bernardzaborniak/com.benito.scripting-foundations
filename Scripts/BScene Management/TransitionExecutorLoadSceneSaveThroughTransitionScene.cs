@@ -63,6 +63,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         Stage stage;
 
+        BSceneFade enterTargetSceneFade;
+
         public TransitionExecutorLoadSceneSaveThroughTransitionScene(string targetScene, string transitionScene,
             string savegamePathInSavesFolder, GlobalSavesManager globalSavesManager,
             MonoBehaviour coroutineHost, Transform sceneManagerTransform, BSceneLoader sceneLoader,
@@ -271,11 +273,11 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             {
                 stage = Stage.PlayingEnterTargetSceneFade;
 
-                BSceneFade enterNextSceneFade = CreateFade(enterNextSceneFadePrefab, sceneManagerTransform);
-                enterNextSceneFade.StartFade();
+                enterTargetSceneFade = CreateFade(enterNextSceneFadePrefab, sceneManagerTransform);
+                enterTargetSceneFade.StartFade();
 
-                yield return new WaitUntil(() => enterNextSceneFade.HasFinished);
-                GameObject.Destroy(enterNextSceneFade.gameObject);
+                yield return new WaitUntil(() => enterTargetSceneFade.HasFinished);
+                GameObject.Destroy(enterTargetSceneFade.gameObject);
             }
 
             stage = Stage.Finished;
@@ -291,6 +293,24 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         public override string GetProgressString()
         {
             return progressString;
+        }
+
+        public override bool CanBeFinishedPrematurely()
+        {
+            return stage == Stage.PlayingEnterTargetSceneFade;
+        }
+
+        public override void FinishUpPrematurely()
+        {
+            if (!CanBeFinishedPrematurely() || enterTargetSceneFade == null)
+            {
+                Debug.Log($"[{this.GetType()}] Can't finish up prematurely");
+                return;
+            }
+
+            enterTargetSceneFade.FinishUpPrematurely();
+            stage = Stage.Finished;
+            h4_OnFinished?.Invoke();
         }
     }
 }

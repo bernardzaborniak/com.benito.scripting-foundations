@@ -32,6 +32,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         Stage stage;
 
+        BSceneFade enterNextSceneFade;
+
         public TransitionExecutorDefaultRequiresPreloadedScene(MonoBehaviour coroutineHost, Transform sceneManagerTransform, BSceneLoader sceneLoader, GameObject exitCurrentSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
             stage = Stage.Idle;
@@ -84,8 +86,9 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 GameObject.Destroy(exitCurrentSceneFade.gameObject);
 
             h3_OnFinishedStillPlayingLastFadeIn?.Invoke();
+
             // 3 Play enter next scene fade
-            BSceneFade enterNextSceneFade = null;
+            enterNextSceneFade = null;
             if (enterNextSceneFadePrefab != null)
             {
                 stage = Stage.PlayingEnterNextSceneFade;
@@ -111,6 +114,25 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         public override string GetProgressString()
         {
             return stage.ToString();
+        }
+
+        public override bool CanBeFinishedPrematurely()
+        {
+            return stage == Stage.PlayingEnterNextSceneFade;
+        }
+
+        public override void FinishUpPrematurely()
+        {
+            if (!CanBeFinishedPrematurely() || enterNextSceneFade == null)
+            {
+                Debug.Log($"[{this.GetType()}] Can't finish up prematurely");
+                return;
+            }
+
+            enterNextSceneFade.FinishUpPrematurely();
+            stage = Stage.Finished;
+            h4_OnFinished?.Invoke();
+
         }
     }
 }

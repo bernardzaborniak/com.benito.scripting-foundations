@@ -54,5 +54,15 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
             return fade;
         }
+
+        /// <summary>
+        /// Mostly returns true if the transition is still active but only like the last enter scene fade is still playing
+        /// </summary>
+        public abstract bool CanBeFinishedPrematurely();
+
+        /// <summary>
+        /// Call this if you want to instantly finish teh transition if the last scene fade is still playing
+        /// </summary>
+        public abstract void FinishUpPrematurely();
     }
 }

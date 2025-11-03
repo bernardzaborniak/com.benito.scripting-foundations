@@ -64,8 +64,15 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
             if (currentTransition != null)
             {
-                Debug.LogError("[BSceneTransitionManager] Can't start a new transition as the previous one hasnt finished yet");
-                return;
+                if (currentTransition.CanBeFinishedPrematurely())
+                {
+                    currentTransition.FinishUpPrematurely();
+                }
+                else
+                {
+                    Debug.LogError("[BSceneTransitionManager] Can't start a new transition as the previous one hasnt finished yet");
+                    return;
+                } 
             }
 
             currentTransition = new TransitionExecutorDefaultRequiresPreloadedScene(
@@ -87,8 +94,15 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
             if (currentTransition != null)
             {
-                Debug.LogError("[BSceneTransitionManager] Can't start a new transition as the previous one hasnt finished yet");
-                return;
+                if (currentTransition.CanBeFinishedPrematurely())
+                {
+                    currentTransition.FinishUpPrematurely();
+                }
+                else
+                {
+                    Debug.LogError("[BSceneTransitionManager] Can't start a new transition as the previous one hasnt finished yet");
+                    return;
+                }
             }
 
             currentTransition = new TransitionExecutorDefault( targetScene, 
@@ -113,8 +127,15 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
             if (currentTransition != null)
             {
-                Debug.LogError("[BSceneTransitionManager] Can't start a new transition as the previous one hasnt finished yet");
-                return;
+                if (currentTransition.CanBeFinishedPrematurely())
+                {
+                    currentTransition.FinishUpPrematurely();
+                }
+                else
+                {
+                    Debug.LogError("[BSceneTransitionManager] Can't start a new transition as the previous one hasnt finished yet");
+                    return;
+                }
             }
 
             currentTransition = new TransitionExecutorThroughTransitionScene(targetScene, transitionScene, 
@@ -141,8 +162,15 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
             if (currentTransition != null)
             {
-                Debug.LogError("[BSceneTransitionManager] Can't start a new transition as the previous one hasnt finished yet");
-                return;
+                if (currentTransition.CanBeFinishedPrematurely())
+                {
+                    currentTransition.FinishUpPrematurely();
+                }
+                else
+                {
+                    Debug.LogError("[BSceneTransitionManager] Can't start a new transition as the previous one hasnt finished yet");
+                    return;
+                }
             }
             if(savesManager == null)
             {

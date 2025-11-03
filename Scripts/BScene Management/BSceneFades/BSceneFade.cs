@@ -13,5 +13,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         public abstract void StartFade();
 
+        public abstract void FinishUpPrematurely();
+
     }
 }

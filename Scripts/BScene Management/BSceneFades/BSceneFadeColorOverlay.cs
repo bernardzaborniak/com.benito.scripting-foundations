@@ -19,6 +19,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         float nextTransitionEndTime;
         bool playTransition;
 
+
         public override void StartFade()
         {
             playTransition = true;
@@ -36,10 +37,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             {
                 if(Time.time> nextTransitionEndTime)
                 {
-                    playTransition = false;
-                    colorOverlayImage.color = endColor;
-                    HasFinished = true;
-                    OnFadeFinished?.Invoke();
+                    Finish();
                 }
                 else
                 {
@@ -48,6 +46,19 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                     colorOverlayImage.color = Color.Lerp(startColor, endColor, progress);
                 }
             }
+        }
+
+        void Finish()
+        {
+            playTransition = false;
+            colorOverlayImage.color = endColor;
+            HasFinished = true;
+            OnFadeFinished?.Invoke();
+        }
+
+        public override void FinishUpPrematurely()
+        {
+            Finish();
         }
     }
 }
