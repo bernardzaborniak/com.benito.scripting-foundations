@@ -11,7 +11,7 @@ namespace Benito.ScriptingFoundations.Utilities
             return FindInterfacesInScene<T>(SceneManager.GetActiveScene());
         }
 
-        public static List<T> FindInterfacesInScene<T>(Scene scene)
+        public static List<T> FindInterfacesInScene<T>(Scene scene, bool debugFinidngs = false)
         {
             List<T> interfaces = new List<T>();
             GameObject[] rootGameObjects = scene.GetRootGameObjects();
@@ -21,7 +21,7 @@ namespace Benito.ScriptingFoundations.Utilities
                 T[] childrenInterfaces = rootGameObject.GetComponentsInChildren<T>();
                 foreach (var childInterface in childrenInterfaces)
                 {
-                    Debug.Log($"found interface: {childInterface} with interface id: {childInterface.GetHashCode()}");
+                    if(debugFinidngs) Debug.Log($"[InterfaceUtilities] found interface: {childInterface} with interface id: {childInterface.GetHashCode()}");
                     interfaces.Add(childInterface);
                 }
             }

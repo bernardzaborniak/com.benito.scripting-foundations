@@ -21,6 +21,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         List<ISceneLoadHooksListener> methodListeners;
         List<ISceneLoadHooksListenerOnly3> methodListenersOnly3;
 
+        [SerializeField] bool debugHooks = false;
+
         void Awake()
         {
             if (Instance != null)
@@ -42,7 +44,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         public void h1_OnFinishedLoadTargetScene()
         {
-            Debug.Log("[Scene Load Hooks] h1_OnFinishedLoadTargetScene");
+            if(debugHooks) Debug.Log("[Scene Load Hooks] h1_OnFinishedLoadTargetScene");
             for (int i = 0; i < methodListeners.Count; i++) 
             {
                 methodListeners[i].Start_h1_OnFinishedLoadTargetScene();
@@ -51,7 +53,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         }
         public void h2_OnFinishedLoadSceneLoadSaveAndInitialize()
         {
-            Debug.Log("[Scene Load Hooks] h2_OnFinishedLoadSceneLoadSaveAndInitialize");
+            if (debugHooks) Debug.Log("[Scene Load Hooks] h2_OnFinishedLoadSceneLoadSaveAndInitialize");
             for (int i = 0; i < methodListeners.Count; i++)
             {
                 methodListeners[i].Start_h2_OnFinishedLoadSceneLoadSaveAndInitialize();
@@ -59,7 +61,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         }
         public void h3_OnFinishedStillPlayingLastFadeIn()
         {
-            Debug.Log("[Scene Load Hooks] h3_OnFinishedStillPlayingLastFadeIn");
+            if (debugHooks) Debug.Log("[Scene Load Hooks] h3_OnFinishedStillPlayingLastFadeIn");
             for (int i = 0; i < methodListeners.Count; i++)
             {
                 methodListeners[i].Start_h3_OnFinishedStillPlayingLastFadeIn();
@@ -72,7 +74,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         }
         public void h4_OnFinished()
         {
-            Debug.Log("[Scene Load Hooks] h4_OnFinished");
+            if (debugHooks) Debug.Log("[Scene Load Hooks] h4_OnFinished");
             for (int i = 0; i < methodListeners.Count; i++)
             {
                 methodListeners[i].Start_h4_OnFinished();

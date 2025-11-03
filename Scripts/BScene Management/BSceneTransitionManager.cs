@@ -174,19 +174,16 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             currentTransition.h1_OnFinishedLoadTargetScene += () =>
             {
-                Debug.Log("[BSceneManager] h1_OnFinishedLoadTargetScene");
                 SceneLoadHooks.Instance?.h1_OnFinishedLoadTargetScene();
             };
 
             currentTransition.h2_OnFinishedLoadSceneLoadSaveAndInitialize += () =>
             {
-                Debug.Log("[BSceneManager] h2_OnFinishedLoadSceneLoadSaveAndInitialize");
                 SceneLoadHooks.Instance?.h2_OnFinishedLoadSceneLoadSaveAndInitialize();
             };
 
             currentTransition.h3_OnFinishedStillPlayingLastFadeIn += () =>
             {
-                Debug.Log("[BSceneManager] h3_OnFinishedStillPlayingLastFadeIn");
                 ManagerState = State.FinishingTransitionPlayingLastFadeIn;
                 SceneLoadHooks.Instance?.h3_OnFinishedStillPlayingLastFadeIn();
 
@@ -194,7 +191,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             currentTransition.h4_OnFinished += () =>
             {
-                Debug.Log("[BSceneManager] h4_OnFinished");
                 ManagerState = State.Idle;
                 SceneLoadHooks.Instance?.h4_OnFinished();
                 currentTransition = null;

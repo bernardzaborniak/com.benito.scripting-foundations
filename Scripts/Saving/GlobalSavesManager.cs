@@ -417,7 +417,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         IEnumerator LoadSceneSaveCoroutine(SaveableObjectsSceneManager saveableObjectsSceneManager, SceneSave sceneSavegame)
         {
-            Debug.Log($"[GlobalSavesManager] Start Loading Scene Save");
+            Debug.Log($"[GlobalSavesManager] Start loading Scene Save");
             stopwatch.Start();
 
             ManagerState = State.LoadingSceneSave;
