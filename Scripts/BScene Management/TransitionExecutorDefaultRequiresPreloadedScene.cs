@@ -1,4 +1,5 @@
 using Benito.ScriptingFoundations.BSceneManagement;
+using Benito.ScriptingFoundations.Fades;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -32,7 +33,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         Stage stage;
 
-        BSceneFade enterNextSceneFade;
+        BFade enterNextSceneFade;
 
         public TransitionExecutorDefaultRequiresPreloadedScene(MonoBehaviour coroutineHost, Transform sceneManagerTransform, BSceneLoader sceneLoader, GameObject exitCurrentSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
@@ -57,12 +58,12 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         IEnumerator TransitionCoroutine()
         {
             // 1 play ExitCurrentScene Fade
-            BSceneFade exitCurrentSceneFade = null;
+            BFade exitCurrentSceneFade = null;
             if (exitCurrentSceneFadePrefab != null)
             {
                 stage = Stage.PlayingExitCurrentSceneFade;
-                exitCurrentSceneFade = CreateFade(exitCurrentSceneFadePrefab, sceneManagerTransform);
-                exitCurrentSceneFade.StartFade();
+                exitCurrentSceneFade = BFade.CreateFade(exitCurrentSceneFadePrefab, sceneManagerTransform);
+                exitCurrentSceneFade.RestartFade(BFade.FadeDirection.Forward);
 
                 yield return new WaitUntil(() => exitCurrentSceneFade.HasFinished);
             }
@@ -93,8 +94,8 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             {
                 stage = Stage.PlayingEnterNextSceneFade;
                 h3_OnFinishedStillPlayingLastFadeIn?.Invoke();
-                enterNextSceneFade = CreateFade(enterNextSceneFadePrefab, sceneManagerTransform);
-                enterNextSceneFade.StartFade();
+                enterNextSceneFade = BFade.CreateFade(enterNextSceneFadePrefab, sceneManagerTransform);
+                enterNextSceneFade.RestartFade(BFade.FadeDirection.Backward);
 
                 yield return new WaitUntil(() => enterNextSceneFade.HasFinished);
             }
@@ -129,7 +130,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
                 return;
             }
 
-            enterNextSceneFade.FinishUpPrematurely();
+            enterNextSceneFade.FinishUp();
             stage = Stage.Finished;
             h4_OnFinished?.Invoke();
 

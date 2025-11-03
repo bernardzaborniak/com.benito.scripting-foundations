@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Benito.ScriptingFoundations.Utilities;
+using Benito.ScriptingFoundations.Fades;
 
 namespace Benito.ScriptingFoundations.BSceneManagement
 {
@@ -43,17 +45,6 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         public abstract float GetProgress();
 
         public abstract string GetProgressString();
-
-        protected BSceneFade CreateFade(GameObject fadePrefab, Transform fadeParent)
-        {
-            BSceneFade fade = GameObject.Instantiate(fadePrefab, fadeParent).GetComponent<BSceneFade>();
-
-            if (fade == null)
-            {
-                Debug.LogError("[BSceneTransition] fadePrefab needs to have a BSceneFade Component at its root");
-            }
-            return fade;
-        }
 
         /// <summary>
         /// Mostly returns true if the transition is still active but only like the last enter scene fade is still playing
