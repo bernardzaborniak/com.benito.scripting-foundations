@@ -45,11 +45,5 @@ namespace Benito.ScriptingFoundations.PlayerManagement
                 PossesLocalManager(null);
             }
         }
-
-        public Camera GetCurrentPlayerCamera()
-        {
-            return null;
-        }
-
     }
 }
