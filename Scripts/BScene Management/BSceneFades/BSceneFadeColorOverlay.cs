@@ -50,6 +50,10 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         void Finish()
         {
+            float progress = 1;
+            colorOverlayImage.color = Color.Lerp(startColor, endColor, progress);
+
+
             playTransition = false;
             colorOverlayImage.color = endColor;
             HasFinished = true;
