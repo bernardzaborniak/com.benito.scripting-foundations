@@ -6,9 +6,9 @@ namespace Benito.ScriptingFoundations.PlayerManagement
 {
     /// <summary>
     /// Handles possession of localPlayerManagers
-    /// Handles player data like progress , stats, id , etc... ?
+    /// Handles player data like progress , stats, id , etc...  noo -> or let the Game Manager handle those?
     /// </summary>
-    public abstract class GlobalPlayerManager : SingletonManagerGlobal
+    public class GlobalPlayerManager : SingletonManagerGlobal
     {      
         public LocalPlayerManager PossessedLocalManager { get; private set; }
 
