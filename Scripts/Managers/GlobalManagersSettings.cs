@@ -23,7 +23,7 @@ namespace Benito.ScriptingFoundations.Managers
             {
                 if (UnityEditor.AssetDatabase.IsValidFolder("Packages/com.benito.scripting-foundations/Prefabs"))
                 {
-                    GameObject globalManagersPrefab = (GameObject) UnityEditor.AssetDatabase.LoadAssetAtPath("Packages/com.benito.scripting-foundations/Prefabs/Global Managers.prefab",typeof(GameObject));
+                    GameObject globalManagersPrefab = (GameObject) UnityEditor.AssetDatabase.LoadAssetAtPath("Packages/com.benito.scripting-foundations/Prefabs/Global Managers Sample.prefab",typeof(GameObject));
                     if(globalManagersPrefab != null)
                     {
                         settings.globalManagersPrefab = globalManagersPrefab;
