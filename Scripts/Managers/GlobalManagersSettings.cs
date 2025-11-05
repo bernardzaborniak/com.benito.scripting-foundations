@@ -34,15 +34,18 @@ namespace Benito.ScriptingFoundations.Managers
                 }
                 else
                 {
-                    UnityEditor.AssetDatabase.CreateFolder("Packages/com.benito.scripting-foundations", "Prefabs");
+                    //UnityEditor.AssetDatabase.CreateFolder("Packages/com.benito.scripting-foundations", "Prefabs");
+
+                    Debug.Log("Why is there no GlobalManagersPrefab at Packages/com.benito.scripting-foundations/Prefabs? There needs to be one for initial creation inside the package");
+
                 }
 
-                Debug.Log("Created new GlobalManagersPrefab at Packages/com.benito.scripting-foundations/Prefabs, as none was assigned inside ProjectSettings/Global Managers Settings");
-                GameObject newGlobalManagersPrefab = new GameObject("Global Managers", typeof(GlobalManagers), typeof(DontDestroyOnLoadWrapper));
-                UnityEditor.PrefabUtility.SaveAsPrefabAssetAndConnect(newGlobalManagersPrefab, "Packages/com.benito.scripting-foundations/Prefabs/Global Managers.prefab", UnityEditor.InteractionMode.UserAction);
-                settings.globalManagersPrefab = newGlobalManagersPrefab;
-                UnityEditor.EditorUtility.SetDirty(settings);
-                GameObject.DestroyImmediate(newGlobalManagersPrefab);
+                //Debug.Log("Created new GlobalManagersPrefab at Packages/com.benito.scripting-foundations/Prefabs, as none was assigned inside ProjectSettings/Global Managers Settings");
+                //GameObject newGlobalManagersPrefab = new GameObject("Global Managers", typeof(GlobalManagers), typeof(DontDestroyOnLoadWrapper));
+                //UnityEditor.PrefabUtility.SaveAsPrefabAssetAndConnect(newGlobalManagersPrefab, "Packages/com.benito.scripting-foundations/Prefabs/Global Managers.prefab", UnityEditor.InteractionMode.UserAction);
+                //settings.globalManagersPrefab = newGlobalManagersPrefab;
+                //UnityEditor.EditorUtility.SetDirty(settings);
+                //GameObject.DestroyImmediate(newGlobalManagersPrefab);
             }
 #endif
 
