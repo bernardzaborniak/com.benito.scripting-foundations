@@ -19,7 +19,7 @@ namespace Benito.ScriptingFoundations.InGameSettings
         // Debug Only
         [HideInInspector]
         [SerializeField] public List<InGameSettings> loadedSettings;
-        [SerializeField] public List<InGameSettings> LoadedSettings {get => new List<InGameSettings>(settingsDictionary.Values);}
+        public List<InGameSettings> LoadedSettings {get => new List<InGameSettings>(settingsDictionary.Values);}
 
 
         public override void InitialiseManager()
