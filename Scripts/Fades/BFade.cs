@@ -8,6 +8,8 @@ namespace Benito.ScriptingFoundations.Fades
     {
         public Action OnFadeFinished;
 
+        public bool destroyOnFinish = false;
+
         public enum FadeState
         {
             Initialized,
@@ -102,6 +104,7 @@ namespace Benito.ScriptingFoundations.Fades
             {
                 fadeState = FadeState.Finished;
                 OnFadeFinished?.Invoke();
+                if (destroyOnFinish) Destroy(gameObject);
             }
             else
             {
@@ -121,10 +124,13 @@ namespace Benito.ScriptingFoundations.Fades
                 UpdateFade();
             }       
         }
-   
-        public static BFade CreateFade(GameObject fadePrefab, Transform fadeParent)
+
+        public static BFade CreateFade(GameObject fadePrefab, Transform fadeParent, bool destroyOnFinish = false)
         {
-            return GameObjectUtilities.SpawnPrefabWithComponent<BFade>(fadePrefab, fadeParent);
+            BFade fade =  GameObjectUtilities.SpawnPrefabWithComponent<BFade>(fadePrefab, fadeParent);
+            fade.destroyOnFinish = destroyOnFinish;
+
+            return fade;
         }
     }
 }
