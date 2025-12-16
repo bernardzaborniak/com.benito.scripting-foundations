@@ -6,14 +6,14 @@ namespace Benito.ScriptingFoundations.Fades
 {
     public class BFadeColorOverlay : BFade
     {
-        [SerializeField] float fadeDuration;
+        public float fadeDuration;
         float fadeSpeed; // internally just works with speed;
 
 
         [SerializeField] Image colorOverlayImage;
 
-        [SerializeField] Color startColor;
-        [SerializeField] Color endColor;
+        public Color startColor;
+        public Color endColor;
 
         Color currentStartColor;
         Color currentEndColor;
