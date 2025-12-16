@@ -34,6 +34,9 @@ namespace Benito.ScriptingFoundations.Fades
 
         public override void UpdateFade()
         {
+            // Temp
+            Debug.Log($"fade fadeDuration: {currentFadeValue} FadeProgress: {FadeProgress}"); // TODO check if this works
+
             if (Mathf.Abs(targetTo - currentFadeValue) < 0.01f)
             {
                 currentFadeValue = targetTo;
