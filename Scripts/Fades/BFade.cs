@@ -127,7 +127,12 @@ namespace Benito.ScriptingFoundations.Fades
 
         public static BFade CreateFade(GameObject fadePrefab, Transform fadeParent, bool destroyOnFinish = false)
         {
-            BFade fade =  GameObjectUtilities.SpawnPrefabWithComponent<BFade>(fadePrefab, fadeParent);
+            return CreateFade<BFade>(fadePrefab, fadeParent, destroyOnFinish);
+        }
+
+        public static T CreateFade<T>(GameObject fadePrefab, Transform fadeParent, bool destroyOnFinish = false) where T: BFade
+        {
+            T fade =  GameObjectUtilities.SpawnPrefabWithComponent<T>(fadePrefab, fadeParent);
             fade.destroyOnFinish = destroyOnFinish;
 
             return fade;
