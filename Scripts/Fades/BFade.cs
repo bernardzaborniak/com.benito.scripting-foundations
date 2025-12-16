@@ -21,6 +21,24 @@ namespace Benito.ScriptingFoundations.Fades
 
         public bool HasFinished => fadeState == FadeState.Finished;
 
+        public float FadeProgress
+        {
+            get
+            {
+                if (fadeDirection == FadeDirection.Forward)
+                {
+                    return currentFadeValue;
+                }
+                else if (fadeDirection == FadeDirection.Backward)
+                {
+                    return 1-currentFadeValue;
+
+                }
+                return -1;
+            }
+        }
+
+
         public enum FadeDirection
         {
             Forward,
