@@ -9,7 +9,7 @@ namespace Benito.ScriptingFoundations.PlayerManagement
     /// </summary>
     public abstract class LocalPlayerManager : MonoBehaviour
     {
-        [SerializeField] protected PlayerControllerBase initialControllerToPossessOnSceneLoad;
+        //[SerializeField] protected PlayerControllerBase initialControllerToPossessOnSceneLoad; // implement this in every separately? -> easier to understand
 
         public PlayerControllerBase PossessedController { get; protected set; }
 
@@ -19,7 +19,7 @@ namespace Benito.ScriptingFoundations.PlayerManagement
         {
             this.globalManager = globalManager;
             gameObject.SetActive(true);
-            PossessPlayerController(initialControllerToPossessOnSceneLoad);
+            // PossessPlayerController(initialControllerToPossessOnSceneLoad); // implement this in every separately? -> easier to understand
         }
 
         public virtual void StopPossessingByGlobalManager()
