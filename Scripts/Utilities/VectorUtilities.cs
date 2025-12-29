@@ -24,13 +24,27 @@ namespace Benito.ScriptingFoundations.Utilities
             return new Vector2(vector.x, vector.z);
         }
 
+        public static Vector3 TransformInputToCameraSpace(Vector2 input, Transform camTransform, bool clampDiagonalInput = true)
+        {
+            // Get the camera's forward and right vectors, ignoring the Y component, flatten them to make sure we only use the horizontal (X-Z) components
+            Vector3 cameraForward = camTransform.forward.ToVector3_x0z().normalized;
+            Vector3 cameraRight = camTransform.forward.ToVector3_x0z().normalized;
+
+            Vector3 inputInWorldSpace = cameraForward * input.x + cameraRight * input.y;
+
+            if (clampDiagonalInput)
+            {
+                inputInWorldSpace = Vector3.ClampMagnitude(inputInWorldSpace, 1);
+            }
+
+            return inputInWorldSpace;
+        }
+
 
         public static Vector3 ClampVelocityToPreventOvershoot(this Vector3 currentVelocity, float remainingDistanceToTarget, float deltaTime)
         {
             return Vector3.ClampMagnitude(currentVelocity * deltaTime, remainingDistanceToTarget) / deltaTime;
         }
-
-
 
         public static Vector3 BlendLinearly(this Vector3 currentVector, Vector3 targetVector, float speed, float deltaTime)
         {
