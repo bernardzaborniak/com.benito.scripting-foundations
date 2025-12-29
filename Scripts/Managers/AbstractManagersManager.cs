@@ -11,7 +11,12 @@ namespace Benito.ScriptingFoundations.Managers
         [Tooltip("Automatically asigned to all children in OnValidate")]
         [SerializeField] protected List<T> managers = new List<T>();
 
-        void Start()
+        protected virtual void Awake()
+        {
+            InitializeManagers();
+        }
+
+        protected void InitializeManagers()
         {
             for (int i = 0; i < managers.Count; i++)
             {

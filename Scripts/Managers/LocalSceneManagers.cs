@@ -13,7 +13,7 @@ namespace Benito.ScriptingFoundations.Managers
 
         protected Dictionary<Type, object> managersDictionary = new Dictionary<Type, object>();
 
-        void Awake()
+        protected override void Awake()
         {
             if (Instance != null)
             {
@@ -28,6 +28,8 @@ namespace Benito.ScriptingFoundations.Managers
             {
                 Instance.managersDictionary.Add(managers[i].GetType(), managers[i]);
             }
+
+            InitializeManagers();
         }
 
         public static T Get<T>()

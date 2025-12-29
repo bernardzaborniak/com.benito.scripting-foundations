@@ -14,7 +14,7 @@ namespace Benito.ScriptingFoundations.Managers
         // Dictionary used to simplify the get by type process internaly.
         protected Dictionary<Type, object> singletonDictionary = new Dictionary<Type, object>();
 
-        void Awake()
+        protected override void Awake()
         {
             if (Instance != null)
             {
@@ -29,6 +29,8 @@ namespace Benito.ScriptingFoundations.Managers
             {
                 Instance.singletonDictionary.Add(managers[i].GetType(), managers[i]);
             }
+
+            InitializeManagers();
         }
 
         public static T Get<T>()
