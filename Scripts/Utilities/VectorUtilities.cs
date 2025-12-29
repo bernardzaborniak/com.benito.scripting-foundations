@@ -28,7 +28,7 @@ namespace Benito.ScriptingFoundations.Utilities
         {
             // Get the camera's forward and right vectors, ignoring the Y component, flatten them to make sure we only use the horizontal (X-Z) components
             Vector3 cameraForward = camTransform.forward.ToVector3_x0z().normalized;
-            Vector3 cameraRight = camTransform.forward.ToVector3_x0z().normalized;
+            Vector3 cameraRight = camTransform.right.ToVector3_x0z().normalized;
 
             Vector3 inputInWorldSpace = cameraForward * input.x + cameraRight * input.y;
 
