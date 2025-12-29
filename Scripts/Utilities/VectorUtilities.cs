@@ -30,7 +30,7 @@ namespace Benito.ScriptingFoundations.Utilities
             Vector3 cameraForward = camTransform.forward.ToVector3_x0z().normalized;
             Vector3 cameraRight = camTransform.right.ToVector3_x0z().normalized;
 
-            Vector3 inputInWorldSpace = cameraForward * input.x + cameraRight * input.y;
+            Vector3 inputInWorldSpace = cameraRight * input.x + cameraForward * input.y;
 
             if (clampDiagonalInput)
             {
