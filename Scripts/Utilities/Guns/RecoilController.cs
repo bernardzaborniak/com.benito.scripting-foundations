@@ -96,6 +96,9 @@ namespace Benito.ScriptingFoundations.Utilities.Guns
 
         private void Update()
         {
+            if (currentRecoilSettings == null) return;
+
+
             // TODO instead of giving all values inside values, set them up once
 
             currentRotUp.Update(
