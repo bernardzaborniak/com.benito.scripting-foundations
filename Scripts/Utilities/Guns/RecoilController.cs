@@ -6,7 +6,8 @@ namespace Benito.ScriptingFoundations.Utilities.Guns
 {
     public class RecoilController : MonoBehaviour
     {
-        public class CurrentRecoilControllerSettings
+        /*
+        public class RecoilControllerSettings
         {
             [Header("Up Recoil")]
             public RecoilDirectionSettings recoilUp = new RecoilDirectionSettings();
@@ -14,34 +15,23 @@ namespace Benito.ScriptingFoundations.Utilities.Guns
             [Header("Side Recoil")]
             public RecoilDirectionSettings recoilSide = new RecoilDirectionSettings();
             public float recoilSideDirectionThreshold;
-            public AnimationCurve recoilSideMultiplyerSurve;
+            public AnimationCurve upToSideRecoilMultiplier;
 
             [Header("Back Recoil")]
             public RecoilDirectionSettings recoilBack = new RecoilDirectionSettings();
 
-            public void UpdateRecoilSettings(RecoilGunSettings gunStats, bool useTwoHanded)
+            public void UpdateRecoilSettings(RecoilGunSettings gunStats)
             {
-                if (useTwoHanded)
-                {
-                    recoilUp = gunStats.recoilUp2Handed;
-                    recoilSide = gunStats.recoilSide2Handed;
-                    recoilBack = gunStats.recoilBack2Handed;
-                    recoilSideDirectionThreshold = gunStats.recoilSideDirectionThreshold2Handed;
-                    recoilSideMultiplyerSurve = gunStats.upToSideRecoilMultiplyer2Handed;
+                recoilUp = gunStats.recoilUp;
+                recoilSide = gunStats.recoilSide;
+                recoilBack = gunStats.recoilBack;
+                recoilSideDirectionThreshold = gunStats.recoilSideDirectionThreshold;
+                upToSideRecoilMultiplier = gunStats.upToSideRecoilMultiplier;
+        
+            } 
+        } */
 
-                }
-                else
-                {
-                    recoilUp = gunStats.recoilUp1Handed;
-                    recoilSide = gunStats.recoilSide1Handed;
-                    recoilBack = gunStats.recoilBack1Handed;
-                    recoilSideDirectionThreshold = gunStats.recoilSideDirectionThreshold1Handed;
-                    recoilSideMultiplyerSurve = gunStats.upToSideRecoilMultiplyer1Handed;
-                }
-            }
-        }
-
-        class CurrentRecoilValues
+        class RecoilValue
         {
             public float value;
             public float velocity;
@@ -59,19 +49,26 @@ namespace Benito.ScriptingFoundations.Utilities.Guns
 
         [SerializeField] Transform transformToApplyRecoilTo;
 
-        CurrentRecoilControllerSettings currentRecoilSettings = new CurrentRecoilControllerSettings();
-        CurrentRecoilValues currentRotUp = new CurrentRecoilValues();
-        CurrentRecoilValues currentRotSide = new CurrentRecoilValues();
-        CurrentRecoilValues currentPosBack = new CurrentRecoilValues();
+        //RecoilControllerSettings currentRecoilSettings = new RecoilControllerSettings();
+        RecoilSettings currentRecoilSettings;
+        RecoilValue currentRotUp = new RecoilValue();
+        RecoilValue currentRotSide = new RecoilValue();
+        RecoilValue currentPosBack = new RecoilValue();
 
 
         /// <summary>
         /// Called when switching the weapon or switching from 1 handed to 2 handed.
         /// </summary>
-        public void UpdateRecoilSettings(RecoilGunSettings gunStats, bool useTwoHanded)
+        public void SetRecoilSettings(RecoilSettings recoilSettings)
         {
-            currentRecoilSettings.UpdateRecoilSettings(gunStats, useTwoHanded);  
+            currentRecoilSettings = recoilSettings;
         }
+
+        public void AddDefaultRecoil()
+        {
+            AddRecoil(currentRecoilSettings.recoilUpShootForce, currentRecoilSettings.recoilSideShootForce, currentRecoilSettings.recoilBackShootForce);
+        }
+        
 
         public void AddRecoil(float upForce, float sideForce, float backForce)
         {
@@ -82,7 +79,7 @@ namespace Benito.ScriptingFoundations.Utilities.Guns
 
         float AddRandomScaledSideVelocity(float maxSideForce)
         {
-            float sideForceToApply = maxSideForce * currentRecoilSettings.recoilSideMultiplyerSurve.Evaluate(currentRotUp.value / currentRecoilSettings.recoilUp.maxValue);
+            float sideForceToApply = maxSideForce * currentRecoilSettings.upToSideRecoilMultiplierCurve.Evaluate(currentRotUp.value / currentRecoilSettings.recoilUp.maxValue);
             // add a bool and a curve to scale this?
             //if (currentRotUp.value <= 0)
             //   return 0;
@@ -91,7 +88,7 @@ namespace Benito.ScriptingFoundations.Utilities.Guns
             //float sideForceToApply = maxSideForce;
 
             // Rotate left or right partly random.
-            if (Random.value > currentRecoilSettings.recoilSideDirectionThreshold)
+            if (Random.value > currentRecoilSettings.recoilSideDirectionBalance)
                 sideForceToApply = -sideForceToApply;
 
             return sideForceToApply;
@@ -99,26 +96,28 @@ namespace Benito.ScriptingFoundations.Utilities.Guns
 
         private void Update()
         {
+            // TODO instead of giving all values inside values, set them up once
+
             currentRotUp.Update(
-                currentRecoilSettings.recoilUp.maxSpeed, 
+                currentRecoilSettings.recoilUp.maxSpeed,
                 currentRecoilSettings.recoilUp.maxReduceRecoilSpeed,
-                currentRecoilSettings.recoilUp.maxReduceRecoilAcceleration, 
+                currentRecoilSettings.recoilUp.maxReduceRecoilAcceleration,
                 currentRecoilSettings.recoilUp.maxValue,
                 Time.deltaTime);
-            
-            currentRotSide.Update(currentRecoilSettings.recoilSide.maxSpeed, 
+
+            currentRotSide.Update(currentRecoilSettings.recoilSide.maxSpeed,
                 currentRecoilSettings.recoilSide.maxReduceRecoilSpeed,
-                currentRecoilSettings.recoilSide.maxReduceRecoilAcceleration, 
+                currentRecoilSettings.recoilSide.maxReduceRecoilAcceleration,
                 currentRecoilSettings.recoilSide.maxValue,
                 Time.deltaTime);
 
-            currentPosBack.Update(currentRecoilSettings.recoilBack.maxSpeed, 
+            currentPosBack.Update(currentRecoilSettings.recoilBack.maxSpeed,
                 currentRecoilSettings.recoilBack.maxReduceRecoilSpeed,
                 currentRecoilSettings.recoilBack.maxReduceRecoilAcceleration,
                 currentRecoilSettings.recoilBack.maxValue,
                 Time.deltaTime);
 
-            transformToApplyRecoilTo.localPosition = new Vector3(0, 0, -currentPosBack.value*0.01f); // We are using centimeters instead of meters as speed.
+            transformToApplyRecoilTo.localPosition = new Vector3(0, 0, -currentPosBack.value * 0.01f); // We are using centimeters instead of meters as speed.
             transformToApplyRecoilTo.localRotation = Quaternion.Euler(-currentRotUp.value, currentRotSide.value, 0);
         }
     }
