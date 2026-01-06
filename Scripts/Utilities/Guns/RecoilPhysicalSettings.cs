@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Benito.ScriptingFoundations.Utilities.Guns
 {
     [System.Serializable]
-    public class RecoilSettings
+    public class RecoilPhysicalSettings
     {       
         [Header("Up Recoil - Measured in Degrees")]
 

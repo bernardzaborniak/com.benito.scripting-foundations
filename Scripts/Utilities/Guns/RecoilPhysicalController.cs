@@ -4,34 +4,9 @@ using UnityEngine;
 
 namespace Benito.ScriptingFoundations.Utilities.Guns
 {
-    public class RecoilController : MonoBehaviour
+    public class RecoilPhysicalController : MonoBehaviour
     {
-        /*
-        public class RecoilControllerSettings
-        {
-            [Header("Up Recoil")]
-            public RecoilDirectionSettings recoilUp = new RecoilDirectionSettings();
-
-            [Header("Side Recoil")]
-            public RecoilDirectionSettings recoilSide = new RecoilDirectionSettings();
-            public float recoilSideDirectionThreshold;
-            public AnimationCurve upToSideRecoilMultiplier;
-
-            [Header("Back Recoil")]
-            public RecoilDirectionSettings recoilBack = new RecoilDirectionSettings();
-
-            public void UpdateRecoilSettings(RecoilGunSettings gunStats)
-            {
-                recoilUp = gunStats.recoilUp;
-                recoilSide = gunStats.recoilSide;
-                recoilBack = gunStats.recoilBack;
-                recoilSideDirectionThreshold = gunStats.recoilSideDirectionThreshold;
-                upToSideRecoilMultiplier = gunStats.upToSideRecoilMultiplier;
-        
-            } 
-        } */
-
-        class RecoilValue
+        class RecoilPhysicalInternalValue
         {
             public float value;
             public float velocity;
@@ -49,17 +24,16 @@ namespace Benito.ScriptingFoundations.Utilities.Guns
 
         [SerializeField] Transform transformToApplyRecoilTo;
 
-        //RecoilControllerSettings currentRecoilSettings = new RecoilControllerSettings();
-        RecoilSettings currentRecoilSettings;
-        RecoilValue currentRotUp = new RecoilValue();
-        RecoilValue currentRotSide = new RecoilValue();
-        RecoilValue currentPosBack = new RecoilValue();
+        RecoilPhysicalSettings currentRecoilSettings;
+        RecoilPhysicalInternalValue currentRotUp = new RecoilPhysicalInternalValue();
+        RecoilPhysicalInternalValue currentRotSide = new RecoilPhysicalInternalValue();
+        RecoilPhysicalInternalValue currentPosBack = new RecoilPhysicalInternalValue();
 
 
         /// <summary>
         /// Called when switching the weapon or switching from 1 handed to 2 handed.
         /// </summary>
-        public void SetRecoilSettings(RecoilSettings recoilSettings)
+        public void SetRecoilSettings(RecoilPhysicalSettings recoilSettings)
         {
             currentRecoilSettings = recoilSettings;
         }
