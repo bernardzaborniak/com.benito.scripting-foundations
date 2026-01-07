@@ -26,6 +26,29 @@ namespace CameraShake
             pars = parameters;
             Displacement rnd = Displacement.InsideUnitSpheres();
             direction = Displacement.Scale(rnd, pars.axesMultiplier).Normalized;
+
+        }
+
+        /// <summary>
+        /// Creates an instance of BounceShake.
+        /// </summary>
+        /// <param name="parameters">Parameters of the shake.</param>
+        /// <param name="randomizeStartDirection">Set this to false if you want the shake to always start in the same direction</param>
+        /// <param name="sourcePosition">World position of the source of the shake.</param>
+        public BounceShake(Params parameters, bool randomizeStartDirection, Vector3? sourcePosition = null)
+        {
+            this.sourcePosition = sourcePosition;
+            pars = parameters;
+
+            if (randomizeStartDirection)
+            {
+                Displacement rnd = Displacement.InsideUnitSpheres();
+                direction = Displacement.Scale(rnd, pars.axesMultiplier).Normalized;
+            }
+            else
+            {
+                direction = Displacement.Scale(new Displacement(Vector3.one,Vector3.one), pars.axesMultiplier).Normalized;
+            }
         }
 
         /// <summary>
