@@ -15,6 +15,17 @@ namespace CameraShake
         float t;
 
         /// <summary>
+        /// Modified by me - creates a very simple kick shake with the option to not have randomization
+        /// Creates an instance of KickShake in the direction from the source to the camera.
+        /// </summary>
+        /// <param name="parameters">Parameters of the shake.</param>
+        public KickShake(Params parameters)
+        {
+            pars = parameters;
+            direction = new Displacement(Vector3.one, Vector3.one).Normalized;
+        }
+
+        /// <summary>
         /// Creates an instance of KickShake in the direction from the source to the camera.
         /// </summary>
         /// <param name="parameters">Parameters of the shake.</param>
@@ -116,6 +127,28 @@ namespace CameraShake
             /// </summary>
             [Tooltip("How strength falls with distance from the shake source.")]
             public Attenuator.StrengthAttenuationParams attenuation;
+
+            /// <summary>
+            /// Added by me, allows us to create a copy if we want to modify the params for one shake
+            /// </summary>
+            /// <returns></returns>
+            public Params CopyWithMultiplier(float multiplier)
+            {
+                return new KickShake.Params
+                {
+                    strength = new Displacement(strength.position * multiplier, strength.eulerAngles * multiplier),
+                    attackTime = this.attackTime,
+                    attackCurve = this.attackCurve,
+                    releaseTime = this.releaseTime,
+                    releaseCurve = this.releaseCurve,
+                    attenuation = this.attenuation
+                };
+            }
+
+            public Params Copy()
+            {
+                return CopyWithMultiplier(1);
+            }
         }
     }
 }

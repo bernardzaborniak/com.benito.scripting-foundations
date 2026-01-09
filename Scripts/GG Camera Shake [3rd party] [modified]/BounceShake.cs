@@ -30,7 +30,8 @@ namespace CameraShake
         }
 
         /// <summary>
-        /// Creates an instance of BounceShake.
+        /// Added by me
+        /// Creates an instance of BounceShake with the option to be not randomized and predictable.
         /// </summary>
         /// <param name="parameters">Parameters of the shake.</param>
         /// <param name="randomizeStartDirection">Set this to false if you want the shake to always start in the same direction</param>
@@ -47,7 +48,7 @@ namespace CameraShake
             }
             else
             {
-                direction = Displacement.Scale(new Displacement(Vector3.one,Vector3.one), pars.axesMultiplier).Normalized;
+                direction = Displacement.Scale(new Displacement(Vector3.one, Vector3.one), pars.axesMultiplier).Normalized;
             }
         }
 
@@ -151,6 +152,33 @@ namespace CameraShake
             /// </summary>
             [Tooltip("How strength falls with distance from the shake source.")]
             public Attenuator.StrengthAttenuationParams attenuation;
+
+            /// <summary>
+            /// Added by me, allows us to create a copy if we want to modify the params for one shake
+            /// </summary>
+            /// <returns></returns>
+            public Params CopyWithMultiplier(float multiplier)
+            {
+                return new BounceShake.Params()
+                {
+                    positionStrength = this.positionStrength * multiplier,
+                    rotationStrength = this.rotationStrength * multiplier,
+                    axesMultiplier = new Displacement(this.axesMultiplier.position, this.axesMultiplier.eulerAngles), // shallow copy; deep copy if needed
+                    freq = this.freq,
+                    numBounces = this.numBounces,
+                    randomness = this.randomness,
+                    attenuation = this.attenuation, // shallow copy; deep copy if needed
+                };
+            }
+
+            /// <summary>
+            /// Added by me, allows us to create a copy if we want to modify the params for one shake
+            /// </summary>
+            /// <returns></returns>
+            public Params Copy()
+            {
+                return CopyWithMultiplier(1);    
+            }
         }
     }
 }
