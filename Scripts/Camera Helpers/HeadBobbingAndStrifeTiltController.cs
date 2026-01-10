@@ -44,6 +44,8 @@ namespace Benito.ScriptingFoundations.CameraHelpers
         float targetStrafeTilt;
         float currentStrafeTilt;
 
+        float strafeStrengthMultiplier; // set by settings;
+
 
         void Awake()
         {
@@ -90,7 +92,7 @@ namespace Benito.ScriptingFoundations.CameraHelpers
             // Strafing Tilt
             //Debug.Log("targetStrafeTilt: " + targetStrafeTilt);
             // Debug.Log("currentStrafeTilt: " + currentStrafeTilt);
-            currentStrafeTilt = Mathf.Lerp(currentStrafeTilt, targetStrafeTilt * strafeTiltStrength, Time.deltaTime * strafeTiltSpeed);
+            currentStrafeTilt = Mathf.Lerp(currentStrafeTilt, targetStrafeTilt * strafeTiltStrength * strafeStrengthMultiplier, Time.deltaTime * strafeTiltSpeed);
 
             transformToMove.localPosition = originalPos + posOffset;
             transformToMove.localRotation = originalRot * Quaternion.Euler(rotOffset) * Quaternion.Euler(0f, 0f, -currentStrafeTilt);
@@ -124,6 +126,6 @@ namespace Benito.ScriptingFoundations.CameraHelpers
         /// <param name="normalizedSidewaysSpeed"></param>
         public void SetStrafeTiltByMovementSpeed(float normalizedSidewaysSpeed) { targetStrafeTilt = normalizedSidewaysSpeed; }
 
-
+        public void SetStrafeStrengthMultiplierBySettings(float strafeStengthMultiplier) { this.strafeStrengthMultiplier = strafeStengthMultiplier; }
     }
 }
