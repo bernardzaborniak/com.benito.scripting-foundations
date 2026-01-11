@@ -12,7 +12,8 @@ namespace Benito.ScriptingFoundations.CameraHelpers
         public enum RotationType
         {
             PointBillboarding,
-            ViewAlignedBillboarding          
+            ViewAlignedBillboarding,
+            Hybrid
         }
 
         public enum VerticalRotationType
@@ -44,8 +45,14 @@ namespace Benito.ScriptingFoundations.CameraHelpers
                 RotationType rotationType = billboard.rotationType;
                 VerticalRotationType verticalRotationType = billboard.verticalRotationType;
      
-                if (rotationType == RotationType.PointBillboarding) direction = camPos - billboard.transform.position;
+                if (rotationType == RotationType.PointBillboarding) direction = camPos - (billboard.transform.position + Vector3.up*billboard.yRotYOffset);
                 else if (rotationType == RotationType.ViewAlignedBillboarding) direction = -camForward;
+                else if (rotationType == RotationType.Hybrid)
+                {
+                    Vector3 pointDirection = camPos - billboard.transform.position;
+                    Vector3 viewAlignedDirection = -camForward;
+                    direction = Vector3.Lerp(pointDirection, viewAlignedDirection, billboard.hybridRotationBlend);
+                }
 
                 if (verticalRotationType == VerticalRotationType.NoY) direction.y = 0;
                 else if (verticalRotationType == VerticalRotationType.PartialY) direction.y *= billboard.partialYRotationAmount;
