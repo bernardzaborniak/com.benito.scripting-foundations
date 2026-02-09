@@ -7,6 +7,7 @@ namespace Benito.ScriptingFoundations.Saving
     public enum SceneSaveType 
     {
         Manual,
-        Autosave
+        Autosave,
+        Quicksave
     }
 }
