@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Benito.ScriptingFoundations.Saving.Models
+namespace Benito.ScriptingFoundations.Saving
 {
     /// <summary>
-    /// can be derived to make game specific saves
+    /// Can be derived and expanded to make game specific saves
     /// </summary>
     [System.Serializable]
-    public class SceneSaveInfoReadModel
+    public class SceneSaveInfo
     {
         public string savegameName;
         public SceneSaveType savegameType;
@@ -17,7 +17,10 @@ namespace Benito.ScriptingFoundations.Saving.Models
 
         public string dateTimeCreated;
 
-        public string filePathInSavesFolder;
+        [System.NonSerialized]
         public Texture2D previewImage;
+
+        [System.NonSerialized]
+        public string filePathInSavesFolder;
     }
 }

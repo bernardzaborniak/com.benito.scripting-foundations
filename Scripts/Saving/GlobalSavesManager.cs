@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 
 using Debug = UnityEngine.Debug;
 using System.Diagnostics;
-using Benito.ScriptingFoundations.Saving.Models;
 
 
 namespace Benito.ScriptingFoundations.Saving
@@ -155,7 +154,7 @@ namespace Benito.ScriptingFoundations.Saving
         /// Write pathInSavesFolder without actual save name .
         /// Write saveName without file extension.
         /// </summary>
-        public void CreateSceneSaveForCurrentScene<T>(string pathInSavesFolder, T sceneSaveCreationInfo) where T : SceneSaveInfoCreateModel
+        public void CreateSceneSaveForCurrentScene<T>(string pathInSavesFolder, T sceneSaveCreationInfo) where T : SceneSaveInfo
         {
             // Verify data before starting coroutine
 
@@ -177,7 +176,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         }
 
-        IEnumerator CreateSceneSaveCoroutine<T>(SaveableObjectsSceneManager saveableObjectsSceneManager, string pathInSavesFolder, T sceneSaveCreationInfo) where T : SceneSaveInfoCreateModel
+        IEnumerator CreateSceneSaveCoroutine<T>(SaveableObjectsSceneManager saveableObjectsSceneManager, string pathInSavesFolder, T sceneSaveCreationInfo) where T : SceneSaveInfo
         {
             Debug.Log($"[GlobalSavesManager] Start CreateSceneSaveForCurrentScene");
             stopwatch.Start();
@@ -185,8 +184,7 @@ namespace Benito.ScriptingFoundations.Saving
             //  Set up values
             ManagerState = State.CreatingSceneSave;
             CreatingSceneSaveState = SceneSavingState.SceneManagerIsSavingObjects;
-            SceneSaveInfoJsonModel sceneSaveInfoJsonModel = sceneSaveCreationInfo.MapToJsonModel<SceneSaveInfoJsonModel>();
-            sceneSaveInfoJsonModel.dateTimeCreated = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+            sceneSaveCreationInfo.dateTimeCreated = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
 
 
             // Save all Objects with local manager, get their save info
@@ -229,13 +227,13 @@ namespace Benito.ScriptingFoundations.Saving
             string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), pathInSavesFolder);
             IOUtilities.EnsurePathExists(savePath);
 
-            Task writeFileTask = File.WriteAllTextAsync(Path.Combine(savePath, sceneSaveInfoJsonModel.savegameName + ".bsave"), createSceneSaveJsonStringBudgetedOperation.Result);
+            Task writeFileTask = File.WriteAllTextAsync(Path.Combine(savePath, sceneSaveCreationInfo.savegameName + ".bsave"), createSceneSaveJsonStringBudgetedOperation.Result);
             yield return new WaitUntil(() => writeFileTask.IsCompleted);
 
             // 2. Create Saveinfo  
-            string saveInfoContent = JsonUtility.ToJson(sceneSaveInfoJsonModel);
+            string saveInfoContent = JsonUtility.ToJson(sceneSaveCreationInfo);
 
-            Task writeSaveInfoTask = File.WriteAllTextAsync(Path.Combine(savePath, sceneSaveInfoJsonModel.savegameName + ".json"), saveInfoContent);
+            Task writeSaveInfoTask = File.WriteAllTextAsync(Path.Combine(savePath, sceneSaveCreationInfo.savegameName + ".json"), saveInfoContent);
             yield return new WaitUntil(() => writeSaveInfoTask.IsCompleted);
 
             // 3. Create optional preview Image
@@ -243,7 +241,7 @@ namespace Benito.ScriptingFoundations.Saving
             {
                 byte[] imageBytes = sceneSaveCreationInfo.previewImage.EncodeToPNG(); // this is quite performance expensive, but cant be put on another thread sadly
 
-                Task writeImageTask = File.WriteAllBytesAsync(Path.Combine(savePath, sceneSaveInfoJsonModel.savegameName + ".png"), imageBytes);
+                Task writeImageTask = File.WriteAllBytesAsync(Path.Combine(savePath, sceneSaveCreationInfo.savegameName + ".png"), imageBytes);
                 yield return new WaitUntil(() => writeImageTask.IsCompleted);
             }
 
@@ -270,9 +268,9 @@ namespace Benito.ScriptingFoundations.Saving
         /// <summary>
         /// Get Scene Infos T must be either the default savegame info datamodel or your game specific one
         /// </summary>
-        public static List<R> GetSceneSavegameInfosInsideFolder<R,J>(string folderPathInSavesFolder) where R : SceneSaveInfoReadModel, new() where J : SceneSaveInfoJsonModel
+        public static List<T> GetSceneSavegameInfosInsideFolder<T>(string folderPathInSavesFolder) where T : SceneSaveInfo, new()
         {
-            List<R> infoList = new List<R>();
+            List<T> infoList = new List<T>();
 
             DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), folderPathInSavesFolder));
 
@@ -282,7 +280,7 @@ namespace Benito.ScriptingFoundations.Saving
             {
                 if (info.Extension == ".json")
                 {
-                    infoList.Add(GetSceneSavegameInfoAtPath<R,J>(Path.Combine(folderPathInSavesFolder, Path.GetFileNameWithoutExtension(info.FullName))));
+                    infoList.Add(GetSceneSavegameInfoAtPath<T>(Path.Combine(folderPathInSavesFolder, Path.GetFileNameWithoutExtension(info.FullName))));
                 }
             }
 
@@ -292,9 +290,9 @@ namespace Benito.ScriptingFoundations.Saving
         /// <summary>
         /// Get Scene Infos T must be either the default savegame info datamodel or your game specific one
         /// </summary>
-        public static R GetSceneSavegameInfoAtPath<R, J>(string filePathInSavesFolder) where R : SceneSaveInfoReadModel, new() where J : SceneSaveInfoJsonModel
+        public static T GetSceneSavegameInfoAtPath<T>(string filePathInSavesFolder) where T : SceneSaveInfo, new()
         {
-            R info = new R();
+            T info = new T();
 
             string savesFolderPath = SavingSettings.GetOrCreateSettings().GetSavesFolderPath();
 
@@ -308,9 +306,8 @@ namespace Benito.ScriptingFoundations.Saving
                 reader.Close();
             }
 
-            J jsonInfo = JsonUtility.FromJson<J>(infoFileContent);
+            T readInfo = JsonUtility.FromJson<T>(infoFileContent);
 
-            R readInfo = jsonInfo.MapToReadModel<R>();
             readInfo.filePathInSavesFolder = filePathInSavesFolder;
 
             // read image, if available
