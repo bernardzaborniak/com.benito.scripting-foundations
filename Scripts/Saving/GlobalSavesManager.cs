@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 
 using Debug = UnityEngine.Debug;
 using System.Diagnostics;
-using static log4net.Appender.RollingFileAppender;
 using System.Globalization;
 using Benito.ScriptingFoundations.Saving.SceneObjects;
 using Benito.ScriptingFoundations.Saving.SceneSaves;
