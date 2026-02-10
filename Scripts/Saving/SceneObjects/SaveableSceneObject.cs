@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Benito.ScriptingFoundations.NaughtyAttributes;
 
-namespace Benito.ScriptingFoundations.Saving
+namespace Benito.ScriptingFoundations.Saving.SceneObjects
 {
     public abstract class SaveableSceneObject : MonoBehaviour
     {

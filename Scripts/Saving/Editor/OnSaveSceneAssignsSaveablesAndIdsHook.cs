@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using UnityEngine.SceneManagement;
-using Benito.ScriptingFoundations.Managers;
+using Benito.ScriptingFoundations.Saving.SceneObjects;
 
 namespace Benito.ScriptingFoundations.Saving.Editor
 {

@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
+using Benito.ScriptingFoundations.Saving.SceneObjects;
 
-namespace Benito.ScriptingFoundations.Saving
+namespace Benito.ScriptingFoundations.Saving.SceneSaves
 {
     /// <summary>
     /// The class storing all information about a loaded Savegame.

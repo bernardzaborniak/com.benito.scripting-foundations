@@ -3,6 +3,7 @@ using Benito.ScriptingFoundations.BSceneManagement.TransitionScene;
 using Benito.ScriptingFoundations.Fades;
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.Saving;
+using Benito.ScriptingFoundations.Saving.SceneSaves;
 using Benito.ScriptingFoundations.SceneInitializers;
 using System;
 using System.Collections;

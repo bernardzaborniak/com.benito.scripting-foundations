@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Benito.ScriptingFoundations.Saving
+namespace Benito.ScriptingFoundations.Saving.SceneSaves
 {
     /// <summary>
     /// Can be derived and expanded to make game specific saves

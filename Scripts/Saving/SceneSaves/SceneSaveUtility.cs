@@ -4,10 +4,9 @@ using UnityEngine;
 using System.Threading.Tasks;
 using System.Reflection;
 using System;
-using Benito.ScriptingFoundations.Utilities;
-using System.IO;
+using Benito.ScriptingFoundations.Saving.SceneObjects;
 
-namespace Benito.ScriptingFoundations.Saving
+namespace Benito.ScriptingFoundations.Saving.SceneSaves
 {
     public static class SceneSaveUtility
     {

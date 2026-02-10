@@ -7,7 +7,7 @@ using System;
 using Debug = UnityEngine.Debug;
 
 
-namespace Benito.ScriptingFoundations.Saving
+namespace Benito.ScriptingFoundations.Saving.SceneObjects
 {
     /// <summary>
     /// Manages all saveable objects inside a scene.

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-namespace Benito.ScriptingFoundations.Saving
+namespace Benito.ScriptingFoundations.Saving.SceneObjects
 {
     /// <summary>
     /// Same as  SaveableSceneObject, but handles automatic data assignment.
