@@ -15,7 +15,7 @@ namespace Benito.ScriptingFoundations.Saving
         public string unitySceneName;
         public string levelName; // level / mission name, smth inbetween
 
-        public string lastSaved;
+        public string lastSavedTime;
 
         [System.NonSerialized]
         public Texture2D previewImage;
