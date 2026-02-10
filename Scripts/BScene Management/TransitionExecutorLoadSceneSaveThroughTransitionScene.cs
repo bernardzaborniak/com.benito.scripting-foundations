@@ -36,7 +36,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
         BSceneLoader sceneLoader;
         GlobalSavesManager globalSavesManager;
-        string savegamePathInSavesFolder;
+        string savePathInSavesFolder;
 
         // Dynamic Refs
         TransitionSceneController currentTransitionSceneController;
@@ -67,7 +67,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         BFade enterTargetSceneFade;
 
         public TransitionExecutorLoadSceneSaveThroughTransitionScene(string targetScene, string transitionScene,
-            string savegamePathInSavesFolder, GlobalSavesManager globalSavesManager,
+            string savePathInSavesFolder, GlobalSavesManager globalSavesManager,
             MonoBehaviour coroutineHost, Transform sceneManagerTransform, BSceneLoader sceneLoader,
             GameObject exitCurrentSceneFadePrefab, GameObject enterTransitionSceneFadePrefab,
             GameObject exitTransitionSceneFadePrefab, GameObject enterNextSceneFadePrefab)
@@ -77,7 +77,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             this.targetScene = targetScene;
             this.transitionScene = transitionScene;
 
-            this.savegamePathInSavesFolder = savegamePathInSavesFolder;
+            this.savePathInSavesFolder = savePathInSavesFolder;
             this.globalSavesManager = globalSavesManager;
 
             this.coroutineHost = coroutineHost;
@@ -151,7 +151,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
 
             // 5 Start Preloading target scene & loading save
             sceneLoader.PreloadScene(targetScene,LoadSceneMode.Additive);
-            Task<SceneSave> readSceneSaveFileTask = globalSavesManager.ReadSceneSaveFileAsync(savegamePathInSavesFolder);
+            Task<SceneSave> readSceneSaveFileTask = globalSavesManager.ReadSceneSaveFileAsync(savePathInSavesFolder);
             progressString = "Loading savefile";
 
             // 6 Play enter transition scene fade
@@ -213,13 +213,13 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             progressString = $"Loading scene save";
 
 
-            SceneSave savegame = readSceneSaveFileTask.Result;
+            SceneSave sceneSave = readSceneSaveFileTask.Result;
 
             bool loadingFinished = false;
             Action loadingFinishedHandler = () => loadingFinished = true;
 
             globalSavesManager.OnLoadingSceneSaveFileCompleted += loadingFinishedHandler;
-            globalSavesManager.LoadSceneSave(savegame);
+            globalSavesManager.LoadSceneSave(sceneSave);
 
             if (!loadingFinished)
             {

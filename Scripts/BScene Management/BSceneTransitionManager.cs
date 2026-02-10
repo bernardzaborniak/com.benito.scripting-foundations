@@ -151,7 +151,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         /// Transitions into target scene with a specified transition. Preloads all scenes automatically. Loads the save while being inside the transition scene.
         /// </summary>
 
-        public void LoadSceneSaveThroughTransitionScene(string targetScene, string transitionScene, string savegamePathInSavesFolder,
+        public void LoadSceneSaveThroughTransitionScene(string targetScene, string transitionScene, string savePathInSavesFolder,
             GameObject exitCurrentSceneFadePrefab = null, GameObject enterTransitionSceneFadePrefab = null,
             GameObject exitTransitiontSceneFadePrefab = null, GameObject enterNextSceneFadePrefab = null)
         {
@@ -179,7 +179,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             }
             
             currentTransition = new TransitionExecutorLoadSceneSaveThroughTransitionScene(
-                targetScene, transitionScene, savegamePathInSavesFolder,
+                targetScene, transitionScene, savePathInSavesFolder,
                 GlobalManagers.Get<GlobalSavesManager>(), this,
                 transform, sceneLoader,
                 exitCurrentSceneFadePrefab, enterTransitionSceneFadePrefab,

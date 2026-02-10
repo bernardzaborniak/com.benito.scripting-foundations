@@ -71,7 +71,7 @@ namespace Benito.ScriptingFoundations.Saving
             public float Progress { get; private set; }
             public float TimeBudget { get; private set; }
 
-            SceneSave savegame;
+            SceneSave sceneSave;
             int lastStoppedIndex;
             StringBuilder stringBuilder;
 
@@ -80,15 +80,15 @@ namespace Benito.ScriptingFoundations.Saving
 
             bool waitedOneFrameBeforeInvokingOnFinished;
 
-            public CreateSceneSaveJsonStringBudgetedOperation(SceneSave savegame, float timeBudget)
+            public CreateSceneSaveJsonStringBudgetedOperation(SceneSave sceneSave, float timeBudget)
             {
-                this.savegame = savegame;
+                this.sceneSave = sceneSave;
                 this.TimeBudget = timeBudget;
                 lastStoppedIndex = 0;
                 Finished = false;
                 waitedOneFrameBeforeInvokingOnFinished = false;
 
-                stringBuilder = new StringBuilder(savegame.SceneName + "\n", savegame.SavedObjects.Count * 200);
+                stringBuilder = new StringBuilder(sceneSave.SceneName + "\n", sceneSave.SavedObjects.Count * 200);
             }
 
             public void Update(float deltaTime)
@@ -97,21 +97,21 @@ namespace Benito.ScriptingFoundations.Saving
 
                 float startUpdateTime = Time.realtimeSinceStartup;
 
-                for (int i = lastStoppedIndex; i < savegame.SavedObjects.Count; i++)
+                for (int i = lastStoppedIndex; i < sceneSave.SavedObjects.Count; i++)
                 {
-                    stringBuilder.AppendLine(JsonUtility.ToJson(savegame.SavedObjects[i], false));
+                    stringBuilder.AppendLine(JsonUtility.ToJson(sceneSave.SavedObjects[i], false));
 
                     if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                     {
                         lastStoppedIndex = i + 1;
-                        Progress = (1.0f * i) / savegame.SavedObjects.Count;
+                        Progress = (1.0f * i) / sceneSave.SavedObjects.Count;
 
                         Profiler.EndSample();
                         return;
                     }
                 }
 
-                lastStoppedIndex = savegame.SavedObjects.Count;
+                lastStoppedIndex = sceneSave.SavedObjects.Count;
                 Progress = 1;
                 Profiler.EndSample();
 
@@ -268,7 +268,7 @@ namespace Benito.ScriptingFoundations.Saving
         /// <summary>
         /// Get Scene Infos T must be either the default savegame info datamodel or your game specific one
         /// </summary>
-        public static List<T> GetSceneSavegameInfosInsideFolder<T>(string folderPathInSavesFolder) where T : SceneSaveInfo, new()
+        public static List<T> GetSceneSaveInfosInsideFolder<T>(string folderPathInSavesFolder) where T : SceneSaveInfo, new()
         {
             List<T> infoList = new List<T>();
 
@@ -280,7 +280,7 @@ namespace Benito.ScriptingFoundations.Saving
             {
                 if (info.Extension == ".json")
                 {
-                    infoList.Add(GetSceneSavegameInfoAtPath<T>(Path.Combine(folderPathInSavesFolder, Path.GetFileNameWithoutExtension(info.FullName))));
+                    infoList.Add(GetSceneSaveInfoAtPath<T>(Path.Combine(folderPathInSavesFolder, Path.GetFileNameWithoutExtension(info.FullName))));
                 }
             }
 
@@ -290,7 +290,7 @@ namespace Benito.ScriptingFoundations.Saving
         /// <summary>
         /// Get Scene Infos T must be either the default savegame info datamodel or your game specific one
         /// </summary>
-        public static T GetSceneSavegameInfoAtPath<T>(string filePathInSavesFolder) where T : SceneSaveInfo, new()
+        public static T GetSceneSaveInfoAtPath<T>(string filePathInSavesFolder) where T : SceneSaveInfo, new()
         {
             T info = new T();
 
@@ -391,7 +391,7 @@ namespace Benito.ScriptingFoundations.Saving
         /// </summary>
         /// 
 
-        public void LoadSceneSave(SceneSave sceneSavegame)
+        public void LoadSceneSave(SceneSave sceneSave)
         {
             // Verify data before starting coroutine
             if (ManagerState != State.Idle)
@@ -408,11 +408,11 @@ namespace Benito.ScriptingFoundations.Saving
                 return;
             }
 
-            StartCoroutine(LoadSceneSaveCoroutine(saveableObjectsSceneManager, sceneSavegame));
+            StartCoroutine(LoadSceneSaveCoroutine(saveableObjectsSceneManager, sceneSave));
 
         }
 
-        IEnumerator LoadSceneSaveCoroutine(SaveableObjectsSceneManager saveableObjectsSceneManager, SceneSave sceneSavegame)
+        IEnumerator LoadSceneSaveCoroutine(SaveableObjectsSceneManager saveableObjectsSceneManager, SceneSave sceneSave)
         {
             Debug.Log($"[GlobalSavesManager] Start loading Scene Save");
             stopwatch.Start();
@@ -424,7 +424,7 @@ namespace Benito.ScriptingFoundations.Saving
             Action loadingFinishedHandler = () => loadingFinished = true;
 
             saveableObjectsSceneManager.OnLoadingFinished += loadingFinishedHandler;
-            saveableObjectsSceneManager.LoadFromSaveData(sceneSavegame.SavedObjects);
+            saveableObjectsSceneManager.LoadFromSaveData(sceneSave.SavedObjects);
 
             while (!loadingFinished)
             {

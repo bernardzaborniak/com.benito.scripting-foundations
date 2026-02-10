@@ -32,9 +32,9 @@ namespace Benito.ScriptingFoundations.Saving
                 saveableObjects.Add((SaveableSceneObjectData)JsonUtility.FromJson(seperatedString[i], saveableDataType));
             }
 
-            SceneSave newSaveGame = new SceneSave(sceneName, saveableObjects);
+            SceneSave newSave = new SceneSave(sceneName, saveableObjects);
 
-            return newSaveGame;
+            return newSave;
         }
 
         public static async Task<SceneSave> CreateSaveFromJsonStringAsync(string jsonString, IProgress<float> progress = null)
@@ -63,9 +63,9 @@ namespace Benito.ScriptingFoundations.Saving
                     progress?.Report(0.1f + 1f * i / seperatedString.Length);
                 }
 
-                SceneSave newSaveGame = new SceneSave(sceneName, saveableObjects);
+                SceneSave newSave = new SceneSave(sceneName, saveableObjects);
 
-                return newSaveGame;
+                return newSave;
             });
 
             return result;
@@ -74,14 +74,14 @@ namespace Benito.ScriptingFoundations.Saving
         /// <summary>
         /// This ist actually Json but a kind of custom format, i think this logic was moved into the budgeted Operation
         /// </summary>
-        public static string ConvertSaveGameToJsonString(SceneSave savegame)
+        public static string ConvertSaveToJsonString(SceneSave sceneSave)
         {
             // Workaround, because Serializing one by one works, but whole list doesnt :(
-            string jsonString = savegame.SceneName + "\n";
+            string jsonString = sceneSave.SceneName + "\n";
 
-            for (int i = 0; i < savegame.SavedObjects.Count; i++)
+            for (int i = 0; i < sceneSave.SavedObjects.Count; i++)
             {
-                jsonString += JsonUtility.ToJson(savegame.SavedObjects[i], false) + "\n";
+                jsonString += JsonUtility.ToJson(sceneSave.SavedObjects[i], false) + "\n";
             }
 
             return jsonString;

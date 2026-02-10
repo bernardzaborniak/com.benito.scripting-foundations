@@ -17,7 +17,7 @@ namespace Benito.ScriptingFoundations.Saving
             this.SavedObjects = savedObjects;
         }
       
-        public static string GetTargetSceneFromSceneSavegamePath(string path)
+        public static string GetTargetSceneFromSceneSavePath(string path)
         {
             string name;
 
