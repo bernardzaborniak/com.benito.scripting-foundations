@@ -227,13 +227,13 @@ namespace Benito.ScriptingFoundations.Saving
             string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), pathInSavesFolder);
             IOUtilities.EnsurePathExists(savePath);
 
-            Task writeFileTask = File.WriteAllTextAsync(Path.Combine(savePath, sceneSaveCreationInfo.savegameName + ".bsave"), createSceneSaveJsonStringBudgetedOperation.Result);
+            Task writeFileTask = File.WriteAllTextAsync(Path.Combine(savePath, sceneSaveCreationInfo.saveName + ".bsave"), createSceneSaveJsonStringBudgetedOperation.Result);
             yield return new WaitUntil(() => writeFileTask.IsCompleted);
 
             // 2. Create Saveinfo  
             string saveInfoContent = JsonUtility.ToJson(sceneSaveCreationInfo);
 
-            Task writeSaveInfoTask = File.WriteAllTextAsync(Path.Combine(savePath, sceneSaveCreationInfo.savegameName + ".json"), saveInfoContent);
+            Task writeSaveInfoTask = File.WriteAllTextAsync(Path.Combine(savePath, sceneSaveCreationInfo.saveName + ".json"), saveInfoContent);
             yield return new WaitUntil(() => writeSaveInfoTask.IsCompleted);
 
             // 3. Create optional preview Image
@@ -241,7 +241,7 @@ namespace Benito.ScriptingFoundations.Saving
             {
                 byte[] imageBytes = sceneSaveCreationInfo.previewImage.EncodeToPNG(); // this is quite performance expensive, but cant be put on another thread sadly
 
-                Task writeImageTask = File.WriteAllBytesAsync(Path.Combine(savePath, sceneSaveCreationInfo.savegameName + ".png"), imageBytes);
+                Task writeImageTask = File.WriteAllBytesAsync(Path.Combine(savePath, sceneSaveCreationInfo.saveName + ".png"), imageBytes);
                 yield return new WaitUntil(() => writeImageTask.IsCompleted);
             }
 

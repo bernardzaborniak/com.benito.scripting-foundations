@@ -10,10 +10,10 @@ namespace Benito.ScriptingFoundations.Saving
     [System.Serializable]
     public class SceneSaveInfo
     {
-        public string savegameName;
-        public SceneSaveType savegameType;
+        public string saveName;
+        public SceneSaveType saveType;
         public string unitySceneName;
-        public string missionName;
+        public string levelName; // level / mission name, smth inbetween
 
         public string dateTimeCreated;
 
