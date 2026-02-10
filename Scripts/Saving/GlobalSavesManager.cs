@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 
 using Debug = UnityEngine.Debug;
 using System.Diagnostics;
+using static log4net.Appender.RollingFileAppender;
+using System.Globalization;
 
 
 namespace Benito.ScriptingFoundations.Saving
@@ -184,7 +186,7 @@ namespace Benito.ScriptingFoundations.Saving
             //  Set up values
             ManagerState = State.CreatingSceneSave;
             CreatingSceneSaveState = SceneSavingState.SceneManagerIsSavingObjects;
-            sceneSaveCreationInfo.lastSavedTime = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+            sceneSaveCreationInfo.lastSavedTimeString = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
 
 
             // Save all Objects with local manager, get their save info
@@ -309,6 +311,11 @@ namespace Benito.ScriptingFoundations.Saving
             T readInfo = JsonUtility.FromJson<T>(infoFileContent);
 
             readInfo.filePathInSavesFolder = filePathInSavesFolder;
+            readInfo.lastSavedTime = DateTime.ParseExact(
+                                        readInfo.lastSavedTimeString,
+                                        "yyyy.MM.dd HH:mm:ss",
+                                        CultureInfo.InvariantCulture
+                                    );
 
             // read image, if available
             string previewImagePath = Path.Combine(savesFolderPath, filePathInSavesFolder) + ".png";

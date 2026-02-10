@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,7 +16,10 @@ namespace Benito.ScriptingFoundations.Saving
         public string unitySceneName;
         public string levelName; // level / mission name, smth inbetween
 
-        public string lastSavedTime;
+        public string lastSavedTimeString;    // used for storing
+
+        [System.NonSerialized]
+        public DateTime lastSavedTime; // only used during runtime
 
         [System.NonSerialized]
         public Texture2D previewImage;
