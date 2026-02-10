@@ -1,0 +1,23 @@
+using UnityEngine;
+
+
+namespace Benito.ScriptingFoundations.Saving
+{
+    /// <summary>
+    /// Same as  SaveableSceneObject, but handles automatic data assignment.
+    /// Automatically fills field alled "saveData" , use it
+    /// </summary>
+    public abstract class SaveableSceneObjectWithData<T> : SaveableSceneObject where T: SaveableSceneObjectData, new()
+    {
+        protected T saveData;
+
+        private void Awake()
+        {
+            if (saveData == null)
+            {
+                saveData = new T();
+                saveData.SetSerializationInfos<T>(saveID);
+            }
+        }
+    }
+}
