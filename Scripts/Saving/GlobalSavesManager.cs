@@ -265,7 +265,6 @@ namespace Benito.ScriptingFoundations.Saving
 
         #endregion
 
-
         #region Load Scene Save Infos
 
         /// <summary>
@@ -351,7 +350,7 @@ namespace Benito.ScriptingFoundations.Saving
 
             yield return new WaitUntil(() => saveTask.IsCompleted);
 
-            GlobalManagers.Get<GlobalSavesManager>().LoadSceneSave(saveTask.Result);
+            LoadSceneSave(saveTask.Result);
         }
 
         public async Task<SceneSave> ReadSceneSaveFileAsync(string folderPathInSavesFolder, string savefileName)
@@ -381,7 +380,7 @@ namespace Benito.ScriptingFoundations.Saving
             var result = await SceneSaveUtility.CreateSaveFromJsonStringAsync(fileContent, progress);
 
             stopwatch.Stop();
-            Debug.Log($"[GlobalSavesManager] Finished reading Save File, took {(float)stopwatch.Elapsed.TotalSeconds} seconds");
+            Debug.Log($"[GlobalSavesManager] Finished Reading Save File, took {(float)stopwatch.Elapsed.TotalSeconds} seconds");
             stopwatch.Reset();
 
             return result;
@@ -452,6 +451,24 @@ namespace Benito.ScriptingFoundations.Saving
 
         #endregion
 
+        #region Delete Scene Saves
+
+        public void DeleteSceneSave(string saveFilePathInSavesFolder)
+        {
+            Debug.Log($"[GlobalSavesManager] Start Deleting Save File");
+            stopwatch.Start();
+
+            string basePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInSavesFolder);
+
+            if (File.Exists(basePath + ".bsave")) File.Delete(basePath + ".bsave");
+            if (File.Exists(basePath + ".json")) File.Delete(basePath + ".json");
+            if (File.Exists(basePath + ".png")) File.Delete(basePath + ".png");
+
+            stopwatch.Stop();
+            Debug.Log($"[GlobalSavesManager] Finished Deleting Save File, took {(float)stopwatch.Elapsed.TotalSeconds} seconds");
+            stopwatch.Reset();
+        }
+        #endregion
 
         #endregion
 
@@ -493,6 +510,19 @@ namespace Benito.ScriptingFoundations.Saving
             stopwatch.Reset();
 
             return JsonUtility.FromJson<T>(fileContent);
+        }
+
+        public void DeleteProgressSave<T>(string saveFilePathInsideSavesFolder) where T : ISaveableProgress
+        {
+            Debug.Log($"[GlobalSavesManager] Start deleting Progress Save");
+            stopwatch.Start();
+
+            string path = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInsideSavesFolder) + ".json";
+            if (File.Exists(path)) File.Delete(path);
+
+            stopwatch.Stop();
+            Debug.Log($"[GlobalSavesManager] Finished deleting Progress Save, took {(float)stopwatch.Elapsed.TotalSeconds} seconds");
+            stopwatch.Reset();
         }
 
 
