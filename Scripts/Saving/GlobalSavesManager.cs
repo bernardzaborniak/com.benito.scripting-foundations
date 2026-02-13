@@ -502,14 +502,14 @@ namespace Benito.ScriptingFoundations.Saving
 
         #region Delete Scene Saves
 
-        public void DeleteSceneSave(string saveFilePathInSavesFolder)
+        public void DeleteSceneSave<T>(string saveFilePathInSavesFolder) where T: SceneSaveInfo, new()
         {
             Debug.Log($"[GlobalSavesManager] Start Deleting Save File");
             stopwatch.Start();
 
             string basePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInSavesFolder);
 
-            SceneSaveInfo info = GetSceneSaveInfoAtPath<SceneSaveInfo>(basePath);
+            T info = GetSceneSaveInfoAtPath<T>(basePath);
             OnDeletedSceneSaveFile?.Invoke(info);
 
             if (File.Exists(basePath + ".bsave")) File.Delete(basePath + ".bsave");
