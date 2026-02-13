@@ -342,6 +342,10 @@ namespace Benito.ScriptingFoundations.Saving
                 reader.Close();
             }
 
+            stopwatch.Stop();
+            Debug.Log($"[GlobalSavesManager] Finished GetSceneSaveInfoAtPath, took {(float)stopwatch.Elapsed.TotalSeconds} seconds");
+            stopwatch.Reset();
+
             return ConvertJsonStringToSceneSaveInfo<T>(filePathInSavesFolder, infoFileContent);
 
         }

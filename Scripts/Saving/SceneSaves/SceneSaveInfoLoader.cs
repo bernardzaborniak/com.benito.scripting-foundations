@@ -53,8 +53,15 @@ namespace Benito.ScriptingFoundations.Saving
 
         void UpdateInfosOnDeletedSave(SceneSaveInfo info)
         {
+            Debug.Log("UpdateInfosOnDeletedSave");
             T castedInfo = info as T;
+            Debug.Log($"castedInfo: {castedInfo}");
+
             T infoToDelete = GetInfoFromLoadedInfos(castedInfo.saveName);
+
+            Debug.Log($"infoToDelete: {infoToDelete}");
+            Debug.Log($"infoToDelete.saveName : {infoToDelete.saveName}");
+
             allSceneSaveInfos.Remove(infoToDelete);
         }
     }
