@@ -5,6 +5,9 @@ using System;
 
 namespace Benito.ScriptingFoundations.Managers
 {
+    /// <summary>
+    /// Global Managers Locator, using shorter name
+    /// </summary>
     [DefaultExecutionOrder(-6)]
     [AddComponentMenu("Benitos Scripting Foundations/GlobalManagers")]
     public class GlobalManagers : AbstractManagersManager<SingletonManagerGlobal>

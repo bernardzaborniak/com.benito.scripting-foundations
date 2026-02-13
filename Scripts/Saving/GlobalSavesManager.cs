@@ -16,6 +16,8 @@ using System.Diagnostics;
 using System.Globalization;
 using Benito.ScriptingFoundations.Saving.SceneObjects;
 using Benito.ScriptingFoundations.Saving.SceneSaves;
+using System.Linq;
+using System.ComponentModel;
 
 
 namespace Benito.ScriptingFoundations.Saving
@@ -59,11 +61,13 @@ namespace Benito.ScriptingFoundations.Saving
 
 
         // OnFinished Callbacks
-        public Action<SceneSaveInfo> OnCreatingSceneSaveFileFinished;
-        public Action<SceneSaveInfo> OnDeletedSceneSaveFile;
+        public Action<SceneSaveInfo> OnCreatingSceneSaveFileFinished; // you can cast this baseclass into the derived class
+        public Action<SceneSaveInfo> OnDeletedSceneSaveFile; // you can cast this baseclass into the derived class
         public Action OnCreatingProgressSaveFileFinished;
 
         public Action OnLoadingSceneSaveFileCompleted;
+
+
 
         #endregion
 
@@ -151,6 +155,8 @@ namespace Benito.ScriptingFoundations.Saving
         }
 
         #region Scene Saves
+
+      
 
         #region Create Scene Save
 
@@ -271,30 +277,55 @@ namespace Benito.ScriptingFoundations.Saving
         /// <summary>
         /// Get Scene Infos T must be either the default savegame info datamodel or your game specific one
         /// </summary>
-        public static List<T> GetSceneSaveInfosInsideFolder<T>(string folderPathInSavesFolder) where T : SceneSaveInfo, new()
+        public List<T> GetSceneSaveInfosInsideFolderAndSubFolders<T>(string folderPathInSavesFolder) where T : SceneSaveInfo, new()
         {
+            Debug.Log($"[GlobalSavesManager] Start GetSceneSaveInfosInsideFolderAndSubFolders");
+            stopwatch.Start();
+
             List<T> infoList = new List<T>();
 
             DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), folderPathInSavesFolder));
 
             IOUtilities.EnsurePathExists(directoryInfo.FullName);
 
-            foreach (FileInfo info in directoryInfo.GetFiles())
+            string savesRoot = SavingSettings.GetOrCreateSettings().GetSavesFolderPath();
+
+            foreach (FileInfo info in directoryInfo.GetFiles("*.json", SearchOption.AllDirectories))
             {
-                if (info.Extension == ".json")
+                string relativePath = Path.GetRelativePath(savesRoot, info.FullName);
+                string pathWithoutExtension = Path.ChangeExtension(relativePath, null);
+
+                // Read the json, check if its not a progress save
+                string infoFileContent;
+
+                using (StreamReader reader = new StreamReader(info.FullName))
                 {
-                    infoList.Add(GetSceneSaveInfoAtPath<T>(Path.Combine(folderPathInSavesFolder, Path.GetFileNameWithoutExtension(info.FullName))));
+                    infoFileContent = reader.ReadToEnd();
+                    reader.Close();
                 }
+                T readInfo = JsonUtility.FromJson<T>(infoFileContent);
+
+                // check if its really a sceneSaveInfo, values shouldnt be null
+                if (!String.IsNullOrEmpty(readInfo.saveName)) infoList.Add(readInfo);
             }
 
+            stopwatch.Stop();
+            Debug.Log($"[GlobalSavesManager] Finished GetSceneSaveInfosInsideFolderAndSubFolders, took {(float)stopwatch.Elapsed.TotalSeconds} seconds");
+            stopwatch.Reset();
+
             return infoList;
+
+
         }
 
         /// <summary>
         /// Get Scene Infos T must be either the default savegame info datamodel or your game specific one
         /// </summary>
-        public static T GetSceneSaveInfoAtPath<T>(string filePathInSavesFolder) where T : SceneSaveInfo, new()
+        public T GetSceneSaveInfoAtPath<T>(string filePathInSavesFolder) where T : SceneSaveInfo, new()
         {
+            Debug.Log($"[GlobalSavesManager] Start GetSceneSaveInfoAtPath");
+            stopwatch.Start();
+
             T info = new T();
 
             string savesFolderPath = SavingSettings.GetOrCreateSettings().GetSavesFolderPath();
@@ -327,6 +358,10 @@ namespace Benito.ScriptingFoundations.Saving
                 byte[] imageBytes = File.ReadAllBytes(previewImagePath);
                 readInfo.previewImage.LoadImage(imageBytes);
             }
+
+            stopwatch.Stop();
+            Debug.Log($"[GlobalSavesManager] Finished GetSceneSaveInfoAtPath, took {(float)stopwatch.Elapsed.TotalSeconds} seconds");
+            stopwatch.Reset();
 
             return readInfo;
         }
@@ -462,7 +497,7 @@ namespace Benito.ScriptingFoundations.Saving
             string basePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInSavesFolder);
 
             SceneSaveInfo info = GetSceneSaveInfoAtPath<SceneSaveInfo>(basePath);
-            OnDeletedSceneSaveFile(info);
+            OnDeletedSceneSaveFile?.Invoke(info);
 
             if (File.Exists(basePath + ".bsave")) File.Delete(basePath + ".bsave");
             if (File.Exists(basePath + ".json")) File.Delete(basePath + ".json");

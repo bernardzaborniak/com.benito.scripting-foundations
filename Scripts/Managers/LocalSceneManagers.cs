@@ -5,6 +5,9 @@ using System;
 
 namespace Benito.ScriptingFoundations.Managers
 {
+    /// <summary>
+    /// Local Scene Mangaers Locator, not using Locator in the name to shorten writing a bit
+    /// </summary>
     [DefaultExecutionOrder(-5)]
     [AddComponentMenu("Benitos Scripting Foundations/LocalSceneManagers")]
     public class LocalSceneManagers : AbstractManagersManager<SingletonManagerLocalScene>

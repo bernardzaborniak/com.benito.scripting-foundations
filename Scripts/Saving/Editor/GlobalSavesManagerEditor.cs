@@ -41,6 +41,9 @@ namespace Benito.ScriptingFoundations.Saving.Editor
                 }
             }
             EditorGUILayout.EndHorizontal();
+
+            // Draw the default inspector 
+            base.OnInspectorGUI();
         }
     }
 }
