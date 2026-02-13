@@ -16,22 +16,39 @@ namespace Benito.ScriptingFoundations.Utilities
             }
         }
 
+        /// <summary>
+        /// Made safe, in case stuff gets destroyed in the meantime
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="tag"></param>
         public static void SetTagRecursively(Transform parent, string tag) 
+        {
+            if (parent == null) return;
+            parent.gameObject.tag = tag;
+
+            foreach (Transform child in parent)
+            {
+                if(child==null ) continue;
+                SetTagRecursively(child, tag);
+            }
+        }
+
+        public static void SetTagRecursivelyUnsafe(Transform parent, string tag)
         {
             parent.gameObject.tag = tag;
 
             foreach (Transform child in parent)
             {
-                SetTagRecursively(child, tag);
+                SetTagRecursivelyUnsafe(child, tag);
             }
         }
 
         /// <summary>
         /// Might be usefull to change some asynchronous errors, like for example cinemachine deoccluder
         /// </summary>
-        public static void OverrideTagForSetTime(Transform parent, string tag, float time = 1f)
+        public static Coroutine OverrideTagForSetTime(Transform parent, string tag, float time = 1f)
         {
-            GlobalManagers.Get<GlobalCoroutineHost>().StartCoroutine(OverrideTagForSetTimeCoroutine(parent,tag,time));
+            return GlobalManagers.Get<GlobalCoroutineHost>().StartCoroutine(OverrideTagForSetTimeCoroutine(parent,tag,time));
         }
 
         static IEnumerator OverrideTagForSetTimeCoroutine(Transform parent, string tag, float time = 1f)
