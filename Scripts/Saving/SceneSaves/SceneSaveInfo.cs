@@ -18,13 +18,13 @@ namespace Benito.ScriptingFoundations.Saving.SceneSaves
 
         public string lastSavedTimeString;    // used for storing
 
-        [System.NonSerialized]
+        //[System.NonSerialized]
         public DateTime lastSavedTime; // only used during runtime
 
-        [System.NonSerialized]
+        //[System.NonSerialized]
         public Texture2D previewImage;
 
-        [System.NonSerialized]
+        //[System.NonSerialized]
         public string filePathInSavesFolder;
     }
 }
