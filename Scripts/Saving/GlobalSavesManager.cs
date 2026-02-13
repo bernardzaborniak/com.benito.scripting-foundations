@@ -59,7 +59,7 @@ namespace Benito.ScriptingFoundations.Saving
 
 
         // OnFinished Callbacks
-        public Action OnCreatingSceneSaveFileFinished;
+        public Action<SceneSaveInfo> OnCreatingSceneSaveFileFinished;
         public Action OnCreatingProgressSaveFileFinished;
 
         public Action OnLoadingSceneSaveFileCompleted;
@@ -254,7 +254,7 @@ namespace Benito.ScriptingFoundations.Saving
             saveableObjectsSceneManager = null;
 
             // 5. Call callbacks
-            OnCreatingSceneSaveFileFinished?.Invoke();
+            OnCreatingSceneSaveFileFinished?.Invoke(sceneSaveCreationInfo);
 
             //Profiler.EndSample();
 
