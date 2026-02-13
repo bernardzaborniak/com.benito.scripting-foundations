@@ -60,6 +60,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         // OnFinished Callbacks
         public Action<SceneSaveInfo> OnCreatingSceneSaveFileFinished;
+        public Action<SceneSaveInfo> OnDeletedSceneSaveFile;
         public Action OnCreatingProgressSaveFileFinished;
 
         public Action OnLoadingSceneSaveFileCompleted;
@@ -459,6 +460,9 @@ namespace Benito.ScriptingFoundations.Saving
             stopwatch.Start();
 
             string basePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInSavesFolder);
+
+            SceneSaveInfo info = GetSceneSaveInfoAtPath<SceneSaveInfo>(basePath);
+            OnDeletedSceneSaveFile(info);
 
             if (File.Exists(basePath + ".bsave")) File.Delete(basePath + ".bsave");
             if (File.Exists(basePath + ".json")) File.Delete(basePath + ".json");
