@@ -24,7 +24,7 @@ namespace Benito.ScriptingFoundations.Saving.SceneSaves
         [System.NonSerialized]
         public Texture2D previewImage;
 
-        [System.NonSerialized]
+        //[System.NonSerialized]
         public string filePathInSavesFolder;
     }
 }

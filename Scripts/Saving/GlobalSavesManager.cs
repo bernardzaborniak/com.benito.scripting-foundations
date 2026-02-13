@@ -18,6 +18,7 @@ using Benito.ScriptingFoundations.Saving.SceneObjects;
 using Benito.ScriptingFoundations.Saving.SceneSaves;
 using System.Linq;
 using System.ComponentModel;
+using static PlasticPipe.PlasticProtocol.Messages.Serialization.ItemHandlerMessagesSerialization;
 
 
 namespace Benito.ScriptingFoundations.Saving
@@ -293,7 +294,7 @@ namespace Benito.ScriptingFoundations.Saving
             foreach (FileInfo info in directoryInfo.GetFiles("*.json", SearchOption.AllDirectories))
             {
                 string relativePath = Path.GetRelativePath(savesRoot, info.FullName);
-                string pathWithoutExtension = Path.ChangeExtension(relativePath, null);
+                string relativePathWithoutExtension = Path.ChangeExtension(relativePath, null);
 
                 // Read the json, check if its not a progress save
                 string infoFileContent;
@@ -303,10 +304,11 @@ namespace Benito.ScriptingFoundations.Saving
                     infoFileContent = reader.ReadToEnd();
                     reader.Close();
                 }
-                T readInfo = JsonUtility.FromJson<T>(infoFileContent);
+
+                T readInfo = ConvertJsonStringToSceneSaveInfo<T>(relativePathWithoutExtension, infoFileContent);
 
                 // check if its really a sceneSaveInfo, values shouldnt be null
-                if (!String.IsNullOrEmpty(readInfo.saveName)) infoList.Add(readInfo);
+                if (readInfo != null) infoList.Add(readInfo);
             }
 
             stopwatch.Stop();
@@ -340,7 +342,17 @@ namespace Benito.ScriptingFoundations.Saving
                 reader.Close();
             }
 
+            return ConvertJsonStringToSceneSaveInfo<T>(filePathInSavesFolder, infoFileContent);
+
+        }
+
+        T ConvertJsonStringToSceneSaveInfo<T>(string filePathInSavesFolder, string infoFileContent) where T: SceneSaveInfo
+        {
             T readInfo = JsonUtility.FromJson<T>(infoFileContent);
+
+            // check if its really a sceneSaveInfo, values shouldnt be null
+            if (String.IsNullOrEmpty(readInfo.saveName)) return null;
+
 
             readInfo.filePathInSavesFolder = filePathInSavesFolder;
             readInfo.lastSavedTime = DateTime.ParseExact(
@@ -350,6 +362,7 @@ namespace Benito.ScriptingFoundations.Saving
                                     );
 
             // read image, if available
+            string savesFolderPath = SavingSettings.GetOrCreateSettings().GetSavesFolderPath();
             string previewImagePath = Path.Combine(savesFolderPath, filePathInSavesFolder) + ".png";
             if (File.Exists(previewImagePath))
             {
@@ -358,10 +371,6 @@ namespace Benito.ScriptingFoundations.Saving
                 byte[] imageBytes = File.ReadAllBytes(previewImagePath);
                 readInfo.previewImage.LoadImage(imageBytes);
             }
-
-            stopwatch.Stop();
-            Debug.Log($"[GlobalSavesManager] Finished GetSceneSaveInfoAtPath, took {(float)stopwatch.Elapsed.TotalSeconds} seconds");
-            stopwatch.Reset();
 
             return readInfo;
         }
