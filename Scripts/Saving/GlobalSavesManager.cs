@@ -16,12 +16,6 @@ using System.Diagnostics;
 using System.Globalization;
 using Benito.ScriptingFoundations.Saving.SceneObjects;
 using Benito.ScriptingFoundations.Saving.SceneSaves;
-using System.Linq;
-using System.ComponentModel;
-using static PlasticPipe.PlasticProtocol.Messages.Serialization.ItemHandlerMessagesSerialization;
-using Codice.Utils;
-using UnityEditor.Overlays;
-
 
 namespace Benito.ScriptingFoundations.Saving
 {
