@@ -197,7 +197,8 @@ namespace Benito.ScriptingFoundations.Saving
             //  Set up values
             ManagerState = State.CreatingSceneSave;
             CreatingSceneSaveState = SceneSavingState.SceneManagerIsSavingObjects;
-            creationInfo.lastSavedTimeString = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+            creationInfo.lastSavedTime = System.DateTime.Now;
+            creationInfo.lastSavedTimeString = creationInfo.lastSavedTime.ToString("yyyy.MM.dd HH:mm:ss");
 
 
             // Save all Objects with local manager, get their save info
