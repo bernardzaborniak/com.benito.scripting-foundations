@@ -19,6 +19,8 @@ using Benito.ScriptingFoundations.Saving.SceneSaves;
 using System.Linq;
 using System.ComponentModel;
 using static PlasticPipe.PlasticProtocol.Messages.Serialization.ItemHandlerMessagesSerialization;
+using Codice.Utils;
+using UnityEditor.Overlays;
 
 
 namespace Benito.ScriptingFoundations.Saving
@@ -187,7 +189,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         }
 
-        IEnumerator CreateSceneSaveCoroutine<T>(SaveableObjectsSceneManager saveableObjectsSceneManager, string pathInSavesFolder, T sceneSaveCreationInfo) where T : SceneSaveInfo
+        IEnumerator CreateSceneSaveCoroutine<T>(SaveableObjectsSceneManager saveableObjectsSceneManager, string pathInSavesFolder, T creationInfo) where T : SceneSaveInfo
         {
             Debug.Log($"[GlobalSavesManager] Start CreateSceneSaveForCurrentScene");
             stopwatch.Start();
@@ -195,7 +197,7 @@ namespace Benito.ScriptingFoundations.Saving
             //  Set up values
             ManagerState = State.CreatingSceneSave;
             CreatingSceneSaveState = SceneSavingState.SceneManagerIsSavingObjects;
-            sceneSaveCreationInfo.lastSavedTimeString = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+            creationInfo.lastSavedTimeString = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
 
 
             // Save all Objects with local manager, get their save info
@@ -238,21 +240,23 @@ namespace Benito.ScriptingFoundations.Saving
             string savePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), pathInSavesFolder);
             IOUtilities.EnsurePathExists(savePath);
 
-            Task writeFileTask = File.WriteAllTextAsync(Path.Combine(savePath, sceneSaveCreationInfo.saveName + ".bsave"), createSceneSaveJsonStringBudgetedOperation.Result);
+            creationInfo.filePathInSavesFolder = Path.Combine(savePath, creationInfo.saveName);
+
+            Task writeFileTask = File.WriteAllTextAsync(Path.Combine(savePath, creationInfo.saveName + ".bsave"), createSceneSaveJsonStringBudgetedOperation.Result);
             yield return new WaitUntil(() => writeFileTask.IsCompleted);
 
             // 2. Create Saveinfo  
-            string saveInfoContent = JsonUtility.ToJson(sceneSaveCreationInfo);
+            string saveInfoContent = JsonUtility.ToJson(creationInfo);
 
-            Task writeSaveInfoTask = File.WriteAllTextAsync(Path.Combine(savePath, sceneSaveCreationInfo.saveName + ".json"), saveInfoContent);
+            Task writeSaveInfoTask = File.WriteAllTextAsync(Path.Combine(savePath, creationInfo.saveName + ".json"), saveInfoContent);
             yield return new WaitUntil(() => writeSaveInfoTask.IsCompleted);
 
             // 3. Create optional preview Image
-            if (sceneSaveCreationInfo.previewImage != null)
+            if (creationInfo.previewImage != null)
             {
-                byte[] imageBytes = sceneSaveCreationInfo.previewImage.EncodeToPNG(); // this is quite performance expensive, but cant be put on another thread sadly
+                byte[] imageBytes = creationInfo.previewImage.EncodeToPNG(); // this is quite performance expensive, but cant be put on another thread sadly
 
-                Task writeImageTask = File.WriteAllBytesAsync(Path.Combine(savePath, sceneSaveCreationInfo.saveName + ".png"), imageBytes);
+                Task writeImageTask = File.WriteAllBytesAsync(Path.Combine(savePath, creationInfo.saveName + ".png"), imageBytes);
                 yield return new WaitUntil(() => writeImageTask.IsCompleted);
             }
 
@@ -262,7 +266,7 @@ namespace Benito.ScriptingFoundations.Saving
             saveableObjectsSceneManager = null;
 
             // 5. Call callbacks
-            OnCreatingSceneSaveFileFinished?.Invoke(sceneSaveCreationInfo);
+            OnCreatingSceneSaveFileFinished?.Invoke(creationInfo);
 
             //Profiler.EndSample();
 
