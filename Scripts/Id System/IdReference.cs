@@ -9,12 +9,9 @@ namespace Benito.ScriptingFoundations.IdSystem
     /// </summary>
     public class IdReference : MonoBehaviour
     {
-        //[ReadOnly]
-        //[SerializeField] protected Guid id;
         [ReadOnly]
         [SerializeField] protected string id;
 
-        //public Guid GetId() { return id; }
         public string GetId() { return id; }
 
         /// <summary>
@@ -22,7 +19,6 @@ namespace Benito.ScriptingFoundations.IdSystem
         /// </summary>
         public void CreateNewId()
         {
-            //this.id = Guid.NewGuid();
             this.id = Guid.NewGuid().ToString();
 
         }

@@ -61,7 +61,7 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
 
             Dictionary<string, SaveableSceneObject> saveableObjectsIdDictionary;
 
-            public LoadingSceneSaveBudgetedOperation(List<SaveableSceneObject> saveableObjects, string[] saveableObjectIds, List<SaveableSceneObjectData> objectsData , float timeBudget)
+            public LoadingSceneSaveBudgetedOperation(List<SaveableSceneObject> saveableObjects, string[] saveableObjectIds, List<SaveableSceneObjectData> objectsData, float timeBudget)
             {
                 this.saveableObjects = saveableObjects;
                 this.saveableObjectIds = saveableObjectIds;
@@ -79,31 +79,31 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
             {
                 float startUpdateTime = Time.realtimeSinceStartup;
 
-                if(stage == Stage.CreatingDictionary)
+                if (stage == Stage.CreatingDictionary)
                 {
                     for (int i = creatingDictionaryStoppedAtIndex; i < saveableObjects.Count; i++)
                     {
                         saveableObjectsIdDictionary.Add(saveableObjectIds[i], saveableObjects[i]);
-                        
+
                         if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                         {
                             creatingDictionaryStoppedAtIndex = i;
-                            Progress = (1f*i) / (1f * saveableObjects.Count + objectsData.Count);
+                            Progress = (1f * i) / (1f * saveableObjects.Count + objectsData.Count);
                             return;
                         }
                     }
 
                     stage = Stage.CallingLoadMethod;
                 }
-                else if(stage == Stage.CallingLoadMethod)
+                else if (stage == Stage.CallingLoadMethod)
                 {
                     for (int i = lastStoppedIndex; i < objectsData.Count; i++)
                     {
                         saveableObjectsIdDictionary[objectsData[i].saveableObjectID].Load(objectsData[i]);
-                        
+
                         if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                         {
-                            lastStoppedIndex = i+1;
+                            lastStoppedIndex = i + 1;
                             Progress = (1f * saveableObjects.Count + i) / (1f * saveableObjects.Count + objectsData.Count);
                             return;
                         }
@@ -119,7 +119,7 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
 
         public class SavingSceneSaveBudgetedOperation : IBudgetedOperation
         {
-            public bool Finished  {get; private set;}
+            public bool Finished { get; private set; }
             public float Progress { get; private set; }
             public float TimeBudget { get; private set; }
 
@@ -152,7 +152,7 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
 
                     if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                     {
-                        lastStoppedIndex = i+1;
+                        lastStoppedIndex = i + 1;
                         Progress = (1f * i) / (1f * saveableObjects.Count);
                         return;
                     }
@@ -181,7 +181,7 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
                 loadingSceneOperation.Update(Time.deltaTime);
 
             }
-            else if(ManagerState == State.SavingSceneSave)
+            else if (ManagerState == State.SavingSceneSave)
             {
                 savingSceneOperation.Update(Time.deltaTime);
             }
@@ -191,8 +191,8 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
         [Button("ScanSceneForSaveableObjects")]
         public void ScanSceneForSaveableObjects()
         {
-            saveableObjects = new List<SaveableSceneObject>(FindObjectsByType<SaveableSceneObject>(FindObjectsInactive.Include,FindObjectsSortMode.None));
-            saveableObjects.Sort((a,b) => a.Priority.CompareTo(b.Priority));
+            saveableObjects = new List<SaveableSceneObject>(FindObjectsByType<SaveableSceneObject>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+            saveableObjects.Sort((a, b) => a.Priority.CompareTo(b.Priority));
 
             saveableObjectIds = new string[saveableObjects.Count];
             for (int i = 0; i < saveableObjects.Count; i++)
@@ -201,11 +201,11 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
             }
         }
 #endif
-       
+
         public void SaveAllObjects()
         {
             ManagerState = State.SavingSceneSave;
-            savingSceneOperation = new SavingSceneSaveBudgetedOperation(saveableObjects, SavingSettings.GetOrCreateSettings().savingSceneSaveMsBudgetPerFrame /1000);
+            savingSceneOperation = new SavingSceneSaveBudgetedOperation(saveableObjects, SavingSettings.GetOrCreateSettings().savingSceneSaveMsBudgetPerFrame / 1000);
             savingSceneOperation.OnSavingBoFinished += OnSavingOperationFinished;
         }
 
@@ -225,7 +225,7 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
         public void LoadFromSaveData(List<SaveableSceneObjectData> objectsData)
         {
             ManagerState = State.LoadingSceneSave;
-            loadingSceneOperation = new LoadingSceneSaveBudgetedOperation(saveableObjects, saveableObjectIds, objectsData, SavingSettings.GetOrCreateSettings().loadingSceneSaveMsBudgetPerFrame/1000);
+            loadingSceneOperation = new LoadingSceneSaveBudgetedOperation(saveableObjects, saveableObjectIds, objectsData, SavingSettings.GetOrCreateSettings().loadingSceneSaveMsBudgetPerFrame / 1000);
             loadingSceneOperation.OnLoadingBoFinished += OnLoadingOperationFinished;
         }
 
@@ -236,7 +236,7 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
 
             ManagerState = State.Idle;
 
-            OnLoadingFinished?.Invoke();         
+            OnLoadingFinished?.Invoke();
         }
     }
 }

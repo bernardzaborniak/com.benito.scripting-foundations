@@ -12,7 +12,7 @@ namespace Benito.ScriptingFoundations.IdSystem
         [SerializeField] string[] saveableObjectIds;
         [SerializeField] IdReference[] idReferenceObjects;
 
-        private Dictionary<string, IdReference> runtimeIdLookup;// = new Dictionary<string, IdReference>();
+        private Dictionary<string, IdReference> runtimeIdLookup;
 
         public override void InitialiseManager()
         {
@@ -35,8 +35,6 @@ namespace Benito.ScriptingFoundations.IdSystem
                 return null;
 
             runtimeIdLookup.TryGetValue(id, out var reference);
-            Debug.Log($"Dict Size {runtimeIdLookup.Count}");
-            Debug.Log($"GetIdByString for id {id} -> returned ref {reference}", reference?.gameObject);
             return reference;
         }
 
@@ -44,9 +42,6 @@ namespace Benito.ScriptingFoundations.IdSystem
         [Button("ScanSceneForIdReferenceObjects")]
         public void ScanSceneForIdReferenceObjects()
         {
-            Debug.Log("ScanSceneForIdReferenceObjects called");
-            //runtimeIdLookup = new Dictionary<string, IdReference>();
-
             idReferenceObjects = FindObjectsByType<IdReference>( FindObjectsInactive.Include, FindObjectsSortMode.None);
             saveableObjectIds = new string[idReferenceObjects.Length];
 
@@ -54,13 +49,6 @@ namespace Benito.ScriptingFoundations.IdSystem
             {
                 saveableObjectIds[i] = idReferenceObjects[i].GetId();
             }
-            
-               // runtimeIdLookup.Add(id.GetId(), id);
-            
-
-            Debug.Log($"ScanSceneForIdReferenceObjects filled dict, now {idReferenceObjects.Length}");
-            //saveableObjectIds = runtimeIdLookup.Keys;
-            //idReferenceObjects = runtimeIdLookup.Values;
         }
 #endif
     }
