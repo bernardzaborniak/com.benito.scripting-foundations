@@ -8,7 +8,7 @@ using Benito.ScriptingFoundations.Saving.SceneObjects;
 
 namespace Benito.ScriptingFoundations.Saving.Editor
 {
-    public class OnSaveSceneAssignsSaveablesAndIdsHook : AssetModificationProcessor
+    public class OnSaveSceneAssignsSaveablesHook : AssetModificationProcessor
     {
         public static string[] OnWillSaveAssets(string[] paths)
         {
@@ -17,9 +17,9 @@ namespace Benito.ScriptingFoundations.Saving.Editor
                 if(path == SceneManager.GetActiveScene().path)
                 {
                     //Debug.Log("AssignMissingIdsInCurrentScene on scene Save");
-                    SaveableSceneObjectsIdAssigner.AssignMissingIdsInCurrentScene();
+                    //SaveableSceneObjectsIdAssigner.AssignMissingIdsInCurrentScene();
 
-                    SaveableObjectsSceneManager manager = GameObject.FindObjectOfType<SaveableObjectsSceneManager>();
+                    SaveableObjectsSceneManager manager = GameObject.FindFirstObjectByType<SaveableObjectsSceneManager>();
 
                     if (manager != null)
                     {

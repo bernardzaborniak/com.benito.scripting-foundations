@@ -17,7 +17,7 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
     public class SaveableObjectsSceneManager : SingletonManagerLocalScene
     {
         [SerializeField] List<SaveableSceneObject> saveableObjects;
-        [SerializeField] int[] saveableObjectIds;
+        [SerializeField] string[] saveableObjectIds;
 
         public Action OnLoadingFinished;
         public Action<List<SaveableSceneObjectData>> OnSavingFinished;
@@ -52,16 +52,16 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
 
             public Stage stage;
             List<SaveableSceneObject> saveableObjects;
-            int[] saveableObjectIds;
+            string[] saveableObjectIds;
             List<SaveableSceneObjectData> objectsData;
             int creatingDictionaryStoppedAtIndex;
             public Action OnLoadingBoFinished;
             int lastStoppedIndex;
 
 
-            Dictionary<int, SaveableSceneObject> saveableObjectsIdDictionary;
+            Dictionary<string, SaveableSceneObject> saveableObjectsIdDictionary;
 
-            public LoadingSceneSaveBudgetedOperation(List<SaveableSceneObject> saveableObjects, int[] saveableObjectIds, List<SaveableSceneObjectData> objectsData , float timeBudget)
+            public LoadingSceneSaveBudgetedOperation(List<SaveableSceneObject> saveableObjects, string[] saveableObjectIds, List<SaveableSceneObjectData> objectsData , float timeBudget)
             {
                 this.saveableObjects = saveableObjects;
                 this.saveableObjectIds = saveableObjectIds;
@@ -72,7 +72,7 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
                 lastStoppedIndex = 0;
                 stage = Stage.CreatingDictionary;
 
-                saveableObjectsIdDictionary = new Dictionary<int, SaveableSceneObject>();
+                saveableObjectsIdDictionary = new Dictionary<string, SaveableSceneObject>();
             }
 
             public void Update(float deltaTime)
@@ -191,12 +191,13 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
         [Button("ScanSceneForSaveableObjects")]
         public void ScanSceneForSaveableObjects()
         {
-            saveableObjects = new List<SaveableSceneObject>(FindObjectsOfType<SaveableSceneObject>(true));
+            saveableObjects = new List<SaveableSceneObject>(FindObjectsByType<SaveableSceneObject>(FindObjectsInactive.Include,FindObjectsSortMode.None));
+            saveableObjects.Sort((a,b) => a.Priority.CompareTo(b.Priority));
 
-            saveableObjectIds = new int[saveableObjects.Count];
+            saveableObjectIds = new string[saveableObjects.Count];
             for (int i = 0; i < saveableObjects.Count; i++)
             {
-                saveableObjectIds[i] = saveableObjects[i].GetId();
+                saveableObjectIds[i] = saveableObjects[i].Id.GetId();
             }
         }
 #endif

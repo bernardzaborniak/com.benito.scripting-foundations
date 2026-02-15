@@ -9,9 +9,9 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
         public string typeName;
         public string assemblyName;
 
-        public int saveableObjectID;
+        public string saveableObjectID;
 
-        public void SetSerializationInfos<T>(int saveableObjectID)
+        public void SetSerializationInfos<T>(string saveableObjectID)
         {
             this.typeName = typeof(T).FullName;
             this.assemblyName = typeof(T).Assembly.GetName().ToString();

@@ -1,17 +1,19 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace Benito.ScriptingFoundations.Saving.SceneObjects
+namespace Benito.ScriptingFoundations.IdSystem
 {
-    public static class SaveableSceneObjectsIdAssigner
+    public static class SceneObjectsIdAssigner
     {
         public static void AssignMissingIdsInCurrentScene()
         {
-            List<SaveableSceneObject> saveableObjects  = new List<SaveableSceneObject>(GameObject.FindObjectsOfType<SaveableSceneObject>(true));
-            HashSet<int> usedIds = new HashSet<int>();
-            foreach (SaveableSceneObject item in saveableObjects)
+            List<IdReference> idObjects = new List<IdReference>(GameObject.FindObjectsByType<IdReference>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+            HashSet<string> usedIds = new HashSet<string>();
+
+            foreach (IdReference item in idObjects)
             {
                 if (item.HasId())
                 {
@@ -22,16 +24,19 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
                     }
                     else
                     {
+                        item.CreateNewId();
                         Debug.LogWarning("Current Scene had duplicate SaveIDs, isssue was fixed, may cause incompatibility of savegames");
+                        continue;
                     }
                 }
-
-                int newID = CreateNewId(usedIds);
-                item.SetId(newID);
-                usedIds.Add(newID);
+                Debug.LogWarning("AssignMissingIdsInCurrentScene, assigned new Id, as item didnt had one");
+                item.CreateNewId();
+                //item.SetId(newID);
+                //usedIds.Add(newID);
             }
         }
 
+        /*
         public static void ReassignAllIdsInCurrentScene()
         {
             List<SaveableSceneObject> saveableObjects = new List<SaveableSceneObject>(GameObject.FindObjectsOfType<SaveableSceneObject>(true));
@@ -55,6 +60,6 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
             }
 
             return id;
-        }
+        }*/
     }
 }

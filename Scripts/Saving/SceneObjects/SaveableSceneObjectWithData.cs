@@ -1,3 +1,4 @@
+using Benito.ScriptingFoundations.IdSystem;
 using UnityEngine;
 
 
@@ -11,12 +12,13 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
     {
         protected T saveData;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             if (saveData == null)
             {
                 saveData = new T();
-                saveData.SetSerializationInfos<T>(saveID);
+
+                saveData.SetSerializationInfos<T>(Id.GetId());
             }
         }
     }

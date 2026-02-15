@@ -2,32 +2,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Benito.ScriptingFoundations.NaughtyAttributes;
+using Benito.ScriptingFoundations.IdSystem;
 
 namespace Benito.ScriptingFoundations.Saving.SceneObjects
 {
+    [RequireComponent(typeof(IdReference))]
+
     public abstract class SaveableSceneObject : MonoBehaviour
     {
-        [ReadOnly]
-        [SerializeField] protected int saveID;
+        private IdReference id;
 
-        public int GetId()
+        public IdReference Id
         {
-            return saveID;
+            get
+            {
+                if (id == null)
+                    id = GetComponent<IdReference>();
+
+                return id;
+            }
+            private set
+            {
+                id = value;
+            }
         }
+
+        [Tooltip("Saves will saved and loaded in the priority order, lower priority first: For example: 0 before 3")]
+        public int Priority = 0;
        
-        /// <summary>
-        /// Should be called by the editor before entering playmode and before build. 
-        /// </summary>
-        public void SetId(int saveID)
-        {
-            this.saveID = saveID;
-        }
-
-        public bool HasId()
-        {
-            return saveID != 0;
-        }
-
         /// <summary>
         /// May also return null in order to optimise, when saving something is only necessary during a certain stage
         /// </summary>
