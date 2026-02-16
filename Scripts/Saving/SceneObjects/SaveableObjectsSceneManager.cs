@@ -99,7 +99,7 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
                 {
                     for (int i = lastStoppedIndex; i < objectsData.Count; i++)
                     {
-                        saveableObjectsIdDictionary[objectsData[i].saveableObjectID].Load(objectsData[i]);
+                        saveableObjectsIdDictionary[objectsData[i].saveableObjectID].LoadCalledByManager(objectsData[i]);
 
                         if (Time.realtimeSinceStartup - startUpdateTime > TimeBudget)
                         {
@@ -144,7 +144,7 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
 
                 for (int i = lastStoppedIndex; i < saveableObjects.Count; i++)
                 {
-                    SaveableSceneObjectData data = saveableObjects[i].Save();
+                    SaveableSceneObjectData data = saveableObjects[i].SaveCalledByManager();
                     if (data != null)
                     {
                         objectsData.Add(data);

@@ -12,14 +12,23 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
     {
         protected T saveData;
 
-        protected virtual void Awake()
-        {
-            if (saveData == null)
-            {
-                saveData = new T();
 
-                saveData.SetSerializationInfos<T>(Id.GetId());
-            }
+        public override void LoadCalledByManager(SaveableSceneObjectData dataToLoad)
+        {
+            saveData = (T)dataToLoad;
+            Load(saveData);
         }
+
+        public override SaveableSceneObjectData SaveCalledByManager()
+        {
+            saveData = new T();
+            saveData.SetSerializationInfos<T>(Id.GetId());
+
+            return Save();
+        }
+
+        public abstract T Save();
+
+        public abstract void Load(T dataToLoad);
     }
 }

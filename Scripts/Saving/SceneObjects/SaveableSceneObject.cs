@@ -33,8 +33,8 @@ namespace Benito.ScriptingFoundations.Saving.SceneObjects
         /// <summary>
         /// May also return null in order to optimise, when saving something is only necessary during a certain stage
         /// </summary>
-        public abstract SaveableSceneObjectData Save();
+        public abstract SaveableSceneObjectData SaveCalledByManager();
 
-        public abstract void Load(SaveableSceneObjectData dataToLoad);
+        public abstract void LoadCalledByManager(SaveableSceneObjectData dataToLoad);
     }
 }

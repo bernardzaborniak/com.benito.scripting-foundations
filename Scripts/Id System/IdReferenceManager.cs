@@ -9,7 +9,7 @@ namespace Benito.ScriptingFoundations.IdSystem
     public class IdReferenceManager : SingletonManagerLocalScene
     {
         // Dictionary of scene objects is flattened to be able to be saved
-        [SerializeField] string[] saveableSceneObjectIds;
+        [SerializeField] string[] ids;
         [SerializeField] IdReference[] idReferenceSceneObjects;
 
         private Dictionary<string, IdReference> runtimeIdLookup;
@@ -20,7 +20,7 @@ namespace Benito.ScriptingFoundations.IdSystem
 
             for (int i = 0; i < idReferenceSceneObjects.Length; i++)
             {
-                runtimeIdLookup.Add(saveableSceneObjectIds[i], idReferenceSceneObjects[i]);
+                runtimeIdLookup.Add(ids[i], idReferenceSceneObjects[i]);
             }
         }
 
@@ -44,6 +44,10 @@ namespace Benito.ScriptingFoundations.IdSystem
             {
                 runtimeIdLookup.Remove(oldId);
             }
+            if (runtimeIdLookup.ContainsKey(newId))
+            {
+                runtimeIdLookup.Remove(newId);
+            }
 
             runtimeIdLookup.Add(newId, reference);
         }
@@ -53,11 +57,11 @@ namespace Benito.ScriptingFoundations.IdSystem
         public void ScanSceneForIdReferenceObjects()
         {
             idReferenceSceneObjects = FindObjectsByType<IdReference>( FindObjectsInactive.Include, FindObjectsSortMode.None);
-            saveableSceneObjectIds = new string[idReferenceSceneObjects.Length];
+            ids = new string[idReferenceSceneObjects.Length];
 
             for (int i = 0; i < idReferenceSceneObjects.Length; i++)
             {
-                saveableSceneObjectIds[i] = idReferenceSceneObjects[i].GetId();
+                ids[i] = idReferenceSceneObjects[i].GetId();
             }
         }
 #endif
