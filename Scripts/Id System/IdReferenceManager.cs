@@ -40,7 +40,7 @@ namespace Benito.ScriptingFoundations.IdSystem
 
         public void OnIdChanged(string oldId, string newId, IdReference reference)
         {
-            if (!runtimeIdLookup.ContainsKey(oldId))
+            if (runtimeIdLookup.ContainsKey(oldId))
             {
                 runtimeIdLookup.Remove(oldId);
             }
