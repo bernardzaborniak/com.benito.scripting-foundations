@@ -45,7 +45,8 @@ namespace Benito.ScriptingFoundations.IdSystem
         {
             string oldId = id;
             id = newId;
-            LocalSceneManagers.Get<IdReferenceManager>().OnIdChanged(oldId, newId,this);
+
+            if (Application.isPlaying) LocalSceneManagers.Get<IdReferenceManager>().OnIdChanged(oldId, newId, this);           
         }
     }
 }
