@@ -8,9 +8,9 @@ namespace Benito.ScriptingFoundations.IdSystem
 {
     public class IdReferenceManager : SingletonManagerLocalScene
     {
-        // Dictionary is flattened to be able to be saved
-        [SerializeField] string[] saveableObjectIds;
-        [SerializeField] IdReference[] idReferenceObjects;
+        // Dictionary of scene objects is flattened to be able to be saved
+        [SerializeField] string[] saveableSceneObjectIds;
+        [SerializeField] IdReference[] idReferenceSceneObjects;
 
         private Dictionary<string, IdReference> runtimeIdLookup;
 
@@ -18,9 +18,9 @@ namespace Benito.ScriptingFoundations.IdSystem
         {
             runtimeIdLookup = new Dictionary<string, IdReference>();
 
-            for (int i = 0; i < idReferenceObjects.Length; i++)
+            for (int i = 0; i < idReferenceSceneObjects.Length; i++)
             {
-                runtimeIdLookup.Add(saveableObjectIds[i], idReferenceObjects[i]);
+                runtimeIdLookup.Add(saveableSceneObjectIds[i], idReferenceSceneObjects[i]);
             }
         }
 
@@ -38,16 +38,26 @@ namespace Benito.ScriptingFoundations.IdSystem
             return reference;
         }
 
+        public void OnIdChanged(string oldId, string newId, IdReference reference)
+        {
+            if (!runtimeIdLookup.ContainsKey(oldId))
+            {
+                runtimeIdLookup.Remove(oldId);
+            }
+
+            runtimeIdLookup.Add(newId, reference);
+        }
+
 #if UNITY_EDITOR
         [Button("ScanSceneForIdReferenceObjects")]
         public void ScanSceneForIdReferenceObjects()
         {
-            idReferenceObjects = FindObjectsByType<IdReference>( FindObjectsInactive.Include, FindObjectsSortMode.None);
-            saveableObjectIds = new string[idReferenceObjects.Length];
+            idReferenceSceneObjects = FindObjectsByType<IdReference>( FindObjectsInactive.Include, FindObjectsSortMode.None);
+            saveableSceneObjectIds = new string[idReferenceSceneObjects.Length];
 
-            for (int i = 0; i < idReferenceObjects.Length; i++)
+            for (int i = 0; i < idReferenceSceneObjects.Length; i++)
             {
-                saveableObjectIds[i] = idReferenceObjects[i].GetId();
+                saveableSceneObjectIds[i] = idReferenceSceneObjects[i].GetId();
             }
         }
 #endif

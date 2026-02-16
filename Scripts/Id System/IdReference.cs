@@ -1,4 +1,5 @@
 using System;
+using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.NaughtyAttributes;
 using UnityEngine;
 
@@ -12,6 +13,9 @@ namespace Benito.ScriptingFoundations.IdSystem
         [ReadOnly]
         [SerializeField] protected string id;
 
+        [Tooltip("Set true for stuff like prefabs etc, that wont be set inside scene")]
+        [SerializeField] bool reacreateIdOnAwake = false;
+
         public string GetId() { return id; }
 
         /// <summary>
@@ -19,13 +23,29 @@ namespace Benito.ScriptingFoundations.IdSystem
         /// </summary>
         public void CreateNewId()
         {
-            this.id = Guid.NewGuid().ToString();
+            SetId(Guid.NewGuid().ToString());
 
         }
 
         public bool HasId()
         {
             return !String.IsNullOrEmpty(id);
+        }
+
+        public void Awake()
+        {
+            if (reacreateIdOnAwake)
+            {
+                CreateNewId();
+            }
+        }
+
+        // useful
+        public void SetId(string newId)
+        {
+            string oldId = id;
+            id = newId;
+            LocalSceneManagers.Get<IdReferenceManager>().OnIdChanged(oldId, newId,this);
         }
     }
 }
