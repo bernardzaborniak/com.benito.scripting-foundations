@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -153,7 +153,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         #region Scene Saves
 
-      
+
 
         #region Create Scene Save
 
@@ -349,7 +349,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         }
 
-        T ConvertJsonStringToSceneSaveInfo<T>(string filePathInSavesFolder, string infoFileContent) where T: SceneSaveInfo
+        T ConvertJsonStringToSceneSaveInfo<T>(string filePathInSavesFolder, string infoFileContent) where T : SceneSaveInfo
         {
             T readInfo = JsonUtility.FromJson<T>(infoFileContent);
 
@@ -501,7 +501,7 @@ namespace Benito.ScriptingFoundations.Saving
 
         #region Delete Scene Saves
 
-        public void DeleteSceneSave<T>(string saveFilePathInSavesFolder) where T: SceneSaveInfo, new()
+        public void DeleteSceneSave<T>(string saveFilePathInSavesFolder) where T : SceneSaveInfo, new()
         {
             Debug.Log($"[GlobalSavesManager] Start Deleting Save File");
             stopwatch.Start();
@@ -509,15 +509,45 @@ namespace Benito.ScriptingFoundations.Saving
             string basePath = Path.Combine(SavingSettings.GetOrCreateSettings().GetSavesFolderPath(), saveFilePathInSavesFolder);
 
             T info = GetSceneSaveInfoAtPath<T>(basePath);
-            OnDeletedSceneSaveFile?.Invoke(info);
+
 
             if (File.Exists(basePath + ".bsave")) File.Delete(basePath + ".bsave");
             if (File.Exists(basePath + ".json")) File.Delete(basePath + ".json");
             if (File.Exists(basePath + ".png")) File.Delete(basePath + ".png");
 
+            OnDeletedSceneSaveFile?.Invoke(info);
+
             stopwatch.Stop();
             Debug.Log($"[GlobalSavesManager] Finished Deleting Save File, took {(float)stopwatch.Elapsed.TotalSeconds} seconds");
             stopwatch.Reset();
+        }
+
+        public async Task DeleteSceneSaveAsync<T>(string saveFilePathInSavesFolder) where T : SceneSaveInfo, new()
+        {
+            Debug.Log("[GlobalSavesManager] Start Deleting Save File");
+            int startFrame = Time.frameCount;
+            Stopwatch asyncStopwatch = new Stopwatch();
+            asyncStopwatch.Start();
+
+            string basePath = Path.Combine(
+                SavingSettings.GetOrCreateSettings().GetSavesFolderPath(),
+                saveFilePathInSavesFolder);
+
+            T info = GetSceneSaveInfoAtPath<T>(basePath);
+
+            // Run file deletion on background thread
+            await Task.Run(() =>
+            {
+                File.Delete(basePath + ".bsave");
+                File.Delete(basePath + ".json");
+                File.Delete(basePath + ".png");
+            });
+
+            OnDeletedSceneSaveFile?.Invoke(info);
+
+            asyncStopwatch.Stop();
+            Debug.Log($"[GlobalSavesManager] Finished Deleting Save File Async, took {(float)asyncStopwatch.Elapsed.TotalSeconds} seconds and {Time.frameCount-startFrame} frames");
+            asyncStopwatch.Reset();
         }
         #endregion
 
@@ -539,7 +569,7 @@ namespace Benito.ScriptingFoundations.Saving
             Debug.Log($"[GlobalSavesManager] Finished creating Progress Save, took {(float)stopwatch.Elapsed.TotalSeconds} seconds");
             stopwatch.Reset();
 
-            OnCreatingProgressSaveFileFinished?.Invoke();         
+            OnCreatingProgressSaveFileFinished?.Invoke();
         }
 
         public T ReadProgressSave<T>(string saveFilePathInsideSavesFolder) where T : ISaveableProgress
