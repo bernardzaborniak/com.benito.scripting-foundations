@@ -39,12 +39,12 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             methodListeners = InterfaceUtilities.FindInterfacesInScene<ISceneLoadHooksListener>(gameObject.scene);
             methodListenersOnly3 = InterfaceUtilities.FindInterfacesInScene<ISceneLoadHooksListenerOnly3>(gameObject.scene);
             stopwatch.Stop();
-            Debug.Log($"[Scene Load Hooks] Scanning Scene for objects implementing the ISceneLoadHooksListener interface took: {stopwatch.ElapsedMilliseconds} ms");
+            Debug.Log($"[SceneLoadHooks] Scanning Scene for objects implementing the ISceneLoadHooksListener interface took: {stopwatch.ElapsedMilliseconds} ms");
         }
 
         public void h1_OnFinishedLoadTargetScene()
         {
-            if(debugHooks) Debug.Log("[Scene Load Hooks] h1_OnFinishedLoadTargetScene");
+            if(debugHooks) Debug.Log("[SceneLoadHooks] h1_OnFinishedLoadTargetScene");
             for (int i = 0; i < methodListeners.Count; i++) 
             {
                 methodListeners[i].Start_h1_OnFinishedLoadTargetScene();
@@ -53,7 +53,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         }
         public void h2_OnFinishedLoadSceneLoadSaveAndInitialize()
         {
-            if (debugHooks) Debug.Log("[Scene Load Hooks] h2_OnFinishedLoadSceneLoadSaveAndInitialize");
+            if (debugHooks) Debug.Log("[SceneLoadHooks] h2_OnFinishedLoadSceneLoadSaveAndInitialize");
             for (int i = 0; i < methodListeners.Count; i++)
             {
                 methodListeners[i].Start_h2_OnFinishedLoadSceneLoadSaveAndInitialize();
@@ -61,7 +61,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         }
         public void h3_OnFinishedStillPlayingLastFadeIn()
         {
-            if (debugHooks) Debug.Log("[Scene Load Hooks] h3_OnFinishedStillPlayingLastFadeIn");
+            if (debugHooks) Debug.Log("[SceneLoadHooks] h3_OnFinishedStillPlayingLastFadeIn");
             for (int i = 0; i < methodListeners.Count; i++)
             {
                 methodListeners[i].Start_h3_OnFinishedStillPlayingLastFadeIn();
@@ -74,7 +74,7 @@ namespace Benito.ScriptingFoundations.BSceneManagement
         }
         public void h4_OnFinished()
         {
-            if (debugHooks) Debug.Log("[Scene Load Hooks] h4_OnFinished");
+            if (debugHooks) Debug.Log("[SceneLoadHooks] h4_OnFinished");
             for (int i = 0; i < methodListeners.Count; i++)
             {
                 methodListeners[i].Start_h4_OnFinished();
