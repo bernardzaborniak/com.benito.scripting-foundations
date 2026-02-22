@@ -5,7 +5,7 @@ using UnityEditor;
 using Benito.ScriptingFoundations.Managers;
 using UnityEngine.SceneManagement;
 
-namespace Benito.ScriptingFoundations.Tool.Editor
+namespace Benito.ScriptingFoundations.Tools
 {
     public class CreateDefaultSceneHierarchy
     {

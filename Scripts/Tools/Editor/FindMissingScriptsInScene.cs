@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace Benito.ScriptingFoundations.Tools.Editor
+namespace Benito.ScriptingFoundations.Tools
 {
     public class FindMissingScriptsInScene : EditorWindow
     {

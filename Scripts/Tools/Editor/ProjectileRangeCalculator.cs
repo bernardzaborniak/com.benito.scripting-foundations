@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Benito.ScriptingFoundations.Tools.Editor
+namespace Benito.ScriptingFoundations.Tools
 {
     public class ProjectileRangeCalculator : EditorWindow
     {
