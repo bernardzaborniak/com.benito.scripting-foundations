@@ -29,8 +29,12 @@ namespace Benito.ScriptingFoundations.IdSystem
                         continue;
                     }
                 }
-                Debug.LogWarning("AssignMissingIdsInCurrentScene, assigned new Id, as item didnt had one");
-                item.CreateNewId();
+                if (!item.reacreateIdOnAwake)
+                {
+                    Debug.LogWarning("AssignMissingIdsInCurrentScene, assigned new Id, as item didnt had one");
+                    item.CreateNewId();
+                }
+               
             }
         }
     }

@@ -14,7 +14,7 @@ namespace Benito.ScriptingFoundations.IdSystem
         [SerializeField] protected string id;
 
         [Tooltip("Set true for stuff like prefabs etc, that wont be set inside scene")]
-        [SerializeField] bool reacreateIdOnAwake = false;
+        public bool reacreateIdOnAwake = false;
 
         public string GetId() { return id; }
 
