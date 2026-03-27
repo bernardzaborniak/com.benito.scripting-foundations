@@ -13,7 +13,7 @@ namespace Benito.ScriptingFoundations.IdSystem.Editor
             {
                 if (path == SceneManager.GetActiveScene().path)
                 {
-                    Debug.Log("OnSaveSceneAssignsIdsHook save scene ");
+                    Debug.Log("[OnSaveSceneAssignsIdsHook] save scene ");
 
                     //Debug.Log("AssignMissingIdsInCurrentScene on scene Save");
                     SceneObjectsIdAssigner.AssignMissingIdsInCurrentScene();

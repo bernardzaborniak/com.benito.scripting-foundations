@@ -20,6 +20,8 @@ namespace Benito.ScriptingFoundations.IdSystem
 
             for (int i = 0; i < idReferenceSceneObjects.Length; i++)
             {
+                // temp
+                if (runtimeIdLookup.ContainsKey(ids[i])) Debug.Log($"runtime lookup already contains key :{ids[i]}: for this object: ", idReferenceSceneObjects[i].gameObject);
                 runtimeIdLookup.Add(ids[i], idReferenceSceneObjects[i]);
             }
         }
@@ -40,6 +42,7 @@ namespace Benito.ScriptingFoundations.IdSystem
 
         public void OnIdChanged(string oldId, string newId, IdReference reference)
         {
+            // this might cause bugs if we delete used ones :0, but so far works :)
             if (runtimeIdLookup.ContainsKey(oldId))
             {
                 runtimeIdLookup.Remove(oldId);
@@ -54,10 +57,25 @@ namespace Benito.ScriptingFoundations.IdSystem
 
 #if UNITY_EDITOR
         [Button("ScanSceneForIdReferenceObjects")]
+        /// Is also called automatically by on scene save hook
         public void ScanSceneForIdReferenceObjects()
         {
-            idReferenceSceneObjects = FindObjectsByType<IdReference>( FindObjectsInactive.Include, FindObjectsSortMode.None);
+            List<IdReference> potentialReferences = new List<IdReference>(FindObjectsByType<IdReference>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+
+            // Remove ids which are set to recreate on awake, they will add themselves later on
+            HashSet<IdReference> idsWithRecreateOnAwake = new HashSet<IdReference>();
+            for (int i = 0; i < potentialReferences.Count; i++)
+            {
+                if (potentialReferences[i].reacreateIdOnAwake) idsWithRecreateOnAwake.Add(potentialReferences[i]);
+            }
+            foreach (IdReference toRemove in idsWithRecreateOnAwake)
+            {
+                potentialReferences.Remove(toRemove);
+            }
+
+            idReferenceSceneObjects = potentialReferences.ToArray();
             ids = new string[idReferenceSceneObjects.Length];
+            Debug.Log($"[IdSceneManager] ScanSceneForIdReferenceObjects, found {idReferenceSceneObjects.Length}");
 
             for (int i = 0; i < idReferenceSceneObjects.Length; i++)
             {

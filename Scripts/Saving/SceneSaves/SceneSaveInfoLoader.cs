@@ -20,7 +20,7 @@ namespace Benito.ScriptingFoundations.Saving
         {
             GlobalSavesManager savesManager = GlobalManagers.Get<GlobalSavesManager>();
             allSceneSaveInfos = savesManager.GetSceneSaveInfosInsideFolderAndSubFolders<T>("");
-            Debug.Log($"SceneSaveInfoLoader Initialize: allSceneSaveInfos.Count: {allSceneSaveInfos.Count} ");
+            Debug.Log($"[SceneSaveInfoLoader] Initialize: allSceneSaveInfos.Count: {allSceneSaveInfos.Count} ");
 
             savesManager.OnCreatingSceneSaveFileFinished += UpdateInfosOnCreatedSave;
             savesManager.OnDeletedSceneSaveFile += UpdateInfosOnDeletedSave;

@@ -18,26 +18,20 @@ namespace Benito.ScriptingFoundations.IdSystem
 
         public string GetId() { return id; }
 
+
+        public bool HasId() { return !String.IsNullOrEmpty(id); }
+
+        public void Awake()
+        {
+            if (reacreateIdOnAwake) CreateNewId();
+        }
+
         /// <summary>
         /// Should be called by the editor before entering playmode and before build. 
         /// </summary>
         public void CreateNewId()
         {
             SetId(Guid.NewGuid().ToString());
-
-        }
-
-        public bool HasId()
-        {
-            return !String.IsNullOrEmpty(id);
-        }
-
-        public void Awake()
-        {
-            if (reacreateIdOnAwake)
-            {
-                CreateNewId();
-            }
         }
 
         // useful
@@ -46,7 +40,7 @@ namespace Benito.ScriptingFoundations.IdSystem
             string oldId = id;
             id = newId;
 
-            if (Application.isPlaying) LocalSceneManagers.Get<IdReferenceManager>().OnIdChanged(oldId, newId, this);           
+            if (Application.isPlaying) LocalSceneManagers.Get<IdReferenceManager>().OnIdChanged(oldId, newId, this);
         }
     }
 }
