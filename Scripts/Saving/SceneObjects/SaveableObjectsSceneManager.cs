@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Benito.ScriptingFoundations.Managers;
-using Benito.ScriptingFoundations.NaughtyAttributes;
 using Benito.ScriptingFoundations.Optimisation;
 using System;
 using Debug = UnityEngine.Debug;
+using EditorAttributes;
 
 
 namespace Benito.ScriptingFoundations.Saving.SceneObjects

@@ -1,11 +1,11 @@
-using Benito.ScriptingFoundations.NaughtyAttributes;
+using EditorAttributes;
 using UnityEngine;
 
 namespace Benito.ScriptingFoundations.States
 {
     public class StateMachineAllUpdates<T> : IStateMachine<T> where T : class, IStateAllUpdates
     {
-        [ReadOnly][SerializeField] string currentStateNameDebug;
+        [SerializeField, ReadOnly] string currentStateNameDebug;
         public bool printChangeToConsole = true;
         public string stateMachineDebugName = "StateMachine"; // adjust for debug statement
 

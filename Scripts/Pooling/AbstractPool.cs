@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using Benito.ScriptingFoundations.NaughtyAttributes;
+using EditorAttributes;
 
 namespace Benito.ScriptingFoundations.Pools
 {
@@ -23,9 +23,9 @@ namespace Benito.ScriptingFoundations.Pools
         [SerializeField] protected float reduceSizeThreshold = 0.7f;
         //[Space]
         //Readonly
-        [NaughtyAttributes.ReadOnly][SerializeField][AllowNesting]
+        [ReadOnly][SerializeField]//[AllowNesting]
         protected int currentSize;
-        [NaughtyAttributes.ReadOnly][SerializeField][AllowNesting]
+        [ReadOnly][SerializeField]//[AllowNesting]
         protected float percentageUsed;
 
         protected Queue<T> unusedObjectQueue;

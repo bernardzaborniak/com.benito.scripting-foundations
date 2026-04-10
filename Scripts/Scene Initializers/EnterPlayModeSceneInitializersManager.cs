@@ -1,8 +1,7 @@
-using Benito.ScriptingFoundations.Managers;
-using Benito.ScriptingFoundations.NaughtyAttributes;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using EditorAttributes;
 
 namespace Benito.ScriptingFoundations.SceneInitializers
 {

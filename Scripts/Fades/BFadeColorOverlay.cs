@@ -1,4 +1,3 @@
-using Benito.ScriptingFoundations.NaughtyAttributes;
 using UnityEngine;
 using UnityEngine.UI;
 

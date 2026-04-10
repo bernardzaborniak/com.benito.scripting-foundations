@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Benito.ScriptingFoundations.Utilities;
-using Benito.ScriptingFoundations.NaughtyAttributes;
 using Benito.ScriptingFoundations.Utilities.Guns;
 
 namespace Benito.ScriptingFoundations.Utilities.Guns

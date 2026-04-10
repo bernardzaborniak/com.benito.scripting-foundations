@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Benito.ScriptingFoundations.Managers;
 using Benito.ScriptingFoundations.Saving;
-using Benito.ScriptingFoundations.NaughtyAttributes;
+using EditorAttributes;
 using UnityEngine.SceneManagement;
 using System;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
@@ -27,10 +27,10 @@ namespace Benito.ScriptingFoundations.BSceneManagement
             IdleWithPreloadedScene
         }
 
-        [SerializeField][ReadOnly] State state;
+        [SerializeField,ReadOnly] State state;
 
         // Loading Progress
-        [SerializeField][ReadOnly][Label("Preloaded Scene Name")] string preloadedScene;
+        [SerializeField,ReadOnly] string preloadedScene; //,Label("Preloaded Scene Name")
         AsyncOperation preloadSceneOperation;
 
         public float PreloadingSceneProgress { get => preloadSceneOperation != null ? preloadSceneOperation.progress : -1; }

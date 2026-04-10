@@ -1,6 +1,6 @@
 using System;
 using Benito.ScriptingFoundations.Managers;
-using Benito.ScriptingFoundations.NaughtyAttributes;
+using EditorAttributes;
 using UnityEngine;
 
 namespace Benito.ScriptingFoundations.IdSystem
@@ -10,8 +10,7 @@ namespace Benito.ScriptingFoundations.IdSystem
     /// </summary>
     public class IdReference : MonoBehaviour
     {
-        [ReadOnly]
-        [SerializeField] protected string id;
+        [SerializeField, ReadOnly] protected string id;
 
         [Tooltip("Set true for stuff like prefabs etc, that wont be set inside scene")]
         public bool reacreateIdOnAwake = false;

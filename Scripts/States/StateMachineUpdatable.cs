@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using Benito.ScriptingFoundations.NaughtyAttributes;
+using EditorAttributes;
 
 namespace Benito.ScriptingFoundations.States
 {
     public class StateMachineUpdatable<T> : IStateMachine<T> where T : class, IStateUpdatable
     {
-        [ReadOnly][SerializeField] string currentStateNameDebug;
+        [SerializeField, ReadOnly] string currentStateNameDebug;
         public bool printChangeToConsole = true;
         public string stateMachineDebugName = "StateMachine"; // adjust for debug statement
 

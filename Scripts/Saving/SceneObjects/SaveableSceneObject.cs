@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Benito.ScriptingFoundations.NaughtyAttributes;
 using Benito.ScriptingFoundations.IdSystem;
 
 namespace Benito.ScriptingFoundations.Saving.SceneObjects
