@@ -44,7 +44,7 @@ namespace Benito.ScriptingFoundations.CameraHelpers
                 yaw = Mathf.Lerp(yaw, target.yaw, rotationLerpPct);
                 pitch = Mathf.Lerp(pitch, target.pitch, rotationLerpPct);
                 roll = Mathf.Lerp(roll, target.roll, rotationLerpPct);
-                
+
                 x = Mathf.Lerp(x, target.x, positionLerpPct);
                 y = Mathf.Lerp(y, target.y, positionLerpPct);
                 z = Mathf.Lerp(z, target.z, positionLerpPct);
@@ -56,7 +56,7 @@ namespace Benito.ScriptingFoundations.CameraHelpers
                 t.position = new Vector3(x, y, z);
             }
         }
-        
+
         CameraState m_TargetCameraState = new CameraState();
         CameraState m_InterpolatingCameraState = new CameraState();
 
@@ -76,6 +76,9 @@ namespace Benito.ScriptingFoundations.CameraHelpers
 
         [Tooltip("Whether or not to invert our Y axis for mouse input to rotation.")]
         public bool invertY = false;
+
+        [Tooltip("Mouse button that must be held to rotate the camera.")]
+        public int rotationMouseButton = 1; // Right Mouse Button by default
 
         void OnEnable()
         {
@@ -112,7 +115,7 @@ namespace Benito.ScriptingFoundations.CameraHelpers
             }
             return direction;
         }
-        
+
         void Update()
         {
             Vector3 translation = Vector3.zero;
@@ -129,29 +132,29 @@ namespace Benito.ScriptingFoundations.CameraHelpers
 				#endif
             }*/
             // Hide and lock cursor when right mouse button pressed
-            if (Input.GetMouseButtonDown(1))
+            if (Input.GetMouseButtonDown(rotationMouseButton))
             {
                 Cursor.lockState = CursorLockMode.Locked;
             }
 
             // Unlock and show cursor when right mouse button released
-            if (Input.GetMouseButtonUp(1))
+            if (Input.GetMouseButtonUp(rotationMouseButton))
             {
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.None;
             }
 
             // Rotation
-            if (Input.GetMouseButton(1))
+            if (Input.GetMouseButton(rotationMouseButton))
             {
                 var mouseMovement = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y") * (invertY ? 1 : -1));
-                
+
                 var mouseSensitivityFactor = mouseSensitivityCurve.Evaluate(mouseMovement.magnitude);
 
                 m_TargetCameraState.yaw += mouseMovement.x * mouseSensitivityFactor;
                 m_TargetCameraState.pitch += mouseMovement.y * mouseSensitivityFactor;
             }
-            
+
             // Translation
             translation = GetInputTranslationDirection() * Time.deltaTime;
 
