@@ -11,5 +11,12 @@
   "author": {
     "name": "Benito"
   },
-  "description": "Collection of useful Scripts & Utilities"
+  "description": "Collection of useful Scripts & Utilities",
+  "samples":[
+    {
+      "displayName": "Basic Samples",
+      "description": "Shows the basic working principle of every component",
+      "path": "Samples/BasicSamples"   
+    }
+  ]
 }
