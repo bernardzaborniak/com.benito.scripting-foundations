@@ -19,7 +19,7 @@ namespace Benito.ScriptingFoundations.HierarchyIcons
 
         static HierarchyIconDisplay()
         {
-            EditorApplication.hierarchyWindowItemOnGUI += OnHierarchyWindowItemOnGUI;
+            EditorApplication.hierarchyWindowItemByEntityIdOnGUI += OnHierarchyWindowItemByEntityIdOnGUI;
             EditorApplication.update += OnEditorUpdate;
         }
 
@@ -33,9 +33,9 @@ namespace Benito.ScriptingFoundations.HierarchyIcons
 
         }
 
-        private static void OnHierarchyWindowItemOnGUI(int instanceId, Rect selectionRect)
+        private static void OnHierarchyWindowItemByEntityIdOnGUI(EntityId entityId, Rect selectionRect)
         {
-            GameObject obj = EditorUtility.InstanceIDToObject(instanceId) as GameObject; // Get the object of the icon
+            GameObject obj = EditorUtility.EntityIdToObject(entityId) as GameObject; // Get the object of the icon
             if (obj == null)
                 return;
 
@@ -62,7 +62,7 @@ namespace Benito.ScriptingFoundations.HierarchyIcons
                 return;
 
             // Overdraw the original rectangle, this is quite difficult
-            bool isSelected = Selection.instanceIDs.Contains(instanceId);
+            bool isSelected = Selection.entityIds.Contains(entityId);
             bool isHovering = selectionRect.Contains(Event.current.mousePosition);
 
             Color color = UnityEditorBackgroundColor.Get(isSelected, isHovering, _hierarchyHasFocus);
