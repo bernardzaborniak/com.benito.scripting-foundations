@@ -1,6 +1,6 @@
 {
   "name": "com.benito.scripting-foundations",
-  "version": "2.3.5",
+  "version": "2.3.6",
   "displayName": "Benitos Scripting Foundations",
   "keywords": [
     "assets",
@@ -12,11 +12,14 @@
     "name": "Benito"
   },
   "description": "Collection of useful Scripts & Utilities",
-  "samples":[
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  },
+  "samples": [
     {
       "displayName": "Basic Samples",
       "description": "Shows the basic working principle of every component",
-      "path": "Samples/BasicSamples"   
+      "path": "Samples/BasicSamples"
     }
   ]
 }
